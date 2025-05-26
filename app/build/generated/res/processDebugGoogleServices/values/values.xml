@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">126830894242</string>
+    <string name="google_api_key" translatable="false">AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I</string>
+    <string name="google_app_id" translatable="false">1:126830894242:android:d393abd1bd0d43ab774bfb</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I</string>
+    <string name="google_storage_bucket" translatable="false">simplemessenger-c0a47.firebasestorage.app</string>
+    <string name="project_id" translatable="false">simplemessenger-c0a47</string>
+</resources>

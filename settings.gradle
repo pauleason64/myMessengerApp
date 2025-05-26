@@ -1,0 +1,30 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+    
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == 'com.android') {
+                useModule("com.android.tools.build:gradle:${requested.version}")
+            }
+        }
+    }
+}
+
+dependencyResolutionManagement {
+    // Use settings repositories for dependency resolution
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    
+    // Configure repositories in settings.gradle only
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+rootProject.name = "SimpleMessenger"
+include ':app'

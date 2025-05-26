@@ -1,0 +1,70 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['email', 'name'])",
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "emailVerified": {
+          ".validate": "newData.isBoolean()"
+        },
+        "lastLogin": {
+          ".validate": "newData.isNumber()"
+        },
+        "profileImageUrl": {
+          ".validate": "newData.isString() && newData.val().matches(/.+/)"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "messages": {
+      "$messageId": {
+        ".read": "auth != null && (auth.uid === data.child('senderId').val() || auth.uid === data.child('recipientId').val())",
+        ".write": "auth != null && (auth.uid === data.child('senderId').val() || auth.uid === newData.child('recipientId').val())",
+        ".validate": "newData.hasChildren(['senderId', 'recipientId', 'message', 'timestamp'])",
+        "senderId": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "recipientId": {
+          ".validate": "newData.isString()"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "read": {
+          ".validate": "newData.isBoolean()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "user-messages": {
+      "$uid": {
+        "sent": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$messageId": {
+            ".write": "auth != null && auth.uid === $uid && newData.isBoolean()"
+          }
+        },
+        "received": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$messageId": {
+            ".write": "auth != null && newData.parent().parent().parent().parent().child('messages').child($messageId).child('recipientId').val() === $uid && newData.isBoolean()"
+          }
+        }
+      }
+    }
+  }
+}

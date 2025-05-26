@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="@string/pref_header_notifications">
+        <SwitchPreferenceCompat
+            app:key="notifications_new_message"
+            app:title="New message notifications"
+            app:defaultValue="true" />
+        <SwitchPreferenceCompat
+            app:key="notifications_message_preview"
+            app:title="Show message preview"
+            app:defaultValue="true" />
+        <ListPreference
+            app:key="notification_sound"
+            app:title="Notification sound"
+            app:entries="@array/notification_sound_titles"
+            app:entryValues="@array/notification_sound_values"
+            app:defaultValue="default"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Account">
+        <Preference
+            app:key="account_email"
+            app:title="Email"
+            app:selectable="false" />
+        <Preference
+            app:key="account_password"
+            app:title="Change password" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Display">
+        <ListPreference
+            app:key="theme"
+            app:title="Theme"
+            app:entries="@array/theme_titles"
+            app:entryValues="@array/theme_values"
+            app:defaultValue="system"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="About">
+        <Preference
+            app:key="version"
+            app:title="Version"
+            app:summary="1.0.0"
+            app:selectable="false" />
+        <Preference
+            app:key="privacy_policy"
+            app:title="Privacy Policy" />
+        <Preference
+            app:key="terms_of_service"
+            app:title="Terms of Service" />
+    </PreferenceCategory>
+
+    <PreferenceCategory>
+        <Preference
+            app:key="sign_out"
+            app:title="Sign out"
+            app:icon="@drawable/ic_logout"
+            app:iconTint="?colorError"
+            app:iconSpaceReserved="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

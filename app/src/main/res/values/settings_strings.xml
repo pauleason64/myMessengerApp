@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings Activity -->
+    <string name="title_activity_settings">Settings</string>
+    
+    <!-- Notification Preferences -->
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+    <string name="pref_title_show_message_preview">Show message preview</string>
+    <string name="pref_title_ringtone">Notification sound</string>
+    <string name="notifications_new_message_ringtone_default">Default</string>
+    <string name="notifications_new_message_vibrate">Vibrate</string>
+    <string name="notifications_new_message_vibrate_default">true</string>
+    
+    <!-- Account Preferences -->
+    <string name="pref_title_display_email">Email</string>
+    
+    <!-- Display Preferences -->
+    <string name="pref_title_theme">Theme</string>
+    <string-array name="theme_titles">
+        <item>@string/theme_light</item>
+        <item>@string/theme_dark</item>
+        <item>@string/theme_system</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+    
+    <!-- About Preferences -->
+    <string name="pref_title_version">Version</string>
+    <string name="pref_title_sign_out">Sign out</string>
+    
+    <!-- Notification Sounds -->
+    <string-array name="notification_sound_titles">
+        <item>Default</item>
+        <item>Chime</item>
+        <item>Ding</item>
+        <item>Note</item>
+        <item>Popcorn</item>
+    </string-array>
+    <string-array name="notification_sound_values">
+        <item>default</item>
+        <item>chime</item>
+        <item>ding</item>
+        <item>note</item>
+        <item>popcorn</item>
+    </string-array>
+    
+    <!-- Settings Dialogs -->
+    <string name="sign_out_dialog_title">Sign out?</string>
+    <string name="sign_out_dialog_message">Are you sure you want to sign out?</string>
+    <string name="change_password_dialog_message">Enter your current and new password</string>
+    <string name="current_password">Current password</string>
+    <string name="new_password">New password</string>
+    <string name="confirm_password">Confirm new password</string>
+    <string name="password_changed">Password changed successfully</string>
+</resources>

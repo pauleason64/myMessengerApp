@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "126830894242",
+    "project_id": "simplemessenger-c0a47",
+    "storage_bucket": "simplemessenger-c0a47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126830894242:android:d393abd1bd0d43ab774bfb",
+        "android_client_info": {
+          "package_name": "com.example.simplemessenger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
