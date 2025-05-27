@@ -3,10 +3,13 @@ package com.example.simplemessenger.ui.messaging;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -15,8 +18,11 @@ import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityComposeMessageBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +32,6 @@ public class ComposeMessageActivity extends AppCompatActivity {
     private ActivityComposeMessageBinding binding;
     private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
-    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +41,6 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
         // Initialize Firebase and DatabaseHelper
         mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance().getReference();
         databaseHelper = DatabaseHelper.getInstance();
 
         // Set up the toolbar
@@ -79,12 +83,18 @@ public class ComposeMessageActivity extends AppCompatActivity {
     }
 
     private void sendMessage() {
-        String recipient = binding.inputRecipient.getText().toString().trim();
+        Log.d("SendMessage", "Starting sendMessage");
+        Log.d("SendMessage", "Current user: " + (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "null"));
+        
+        String recipientEmail = binding.inputRecipient.getText().toString().trim();
         String subject = binding.inputSubject.getText().toString().trim();
         String messageText = binding.inputMessage.getText().toString().trim();
+        
+        Log.d("SendMessage", "Recipient email: " + recipientEmail);
+        Log.d("SendMessage", "Subject: " + subject);
 
         // Validate inputs
-        if (TextUtils.isEmpty(recipient)) {
+        if (TextUtils.isEmpty(recipientEmail)) {
             binding.inputRecipient.setError(getString(R.string.error_field_required));
             binding.inputRecipient.requestFocus();
             return;
@@ -106,55 +116,123 @@ public class ComposeMessageActivity extends AppCompatActivity {
             return;
         }
 
-        // Create message object
-        String messageId = database.child("messages").push().getKey();
-        if (messageId == null) {
-            Toast.makeText(this, R.string.error_creating_message, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Show loading state
+        showLoading(true);
 
-        long timestamp = System.currentTimeMillis();
+        // First, look up the recipient's UID by email
+        DatabaseReference usersRef = databaseHelper.getDatabaseReference().child("users");
+        Log.d("SendMessage", "Querying users at: " + usersRef.toString());
         
-        // Create message map
-        Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("id", messageId);
-        messageMap.put("senderId", currentUserId);
-        messageMap.put("senderEmail", currentUserEmail);
-        messageMap.put("recipientEmail", recipient);
-        messageMap.put("subject", subject);
-        messageMap.put("message", messageText);
-        messageMap.put("timestamp", timestamp);
-        messageMap.put("read", false);
-        messageMap.put("hasReminder", binding.checkboxSetReminder.isChecked());
-        messageMap.put("archived", false);
-        
-        // If reminder is set, add reminder time (for future implementation)
-        if (binding.checkboxSetReminder.isChecked()) {
-            // TODO: Set reminder time
-            // messageMap.put("reminderTime", reminderTime);
-        }
+        usersRef.orderByChild("email")
+                .equalTo(recipientEmail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Log.d("SendMessage", "onDataChange, exists: " + dataSnapshot.exists());
+                        if (!dataSnapshot.exists()) {
+                            // No user found with that email
+                            showLoading(false);
+                            binding.inputRecipient.setError("No user found with this email");
+                            Log.d("SendMessage", "No user found with email: " + recipientEmail);
+                            return;
+                        }
 
-        // Create updates map for atomic updates
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("/messages/" + messageId, messageMap);
-        
-        // Add to user's sent messages
-        updates.put("/user-messages/" + currentUserId + "/" + messageId + "/id", messageId);
-        updates.put("/user-messages/" + currentUserId + "/" + messageId + "/timestamp", timestamp);
-        updates.put("/user-messages/" + currentUserId + "/" + messageId + "/archived", false);
-        
-        // Execute updates
-        database.updateChildren(updates)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(ComposeMessageActivity.this,
-                            R.string.message_sent, Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ComposeMessageActivity.this,
-                            e != null ? e.getMessage() : getString(R.string.error_sending_message),
-                            Toast.LENGTH_SHORT).show();
+                        // Get the first matching user (should be only one)
+                        DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
+                        String recipientId = userSnapshot.getKey();
+                        
+                        if (recipientId == null) {
+                            handleError("Invalid recipient");
+                            return;
+                        }
+
+                        // Create message ID
+                        String messageId = databaseHelper.getDatabaseReference().child("messages").push().getKey();
+                        if (messageId == null) {
+                            handleError("Error creating message");
+                            return;
+                        }
+
+                        long timestamp = System.currentTimeMillis();
+                        
+                        // Create message map according to the rules
+                        Map<String, Object> messageMap = new HashMap<>();
+                        messageMap.put("senderId", currentUserId);
+                        messageMap.put("recipientId", recipientId);
+                        messageMap.put("message", messageText);
+                        messageMap.put("subject", subject);
+                        messageMap.put("timestamp", timestamp);
+                        messageMap.put("read", false);
+
+                        // Create updates map for atomic updates
+                        Map<String, Object> updates = new HashMap<>();
+                        
+                        // Add to /messages
+                        updates.put("/messages/" + messageId, messageMap);
+                        
+                        // Add to sender's sent messages
+                        updates.put("/user-messages/" + currentUserId + "/sent/" + messageId, true);
+                        
+                        // Add to recipient's received messages
+                        updates.put("/user-messages/" + recipientId + "/received/" + messageId, true);
+
+                        // Execute updates
+                        Log.d("SendMessage", "Attempting to update with: " + updates.toString());
+                        databaseHelper.getDatabaseReference().updateChildren(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("SendMessage", "Message sent successfully");
+                                    Log.d("ComposeMessage", "Message sent successfully");
+                                    runOnUiThread(() -> {
+                                        showLoading(false);
+                                        Toast.makeText(ComposeMessageActivity.this,
+                                                R.string.message_sent, 
+                                                Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    });
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("SendMessage", "Error updating database", e);
+                                    handleError("Failed to send message: Firebase Database error: " + 
+                                            (e != null ? e.getMessage() : "Unknown error"));
+                                });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        handleError("Error: " + databaseError.getMessage());
+                    }
+                    
+                    private void handleError(String error) {
+                        runOnUiThread(() -> {
+                            showLoading(false);
+                            Toast.makeText(ComposeMessageActivity.this,
+                                    error,
+                                    Toast.LENGTH_LONG).show();
+                        });
+                        Log.e("ComposeMessage", error);
+                    }
                 });
+    }
+    
+    private void showLoading(boolean isLoading) {
+        if (isLoading) {
+            // Disable UI elements
+            binding.inputRecipient.setEnabled(false);
+            binding.inputSubject.setEnabled(false);
+            binding.inputMessage.setEnabled(false);
+            binding.checkboxSetReminder.setEnabled(false);
+            binding.buttonSetReminder.setEnabled(false);
+            
+            // Show a toast to indicate loading
+            Toast.makeText(this, "Sending message...", Toast.LENGTH_SHORT).show();
+        } else {
+            // Re-enable UI elements
+            binding.inputRecipient.setEnabled(true);
+            binding.inputSubject.setEnabled(true);
+            binding.inputMessage.setEnabled(true);
+            binding.checkboxSetReminder.setEnabled(true);
+            binding.buttonSetReminder.setEnabled(true);
+        }
     }
 
     @Override

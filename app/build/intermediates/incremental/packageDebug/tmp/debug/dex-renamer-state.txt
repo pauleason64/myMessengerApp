@@ -1,16 +1,16 @@
-#Mon May 26 21:19:57 BST 2025
-base.0=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
-base.1=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
-base.10=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
-base.11=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex
-base.2=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\11\\classes.dex
-base.3=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\12\\classes.dex
-base.4=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\13\\classes.dex
-base.5=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\14\\classes.dex
-base.6=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex
-base.7=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\2\\classes.dex
-base.8=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
-base.9=C\:\\Users\\peaso\\CascadeProjects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\8\\classes.dex
+#Tue May 27 05:14:58 BST 2025
+base.0=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.1=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+base.10=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\9\\classes.dex
+base.11=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex
+base.2=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\11\\classes.dex
+base.3=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\12\\classes.dex
+base.4=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\13\\classes.dex
+base.5=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\14\\classes.dex
+base.6=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex
+base.7=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\2\\classes.dex
+base.8=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
+base.9=E\:\\androidprojects\\SimpleMessenger\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\8\\classes.dex
 path.0=classes.dex
 path.1=0/classes.dex
 path.10=9/classes.dex

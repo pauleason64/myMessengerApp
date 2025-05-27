@@ -1,5 +1,21 @@
 [
     {
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_auth.xml",
+        "source": "com.example.simplemessenger.app-main-70:/layout/activity_auth.xml"
+    },
+    {
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/fragment_messages.xml",
+        "source": "com.example.simplemessenger.app-main-70:/layout/fragment_messages.xml"
+    },
+    {
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_splash.xml",
+        "source": "com.example.simplemessenger.app-main-70:/layout/activity_splash.xml"
+    },
+    {
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_main.xml",
+        "source": "com.example.simplemessenger.app-main-70:/layout/activity_main.xml"
+    },
+    {
         "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_profile.xml",
         "source": "com.example.simplemessenger.app-main-70:/layout/activity_profile.xml"
     },
@@ -28,19 +44,7 @@
         "source": "com.example.simplemessenger.app-main-70:/layout/settings_activity.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_auth.xml",
-        "source": "com.example.simplemessenger.app-main-70:/layout/activity_auth.xml"
-    },
-    {
-        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_splash.xml",
-        "source": "com.example.simplemessenger.app-main-70:/layout/activity_splash.xml"
-    },
-    {
         "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/item_message.xml",
         "source": "com.example.simplemessenger.app-main-70:/layout/item_message.xml"
-    },
-    {
-        "merged": "com.example.simplemessenger.app-mergeDebugResources-67:/layout/activity_main.xml",
-        "source": "com.example.simplemessenger.app-main-70:/layout/activity_main.xml"
     }
 ]

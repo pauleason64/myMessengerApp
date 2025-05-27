@@ -32,10 +32,11 @@ public class SimpleMessengerApp extends Application implements Configuration.Pro
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
         
-        // Enable Firebase Database persistence
+        // Enable Firebase Database persistence with the correct URL
         try {
-            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-            Log.d("SimpleMessengerApp", "Firebase Database persistence enabled");
+            FirebaseDatabase database = FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app");
+            database.setPersistenceEnabled(true);
+            Log.d("SimpleMessengerApp", "Firebase Database persistence enabled for Europe region");
         } catch (Exception e) {
             Log.e("SimpleMessengerApp", "Failed to enable Firebase Database persistence", e);
         }

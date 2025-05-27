@@ -10,23 +10,23 @@
 10
 11    <!-- Internet Permissions -->
 12    <uses-permission android:name="android.permission.INTERNET" />
-12-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:7:5-67
-12-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:7:22-64
+12-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:7:5-67
+12-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:7:22-64
 13    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-13-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:8:5-79
-13-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:8:22-76
+13-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:8:5-79
+13-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:8:22-76
 14    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-14-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:9:5-77
-14-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:9:22-74
+14-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:9:5-77
+14-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:9:22-74
 15    <uses-permission android:name="android.permission.WAKE_LOCK" />
-15-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:10:5-68
-15-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:10:22-65
+15-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:10:5-68
+15-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:10:22-65
 16    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-16-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:11:5-81
-16-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:11:22-78
+16-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:11:5-81
+16-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:11:22-78
 17    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-17-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:12:5-77
-17-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:12:22-74
+17-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:12:5-77
+17-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:12:22-74
 18    <!-- Required by older versions of Google Play services to create IID tokens -->
 19    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 19-->[com.google.firebase:firebase-messaging:23.4.1] C:\Users\peaso\.gradle\caches\8.10\transforms\875247ab748efb3068d30eb7d40ede42\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:26:5-82
@@ -59,158 +59,158 @@
 30-->[androidx.core:core:1.12.0] C:\Users\peaso\.gradle\caches\8.10\transforms\921effad9714b08a0fb234054902a6c6\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
 31
 32    <application
-32-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:14:5-105:19
+32-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:14:5-105:19
 33        android:name="com.example.simplemessenger.SimpleMessengerApp"
-33-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:15:9-43
+33-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:15:9-43
 34        android:allowBackup="true"
-34-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:16:9-35
+34-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:16:9-35
 35        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 35-->[androidx.core:core:1.12.0] C:\Users\peaso\.gradle\caches\8.10\transforms\921effad9714b08a0fb234054902a6c6\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
 36        android:dataExtractionRules="@xml/data_extraction_rules"
-36-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:17:9-65
+36-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:17:9-65
 37        android:debuggable="true"
 38        android:extractNativeLibs="false"
 39        android:fullBackupContent="@xml/backup_rules"
-39-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:18:9-54
+39-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:18:9-54
 40        android:icon="@mipmap/ic_launcher"
-40-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:19:9-43
+40-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:19:9-43
 41        android:label="@string/app_name"
-41-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:20:9-41
+41-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:20:9-41
 42        android:roundIcon="@mipmap/ic_launcher_round"
-42-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:21:9-54
+42-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:21:9-54
 43        android:supportsRtl="true"
-43-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:22:9-35
+43-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:22:9-35
 44        android:testOnly="true"
 45        android:theme="@style/Theme.SimpleMessenger" >
-45-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:23:9-53
+45-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:23:9-53
 46
 47        <!-- Splash Screen Activity -->
 48        <activity
-48-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:27:9-35:20
+48-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:27:9-35:20
 49            android:name="com.example.simplemessenger.ui.splash.SplashActivity"
-49-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:28:13-53
+49-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:28:13-53
 50            android:exported="true"
-50-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:29:13-36
+50-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:29:13-36
 51            android:theme="@style/Theme.SimpleMessenger.Splash" >
-51-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:30:13-64
+51-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:30:13-64
 52            <intent-filter>
-52-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:31:13-34:29
+52-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:31:13-34:29
 53                <action android:name="android.intent.action.MAIN" />
-53-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:32:17-69
-53-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:32:25-66
+53-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:32:17-69
+53-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:32:25-66
 54
 55                <category android:name="android.intent.category.LAUNCHER" />
-55-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:33:17-77
-55-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:33:27-74
+55-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:33:17-77
+55-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:33:27-74
 56            </intent-filter>
 57        </activity>
 58
 59        <!-- Authentication Activity -->
 60        <activity
-60-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:38:9-42:58
+60-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:38:9-42:58
 61            android:name="com.example.simplemessenger.ui.auth.AuthActivity"
-61-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:39:13-49
+61-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:39:13-49
 62            android:exported="false"
-62-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:40:13-37
+62-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:40:13-37
 63            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-63-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:41:13-69
+63-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:41:13-69
 64            android:windowSoftInputMode="adjustResize" />
-64-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:42:13-55
+64-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:42:13-55
 65
 66        <!-- Main Activity -->
 67        <activity
-67-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:45:9-49:58
+67-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:45:9-49:58
 68            android:name="com.example.simplemessenger.ui.main.MainActivity"
-68-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:46:13-49
+68-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:46:13-49
 69            android:exported="false"
-69-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:47:13-37
+69-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:47:13-37
 70            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-70-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:48:13-69
+70-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:48:13-69
 71            android:windowSoftInputMode="adjustResize" />
-71-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:49:13-55
+71-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:49:13-55
 72
 73        <!-- Message List Activity -->
 74        <activity
-74-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:52:9-56:58
+74-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:52:9-56:58
 75            android:name="com.example.simplemessenger.ui.messaging.MessageListActivity"
-75-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:53:13-61
+75-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:53:13-61
 76            android:exported="false"
-76-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:54:13-37
+76-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:54:13-37
 77            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-77-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:55:13-69
+77-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:55:13-69
 78            android:windowSoftInputMode="adjustResize" />
-78-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:56:13-55
+78-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:56:13-55
 79
 80        <!-- Message Detail Activity -->
 81        <activity
-81-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:59:9-63:58
+81-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:59:9-63:58
 82            android:name="com.example.simplemessenger.ui.messaging.MessageDetailActivity"
-82-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:60:13-63
+82-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:60:13-63
 83            android:exported="false"
-83-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:61:13-37
+83-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:61:13-37
 84            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-84-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:62:13-69
+84-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:62:13-69
 85            android:windowSoftInputMode="adjustResize" />
-85-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:63:13-55
+85-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:63:13-55
 86
 87        <!-- Compose Message Activity -->
 88        <activity
-88-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:66:9-70:58
+88-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:66:9-70:58
 89            android:name="com.example.simplemessenger.ui.messaging.ComposeMessageActivity"
-89-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:67:13-64
+89-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:67:13-64
 90            android:exported="false"
-90-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:68:13-37
+90-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:68:13-37
 91            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-91-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:69:13-69
+91-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:69:13-69
 92            android:windowSoftInputMode="adjustResize" />
-92-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:70:13-55
+92-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:70:13-55
 93
 94        <!-- Settings Activity -->
 95        <activity
-95-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:73:9-83:20
+95-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:73:9-83:20
 96            android:name="com.example.simplemessenger.ui.settings.SettingsActivity"
-96-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:74:13-57
+96-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:74:13-57
 97            android:exported="false"
-97-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:75:13-37
+97-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:75:13-37
 98            android:label="@string/title_settings"
-98-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:76:13-51
+98-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:76:13-51
 99            android:parentActivityName="com.example.simplemessenger.ui.main.MainActivity"
-99-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:79:13-63
+99-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:79:13-63
 100            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-100-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:77:13-69
+100-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:77:13-69
 101            android:windowSoftInputMode="adjustResize" >
-101-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:78:13-55
+101-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:78:13-55
 102            <meta-data
-102-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:80:13-82:84
+102-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:80:13-82:84
 103                android:name="android.support.PARENT_ACTIVITY"
-103-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:81:17-63
+103-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:81:17-63
 104                android:value="com.example.simplemessenger.ui.main.MainActivity" />
-104-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:82:17-81
+104-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:82:17-81
 105        </activity>
 106
 107        <!-- Firebase Services -->
 108        <service
-108-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:86:9-92:19
+108-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:86:9-92:19
 109            android:name="com.example.simplemessenger.services.AppFirebaseMessagingService"
-109-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:87:13-65
+109-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:87:13-65
 110            android:exported="false" >
-110-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:88:13-37
+110-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:88:13-37
 111            <intent-filter>
-111-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:89:13-91:29
+111-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:89:13-91:29
 112                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-112-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:17-78
-112-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:25-75
+112-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:17-78
+112-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:25-75
 113            </intent-filter>
 114        </service>
 115
 116        <!-- WorkManager Initialization -->
 117        <provider
 118            android:name="androidx.startup.InitializationProvider"
-118-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:96:13-67
+118-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:96:13-67
 119            android:authorities="com.example.simplemessenger.androidx-startup"
-119-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:97:13-68
+119-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:97:13-68
 120            android:exported="false" >
-120-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:98:13-37
+120-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:98:13-37
 121            <meta-data
 121-->[androidx.emoji2:emoji2:1.2.0] C:\Users\peaso\.gradle\caches\8.10\transforms\bc21cebf77d3437900677b3ef80db940\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
 122                android:name="androidx.emoji2.text.EmojiCompatInitializer"
@@ -467,10 +467,10 @@
 254            android:exported="false" >
 254-->[com.google.firebase:firebase-messaging:23.4.1] C:\Users\peaso\.gradle\caches\8.10\transforms\875247ab748efb3068d30eb7d40ede42\transformed\jetified-firebase-messaging-23.4.1\AndroidManifest.xml:49:13-37
 255            <intent-filter android:priority="-500" >
-255-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:89:13-91:29
+255-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:89:13-91:29
 256                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-256-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:17-78
-256-->C:\Users\peaso\CascadeProjects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:25-75
+256-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:17-78
+256-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:90:25-75
 257            </intent-filter>
 258        </service>
 259

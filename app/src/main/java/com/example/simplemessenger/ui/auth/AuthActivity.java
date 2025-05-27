@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.ui.main.MainActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -256,8 +257,9 @@ public class AuthActivity extends AppCompatActivity {
         user.put("lastLogin", ServerValue.TIMESTAMP);
         user.put("profileImageUrl", "");
 
-        // Save to Realtime Database
-        FirebaseDatabase.getInstance().getReference("users").child(userId)
+        // Save to Realtime Database using DatabaseHelper
+        DatabaseHelper databaseHelper = DatabaseHelper.getInstance();
+        databaseHelper.getDatabaseReference().child("users").child(userId)
                 .setValue(user)
                 .addOnSuccessListener(aVoid -> Log.d("AuthActivity", "User data saved successfully"))
                 .addOnFailureListener(e -> Log.e("AuthActivity", "Error saving user data", e));

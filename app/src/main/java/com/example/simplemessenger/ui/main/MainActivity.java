@@ -34,8 +34,24 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import com.example.simplemessenger.data.DatabaseHelper;
+import com.example.simplemessenger.data.model.Message;
+import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
+import com.example.simplemessenger.ui.messaging.MessageDetailActivity;
 import com.example.simplemessenger.utils.AuthUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -265,19 +281,17 @@ public class MainActivity extends AppCompatActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private RecyclerView recyclerView;
+        private MessageAdapter adapter;
+        private List<Message> messages = new ArrayList<>();
+        private DatabaseHelper databaseHelper;
+        private ValueEventListener messageListener;
+        private Query messagesQuery;
 
         public PlaceholderFragment() {
         }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -287,29 +301,132 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            databaseHelper = DatabaseHelper.getInstance();
+        }
+
+        @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = rootView.findViewById(R.id.section_label);
+                               Bundle savedInstanceState) {
             int section = 1;
             if (getArguments() != null) {
                 section = getArguments().getInt(ARG_SECTION_NUMBER);
             }
-            
-            String text = "Messages";
-            switch (section) {
-                case 1:
-                    text = getString(R.string.title_messages);
-                    break;
-                case 2:
-                    text = getString(R.string.title_reminders);
-                    break;
-                case 3:
-                    text = getString(R.string.title_profile);
-                    break;
+
+            // Inflate the appropriate layout based on the section
+            View rootView;
+            if (section == 1) { // Messages section
+                rootView = inflater.inflate(R.layout.fragment_messages, container, false);
+                setupMessagesRecyclerView(rootView);
+            } else {
+                rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                TextView textView = rootView.findViewById(R.id.section_label);
+                String text = getString(R.string.title_messages);
+                switch (section) {
+                    case 2:
+                        text = getString(R.string.title_reminders);
+                        break;
+                    case 3:
+                        text = getString(R.string.title_profile);
+                        break;
+                }
+                textView.setText(text);
             }
-            textView.setText(text);
             return rootView;
+        }
+
+        private void setupMessagesRecyclerView(View rootView) {
+            recyclerView = rootView.findViewById(R.id.recycler_view);
+            if (recyclerView != null) {
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
+                
+                // Initialize adapter with empty list
+                adapter = new MessageAdapter(new MessageAdapter.OnMessageActionListener() {
+                    @Override
+                    public void onMessageSelected(Message message) {
+                        // Open message detail
+                        Intent intent = new Intent(requireContext(), MessageDetailActivity.class);
+                        intent.putExtra("message_id", message.getId());
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onMessageLongClicked(Message message) {
+                        // Handle long click if needed
+                    }
+                });
+                recyclerView.setAdapter(adapter);
+                
+                // Load messages
+                loadMessages();
+            }
+        }
+
+        private void loadMessages() {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                return;
+            }
+
+            String currentUserId = currentUser.getUid();
+            messagesQuery = databaseHelper.getDatabaseReference()
+                    .child("user-messages")
+                    .child(currentUserId)
+                    .child("received")
+                    .orderByChild("timestamp");
+
+            messageListener = messagesQuery.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    List<Message> messageList = new ArrayList<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Message message = snapshot.getValue(Message.class);
+                        if (message != null) {
+                            messageList.add(message);
+                        }
+                    }
+                    updateMessages(messageList);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("PlaceholderFragment", "Error loading messages", databaseError.toException());
+                }
+            });
+        }
+
+        private void updateMessages(List<Message> newMessages) {
+            if (getActivity() == null) return;
+            
+            getActivity().runOnUiThread(() -> {
+                messages.clear();
+                if (newMessages != null) {
+                    messages.addAll(newMessages);
+                }
+                if (adapter != null) {
+                    adapter.updateMessages(messages);
+                }
+                
+                // Show empty state if no messages
+                View emptyView = getView() != null ? getView().findViewById(R.id.empty_view) : null;
+                if (emptyView != null) {
+                    emptyView.setVisibility(messages.isEmpty() ? View.VISIBLE : View.GONE);
+                    if (recyclerView != null) {
+                        recyclerView.setVisibility(messages.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            // Remove the listener when the view is destroyed
+            if (messageListener != null && messagesQuery != null) {
+                messagesQuery.removeEventListener(messageListener);
+            }
         }
     }
 

@@ -12,6 +12,10 @@
         "source": "com.example.simplemessenger.app-main-70:/drawable/ic_lock.xml"
     },
     {
+        "merged": "com.example.simplemessenger.app-merged_res-68:/layout_fragment_messages.xml.flat",
+        "source": "com.example.simplemessenger.app-main-70:/layout/fragment_messages.xml"
+    },
+    {
         "merged": "com.example.simplemessenger.app-merged_res-68:/layout_activity_compose_message.xml.flat",
         "source": "com.example.simplemessenger.app-main-70:/layout/activity_compose_message.xml"
     },

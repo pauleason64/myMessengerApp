@@ -145,7 +145,8 @@ public class Message {
         }
     }
     
-    // Overloaded setter for direct long assignment
+    // This annotation tells Firebase to use the Object version of setReminderTime
+    @com.google.firebase.database.Exclude
     public void setReminderTime(long reminderTime) {
         this.reminderTime = reminderTime;
         this.hasReminder = true;
@@ -178,15 +179,5 @@ public class Message {
         map.put("archived", archived);
         return map;
     }
-    
-//    @Exclude
-//    public long getReminderTimeLong() {
-//        if (reminderTime instanceof Long) {
-//            return (Long) reminderTime;
-//        } else if (reminderTime instanceof Map) {
-//            return (Long) ((Map<?, ?>) reminderTime).get("timestamp");
-//        } else {
-//            return 0;
-//        }
-//    }
+
 }

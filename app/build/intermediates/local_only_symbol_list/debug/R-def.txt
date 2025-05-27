@@ -120,6 +120,7 @@ layout activity_profile
 layout activity_splash
 layout dialog_progress
 layout fragment_main
+layout fragment_messages
 layout item_message
 layout settings_activity
 menu menu_compose

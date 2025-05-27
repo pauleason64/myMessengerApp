@@ -127,4 +127,12 @@ public class DatabaseHelper {
         void onSuccess(Object result);
         void onError(String error);
     }
+    
+    /**
+     * Get the database reference for direct database operations.
+     * @return The DatabaseReference instance
+     */
+    public DatabaseReference getDatabaseReference() {
+        return databaseReference;
+    }
 }

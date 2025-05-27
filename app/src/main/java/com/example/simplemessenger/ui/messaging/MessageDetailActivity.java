@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityMessageDetailBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,7 +31,7 @@ import java.util.Locale;
 public class MessageDetailActivity extends AppCompatActivity {
 
     private ActivityMessageDetailBinding binding;
-    private DatabaseReference database;
+    private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
     private String messageId;
     private Message message;
@@ -49,7 +50,7 @@ public class MessageDetailActivity extends AppCompatActivity {
         }
 
         // Initialize Firebase instances
-        database = FirebaseDatabase.getInstance().getReference();
+        databaseHelper = DatabaseHelper.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
         // Set up the toolbar
@@ -75,7 +76,7 @@ public class MessageDetailActivity extends AppCompatActivity {
             return;
         }
 
-        DatabaseReference messageRef = database.child("messages").child(messageId);
+        DatabaseReference messageRef = databaseHelper.getDatabaseReference().child("messages").child(messageId);
         messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -149,7 +150,7 @@ public class MessageDetailActivity extends AppCompatActivity {
             return;
         }
 
-        database.child("messages").child(messageId).child("read")
+        databaseHelper.getDatabaseReference().child("messages").child(messageId).child("read")
                 .setValue(true)
                 .addOnSuccessListener(aVoid -> {
                     if (message != null) {
@@ -195,12 +196,12 @@ public class MessageDetailActivity extends AppCompatActivity {
         }
 
         // In a real app, you might want to move to trash instead of deleting permanently
-        database.child("messages").child(messageId).child("archived")
+        databaseHelper.getDatabaseReference().child("messages").child(messageId).child("archived")
                 .setValue(true)
                 .addOnSuccessListener(aVoid -> {
                     // Also update in user-messages
                     if (mAuth.getCurrentUser() != null) {
-                        database.child("user-messages")
+                        databaseHelper.getDatabaseReference().child("user-messages")
                                 .child(mAuth.getCurrentUser().getUid())
                                 .child(messageId)
                                 .child("archived")

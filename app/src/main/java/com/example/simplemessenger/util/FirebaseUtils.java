@@ -55,7 +55,7 @@ public class FirebaseUtils {
     
     private FirebaseUtils() {
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance().getReference();
+        database = FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app").getReference();
         storage = FirebaseStorage.getInstance();
     }
     
@@ -280,7 +280,8 @@ public class FirebaseUtils {
      * @return The users node reference.
      */
     public DatabaseReference getUsersReference() {
-        return FirebaseDatabase.getInstance().getReference(PATH_USERS);
+        return FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app")
+                .getReference(PATH_USERS);
     }
     
     /**

@@ -4016,6 +4016,7 @@ layout design_text_input_start_icon
 layout dialog_progress
 layout expand_button
 layout fragment_main
+layout fragment_messages
 layout image_frame
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity

@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,20 +13,17 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.simplemessenger.R;
-import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityMessageListBinding;
-
+import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
@@ -38,11 +33,30 @@ import java.util.List;
 public class MessageListActivity extends AppCompatActivity {
 
     private ActivityMessageListBinding binding;
-    private DatabaseReference database;
+    private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
-    private MessageAdapter adapter;
     private ActionMode actionMode;
     private String currentUserId;
+    private final List<Message> messages = new ArrayList<>();
+    private ValueEventListener messageListener;
+    private Query messagesQuery;
+
+    private final MessageAdapter adapter = new MessageAdapter(new MessageAdapter.OnMessageActionListener() {
+        @Override
+        public void onMessageSelected(Message message) {
+            // Open message detail
+            Intent intent = new Intent(MessageListActivity.this, MessageDetailActivity.class);
+            intent.putExtra("message_id", message.getId());
+            startActivity(intent);
+        }
+
+        @Override
+        public void onMessageLongClicked(Message message) {
+            if (actionMode == null) {
+                actionMode = startSupportActionMode(actionModeCallback);
+            }
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +65,7 @@ public class MessageListActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         // Initialize Firebase instances
-        database = FirebaseDatabase.getInstance().getReference();
+        databaseHelper = DatabaseHelper.getInstance();
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
 
@@ -76,235 +90,131 @@ public class MessageListActivity extends AppCompatActivity {
             startActivity(new Intent(this, ComposeMessageActivity.class));
         });
 
-        // Load messages
+        // Set up adapter
+        binding.recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         loadMessages();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Remove the listener when the activity is stopped
+        if (messageListener != null && messagesQuery != null) {
+            messagesQuery.removeEventListener(messageListener);
+        }
+    }
 
     private void loadMessages() {
         if (currentUserId == null) {
-            // User not authenticated
             binding.swipeRefreshLayout.setRefreshing(false);
             return;
         }
 
         // Show loading indicator
         binding.swipeRefreshLayout.setRefreshing(true);
+        Log.d("MessageListActivity", "Loading messages for user: " + currentUserId);
 
-        // Query to get messages where current user is either sender or recipient
-        Query query = database.child("user-messages").child(currentUserId)
-                .child("received") // or "sent" depending on your needs
+        // Remove any existing listener to prevent duplicates
+        if (messageListener != null && messagesQuery != null) {
+            messagesQuery.removeEventListener(messageListener);
+        }
+
+        // Clear existing messages
+        messages.clear();
+
+        // Query to get received messages for the current user
+        messagesQuery = databaseHelper.getDatabaseReference()
+                .child("user-messages")
+                .child(currentUserId)
+                .child("received")
                 .orderByChild("timestamp");
 
-        // Add a single value event listener to fetch the data once
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Add a value event listener for real-time updates
+        messageListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<Message> messages = new ArrayList<>();
+                Log.d("MessageListActivity", "onDataChange, messages count: " + dataSnapshot.getChildrenCount());
                 
-                // Iterate through the data and convert to Message objects
-                for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
-                    // Get the message ID
-                    String messageId = messageSnapshot.getKey();
-                    // Fetch the full message from the messages node
-                    database.child("messages").child(messageId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            Message message = snapshot.getValue(Message.class);
-                            if (message != null) {
-                                message.setId(messageId);
-                                messages.add(message);
-                                // Update the adapter with new data
-                                if (adapter == null) {
-                                    // Initialize adapter
-                                    adapter = new MessageAdapter();
-                                    binding.recyclerView.setAdapter(adapter);
-                                } else {
-                                    adapter.updateMessages(messages);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e("MessageListActivity", "Error loading message: " + error.getMessage());
-                        }
-                    });
+                if (dataSnapshot.getChildrenCount() == 0) {
+                    updateUI(new ArrayList<>());
+                    return;
                 }
                 
-                // Update UI
-                binding.swipeRefreshLayout.setRefreshing(false);
-                if (messages.isEmpty()) {
-                    binding.textEmpty.setVisibility(View.VISIBLE);
-                    binding.recyclerView.setVisibility(View.GONE);
-                } else {
-                    binding.textEmpty.setVisibility(View.GONE);
-                    binding.recyclerView.setVisibility(View.VISIBLE);
+                final List<Message> loadedMessages = new ArrayList<>();
+                final int[] completedFetches = {0};
+                final int totalMessages = (int) dataSnapshot.getChildrenCount();
+                
+                for (DataSnapshot messageRef : dataSnapshot.getChildren()) {
+                    String messageId = messageRef.getKey();
+                    Log.d("MessageListActivity", "Fetching message with ID: " + messageId);
+                    
+                    databaseHelper.getDatabaseReference()
+                            .child("messages")
+                            .child(messageId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    Message message = snapshot.getValue(Message.class);
+                                    if (message != null) {
+                                        message.setId(snapshot.getKey());
+                                        loadedMessages.add(message);
+                                        Log.d("MessageListActivity", "Loaded message: " + message.getSubject());
+                                    }
+                                    
+                                    // Check if all messages have been loaded
+                                    completedFetches[0]++;
+                                    if (completedFetches[0] >= totalMessages) {
+                                        // Sort messages by timestamp in descending order (newest first)
+                                        loadedMessages.sort((m1, m2) -> Long.compare(m2.getTimestamp(), m1.getTimestamp()));
+                                        messages.clear();
+                                        messages.addAll(loadedMessages);
+                                        updateUI(messages);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e("MessageListActivity", "Error loading message: " + error.getMessage());
+                                    completedFetches[0]++;
+                                    if (completedFetches[0] >= totalMessages) {
+                                        updateUI(messages);
+                                    }
+                                }
+                            });
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e("MessageListActivity", "Error loading messages: " + databaseError.getMessage());
-                binding.swipeRefreshLayout.setRefreshing(false);
+                updateUI(new ArrayList<>());
+            }
+        };
+        
+        // Add the listener to the query
+        messagesQuery.addValueEventListener(messageListener);
+    }
+
+    // Update the UI with new messages
+    private void updateUI(List<Message> messages) {
+        Log.d("MessageListActivity", "Updating UI with " + messages.size() + " messages");
+        runOnUiThread(() -> {
+            binding.swipeRefreshLayout.setRefreshing(false);
+            
+            if (messages == null || messages.isEmpty()) {
                 binding.textEmpty.setVisibility(View.VISIBLE);
                 binding.recyclerView.setVisibility(View.GONE);
+            } else {
+                binding.textEmpty.setVisibility(View.GONE);
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                adapter.updateMessages(messages);
             }
         });
-    }
-
-    // Custom Adapter for messages
-    private class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
-        private List<Message> messages;
-        private ValueEventListener valueEventListener;
-        private Query query;
-
-        public MessageAdapter() {
-            this.messages = new ArrayList<>();
-            startListening();
-        }
-
-        public void startListening() {
-            if (valueEventListener != null) {
-                return; // Already listening
-            }
-
-            query = database.child("user-messages").child(currentUserId)
-                    .child("received") // or "sent" depending on your needs
-                    .orderByChild("timestamp");
-
-            valueEventListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    List<Message> newMessages = new ArrayList<>();
-                    for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
-                        String messageId = messageSnapshot.getKey();
-                        database.child("messages").child(messageId).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Message message = snapshot.getValue(Message.class);
-                                if (message != null) {
-                                    message.setId(messageId);
-                                    newMessages.add(message);
-                                    updateMessages(newMessages);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Log.e("MessageAdapter", "Error loading message: " + error.getMessage());
-                            }
-                        });
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("MessageAdapter", "Error loading messages: " + databaseError.getMessage());
-                }
-            };
-            
-            query.addValueEventListener(valueEventListener);
-        }
-
-        public void stopListening() {
-            if (valueEventListener != null && query != null) {
-                query.removeEventListener(valueEventListener);
-                valueEventListener = null;
-            }
-        }
-
-        public void updateMessages(List<Message> newMessages) {
-            this.messages.clear();
-            if (newMessages != null) {
-                this.messages.addAll(newMessages);
-            }
-            notifyDataSetChanged();
-        }
-
-        @NonNull
-        @Override
-        public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = getLayoutInflater().inflate(R.layout.item_message, parent, false);
-            return new MessageViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-            Message message = messages.get(position);
-            holder.bind(message);
-            
-            // Set click listener for the item
-            holder.itemView.setOnClickListener(v -> {
-                // Open message detail
-                Intent intent = new Intent(MessageListActivity.this, MessageDetailActivity.class);
-                intent.putExtra("message_id", message.getId());
-                startActivity(intent);
-            });
-            
-            // Set long click listener for item selection
-            holder.itemView.setOnLongClickListener(v -> {
-                if (actionMode != null) {
-                    return false;
-                }
-                
-                // Start the CAB using the ActionMode.Callback defined above
-                actionMode = startSupportActionMode(actionModeCallback);
-                return true;
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return messages.size();
-        }
-    }
-    
-    // ViewHolder for messages
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        private final TextView textSender;
-        private final TextView textTime;
-        private final TextView textSubject;
-        private final TextView textPreview;
-        private final View imageReminder;
-
-        public MessageViewHolder(@NonNull View itemView) {
-            super(itemView);
-            textSender = itemView.findViewById(R.id.text_sender);
-            textTime = itemView.findViewById(R.id.text_time);
-            textSubject = itemView.findViewById(R.id.text_subject);
-            textPreview = itemView.findViewById(R.id.text_preview);
-            imageReminder = itemView.findViewById(R.id.image_reminder);
-        }
-
-        public void bind(Message message) {
-            // Determine if current user is the sender or recipient
-            boolean isSender = message.getSenderId() != null && 
-                    message.getSenderId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid());
-            
-            // Set sender/recipient text
-            textSender.setText(isSender ? message.getRecipientEmail() : message.getSenderEmail());
-            
-            // Format and set time
-            long timestamp = message.getTimestamp();
-            if (timestamp > 0) {
-                // Simple time formatting - in a real app, you'd use DateUtils or similar
-                String timeStr = android.text.format.DateFormat.getTimeFormat(itemView.getContext())
-                        .format(new java.util.Date(timestamp));
-                textTime.setText(timeStr);
-            } else {
-                textTime.setText("");
-            }
-            
-            // Set subject
-            textSubject.setText(message.getSubject());
-            
-            // Set message preview
-            textPreview.setText(message.getMessage());
-            
-            // Show reminder icon if message has a reminder
-            imageReminder.setVisibility(message.isHasReminder() ? View.VISIBLE : View.GONE);
-        }
     }
 
     // Action mode for multi-selection
@@ -352,25 +262,6 @@ public class MessageListActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (adapter == null) {
-            adapter = new MessageAdapter();
-            binding.recyclerView.setAdapter(adapter);
-        } else {
-            adapter.startListening();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (adapter != null) {
-            adapter.stopListening();
-        }
     }
 
     @Override
