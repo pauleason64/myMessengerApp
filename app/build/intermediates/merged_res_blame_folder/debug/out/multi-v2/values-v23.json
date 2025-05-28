@@ -4,7 +4,7 @@
             "outputFile": "com.example.simplemessenger.app-mergeDebugResources-65:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\6b23c58078097164d388e660ff87ca96\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\acbce973218eebd33ca06f442804fe95\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -23,17 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\5b18eeaac04187a21a732b80cb5d9e76\\transformed\\work-runtime-2.9.0\\res\\values-v23\\values-v23.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,121",
-                        "endColumns": "65,62",
-                        "endOffsets": "116,179"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\c5bedcfccbb52b3a46e81083589ddedb\\transformed\\appcompat-1.6.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\33ca3c966bd80df41f9d8921343ff617\\transformed\\appcompat-1.6.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -52,7 +42,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\2ef7afba87b546f0f27fb6815bf14b2f\\transformed\\material-1.11.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\aacf29a2f35f9bb85a65a41f250d11c8\\transformed\\material-1.11.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,5,9,13,16,19,22,25,28,32",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
@@ -68,6 +58,16 @@
                         "endLines": "57,61,65,68,71,74,77,80,84,88",
                         "endColumns": "10,10,10,10,10,10,10,10,10,10",
                         "endOffsets": "3722,3864,4025,4235,4442,4649,4852,5054,5319,5592"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\8aa99c4677d970e0d8cbef3f66628670\\transformed\\work-runtime-2.9.0\\res\\values-v23\\values-v23.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,121",
+                        "endColumns": "65,62",
+                        "endOffsets": "116,179"
                     }
                 }
             ]

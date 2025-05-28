@@ -146,14 +146,18 @@ public class MessageListFragment extends Fragment {
     }
 
     private void loadMessages() {
-        if (getContext() == null || databaseHelper == null) return;
+        if (getContext() == null || databaseHelper == null) {
+            Log.e("MessageListFragment", "Context or DatabaseHelper is null");
+            return;
+        }
 
-        databaseHelper = DatabaseHelper.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Log.e("MessageListFragment", "No current user signed in");
             return;
         }
+        Log.d("MessageListFragment", "Loading messages for user: " + currentUser.getUid());
+        databaseHelper = DatabaseHelper.getInstance();
         String currentUserId = currentUser.getUid();
 
         String messageType = isInbox ? "received" : "sent";
@@ -182,6 +186,7 @@ public class MessageListFragment extends Fragment {
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     Message message = snapshot.getValue(Message.class);
                                     if (message != null) {
+                                        Log.d("MessageListFragment", "Loaded message: " + message.getSubject());
                                         messages.add(message);
                                         if (currentSortField.equals("timestamp")) {
                                             if (!isAscending) {
@@ -195,12 +200,14 @@ public class MessageListFragment extends Fragment {
                                             });
                                         }
                                         adapter.notifyDataSetChanged();
+                                    } else {
+                                        Log.w("MessageListFragment", "Failed to parse message from snapshot");
                                     }
                                 }
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError error) {
-                                    Log.e("MessageListFragment", "Error loading message: " + error.getMessage());
+                                    Log.e("MessageListFragment", "Error loading message: " + error.getMessage(), error.toException());
                                 }
                             });
                 }

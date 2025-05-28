@@ -4,7 +4,7 @@
             "outputFile": "com.example.simplemessenger.app-mergeDebugResources-65:/values-sw360dp-v13/values-sw360dp-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\11af3f06876b052bad8edc8e11d190b4\\transformed\\preference-1.2.1\\res\\values-sw360dp-v13\\values-sw360dp-v13.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\11cc5821c3b83b2c465d2cfcb174ccd4\\transformed\\preference-1.2.1\\res\\values-sw360dp-v13\\values-sw360dp-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

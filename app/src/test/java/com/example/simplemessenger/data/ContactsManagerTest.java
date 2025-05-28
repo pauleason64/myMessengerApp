@@ -217,10 +217,11 @@ public class ContactsManagerTest {
         
         // Act
         contactsManager.setLoadListener(testListener);
-        contactsManager.setLoadListener(testListener);
+        
+        // Verify the listener was set
+        verify(mockUserContactsNode).addListenerForSingleValueEvent(valueEventListenerCaptor.capture());
         
         // Simulate Firebase response with test data
-        verify(mockUserContactsNode).addListenerForSingleValueEvent(valueEventListenerCaptor.capture());
         
         // Create a mock DataSnapshot with our test contact
         DataSnapshot mockContactSnapshot = mock(DataSnapshot.class);

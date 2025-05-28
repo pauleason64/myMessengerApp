@@ -4,24 +4,7 @@
             "outputFile": "com.example.simplemessenger.app-mergeDebugResources-65:/values-pt-rBR/values-pt-rBR.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\520824a865654d33d5590e63453f9c2d\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-pt-rBR\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "199",
-                        "endColumns": "140",
-                        "endOffsets": "339"
-                    },
-                    "to": {
-                        "startLines": "56",
-                        "startColumns": "4",
-                        "startOffsets": "5537",
-                        "endColumns": "144",
-                        "endOffsets": "5677"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\c5bedcfccbb52b3a46e81083589ddedb\\transformed\\appcompat-1.6.1\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\33ca3c966bd80df41f9d8921343ff617\\transformed\\appcompat-1.6.1\\res\\values-pt-rBR\\values-pt-rBR.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -38,75 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\b3feaac10c837b920a70b89550340a4c\\transformed\\navigation-ui-2.7.7\\res\\values-pt-rBR\\values-pt-rBR.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,167",
-                        "endColumns": "111,119",
-                        "endOffsets": "162,282"
-                    },
-                    "to": {
-                        "startLines": "131,132",
-                        "startColumns": "4,4",
-                        "startOffsets": "12140,12252",
-                        "endColumns": "111,119",
-                        "endOffsets": "12247,12367"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\78a22b1cea0358c6137ef44c05e35929\\transformed\\browser-1.4.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
-                    "from": {
-                        "startLines": "2,3,4,5",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "55,170,269,381",
-                        "endColumns": "114,98,111,105",
-                        "endOffsets": "165,264,376,482"
-                    },
-                    "to": {
-                        "startLines": "67,71,72,73",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "6857,7215,7314,7426",
-                        "endColumns": "114,98,111,105",
-                        "endOffsets": "6967,7309,7421,7527"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\11af3f06876b052bad8edc8e11d190b4\\transformed\\preference-1.2.1\\res\\values-pt-rBR\\values-pt-rBR.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "105,175,262,341,492,661,748",
-                        "endColumns": "69,86,78,150,168,86,80",
-                        "endOffsets": "170,257,336,487,656,743,824"
-                    },
-                    "to": {
-                        "startLines": "66,69,133,135,138,139,140",
-                        "startColumns": "4,4,4,4,4,4,4",
-                        "startOffsets": "6787,7036,12372,12528,12866,13035,13122",
-                        "endColumns": "69,86,78,150,168,86,80",
-                        "endOffsets": "6852,7118,12446,12674,13030,13117,13198"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\167545c068f6e67a973d6ff54b4038cf\\transformed\\core-1.12.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,152,254,353,453,560,670,790",
-                        "endColumns": "96,101,98,99,106,109,119,100",
-                        "endOffsets": "147,249,348,448,555,665,785,886"
-                    },
-                    "to": {
-                        "startLines": "38,39,40,41,42,43,44,137",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "3488,3585,3687,3786,3886,3993,4103,12765",
-                        "endColumns": "96,101,98,99,106,109,119,100",
-                        "endOffsets": "3580,3682,3781,3881,3988,4098,4218,12861"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\2ef7afba87b546f0f27fb6815bf14b2f\\transformed\\material-1.11.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\aacf29a2f35f9bb85a65a41f250d11c8\\transformed\\material-1.11.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
                     "from": {
                         "startLines": "2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -125,7 +40,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\6f36a73fe1a2a4309543a18595b62965\\transformed\\jetified-play-services-base-18.1.0\\res\\values-pt-rBR\\values.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\0d2690e70f6fc3ae1b220ddf15019e42\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-pt-rBR\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "199",
+                        "endColumns": "140",
+                        "endOffsets": "339"
+                    },
+                    "to": {
+                        "startLines": "56",
+                        "startColumns": "4",
+                        "startOffsets": "5537",
+                        "endColumns": "144",
+                        "endOffsets": "5677"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\f37fde23adf4d45ed486d96dd0915d92\\transformed\\browser-1.4.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,170,269,381",
+                        "endColumns": "114,98,111,105",
+                        "endOffsets": "165,264,376,482"
+                    },
+                    "to": {
+                        "startLines": "67,71,72,73",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "6857,7215,7314,7426",
+                        "endColumns": "114,98,111,105",
+                        "endOffsets": "6967,7309,7421,7527"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\9fd52893e97243b1bd6cbdbf5192af4b\\transformed\\jetified-play-services-base-18.1.0\\res\\values-pt-rBR\\values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -139,6 +88,57 @@
                         "startOffsets": "4525,4630,4778,4905,5013,5180,5310,5432,5682,5852,5960,6124,6254,6411,6568,6637,6703",
                         "endColumns": "104,147,126,107,166,129,121,104,169,107,163,129,156,156,68,65,83",
                         "endOffsets": "4625,4773,4900,5008,5175,5305,5427,5532,5847,5955,6119,6249,6406,6563,6632,6698,6782"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\f23c044609b9f4399557127a395a7147\\transformed\\navigation-ui-2.7.7\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,167",
+                        "endColumns": "111,119",
+                        "endOffsets": "162,282"
+                    },
+                    "to": {
+                        "startLines": "131,132",
+                        "startColumns": "4,4",
+                        "startOffsets": "12140,12252",
+                        "endColumns": "111,119",
+                        "endOffsets": "12247,12367"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\11cc5821c3b83b2c465d2cfcb174ccd4\\transformed\\preference-1.2.1\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "105,175,262,341,492,661,748",
+                        "endColumns": "69,86,78,150,168,86,80",
+                        "endOffsets": "170,257,336,487,656,743,824"
+                    },
+                    "to": {
+                        "startLines": "66,69,133,135,138,139,140",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "6787,7036,12372,12528,12866,13035,13122",
+                        "endColumns": "69,86,78,150,168,86,80",
+                        "endOffsets": "6852,7118,12446,12674,13030,13117,13198"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\1f1bb7203e879735f7de8428bd861b97\\transformed\\core-1.12.0\\res\\values-pt-rBR\\values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,152,254,353,453,560,670,790",
+                        "endColumns": "96,101,98,99,106,109,119,100",
+                        "endOffsets": "147,249,348,448,555,665,785,886"
+                    },
+                    "to": {
+                        "startLines": "38,39,40,41,42,43,44,137",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "3488,3585,3687,3786,3886,3993,4103,12765",
+                        "endColumns": "96,101,98,99,106,109,119,100",
+                        "endOffsets": "3580,3682,3781,3881,3988,4098,4218,12861"
                     }
                 }
             ]

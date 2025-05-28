@@ -25,7 +25,7 @@
 
         <!-- Firebase Config Activity -->
         <activity
-            android:name=".ui.setup.FirebaseConfigActivity"
+            android:name=".ui.config.FirebaseConfigActivity"
             android:exported="true"
             android:theme="@style/Theme.SimpleMessenger.NoActionBar"
             android:windowSoftInputMode="adjustResize">

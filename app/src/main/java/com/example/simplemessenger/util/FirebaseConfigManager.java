@@ -14,13 +14,13 @@ import java.util.Properties;
 public class FirebaseConfigManager {
     private static final String TAG = "FirebaseConfigManager";
     private static final String PREFS_NAME = "FirebaseConfigPrefs";
-    private static final String KEY_DATABASE_URL = "database_url";
-    private static final String KEY_STORAGE_BUCKET = "storage_bucket";
-    private static final String KEY_PROJECT_ID = "project_id";
-    private static final String KEY_API_KEY = "api_key";
-    private static final String KEY_AUTH_DOMAIN = "auth_domain";
-    private static final String KEY_MESSAGING_SENDER_ID = "messaging_sender_id";
-    private static final String KEY_APP_ID = "app_id";
+    public static final String KEY_DATABASE_URL = "database_url";
+    public static final String KEY_STORAGE_BUCKET = "storage_bucket";
+    public static final String KEY_PROJECT_ID = "project_id";
+    public static final String KEY_API_KEY = "api_key";
+    public static final String KEY_AUTH_DOMAIN = "auth_domain";
+    public static final String KEY_MESSAGING_SENDER_ID = "messaging_sender_id";
+    public static final String KEY_APP_ID = "app_id";
     
     private static FirebaseConfigManager instance;
     private final SharedPreferences prefs;
