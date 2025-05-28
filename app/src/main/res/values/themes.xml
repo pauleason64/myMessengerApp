@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme - NoActionBar by default -->
-    <style name="Theme.SimpleMessenger" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- Base application theme -->
+    <style name="Theme.SimpleMessenger" parent="Theme.MaterialComponents.DayNight">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>

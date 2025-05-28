@@ -4,6 +4,7 @@ package com.example.simplemessenger.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,11 +21,15 @@ public final class ActivitySplashBinding implements ViewBinding {
   private final ConstraintLayout rootView;
 
   @NonNull
+  public final ImageView imageView;
+
+  @NonNull
   public final ProgressBar progressBar;
 
-  private ActivitySplashBinding(@NonNull ConstraintLayout rootView,
+  private ActivitySplashBinding(@NonNull ConstraintLayout rootView, @NonNull ImageView imageView,
       @NonNull ProgressBar progressBar) {
     this.rootView = rootView;
+    this.imageView = imageView;
     this.progressBar = progressBar;
   }
 
@@ -55,13 +60,19 @@ public final class ActivitySplashBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.imageView;
+      ImageView imageView = ViewBindings.findChildViewById(rootView, id);
+      if (imageView == null) {
+        break missingId;
+      }
+
       id = R.id.progressBar;
       ProgressBar progressBar = ViewBindings.findChildViewById(rootView, id);
       if (progressBar == null) {
         break missingId;
       }
 
-      return new ActivitySplashBinding((ConstraintLayout) rootView, progressBar);
+      return new ActivitySplashBinding((ConstraintLayout) rootView, imageView, progressBar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

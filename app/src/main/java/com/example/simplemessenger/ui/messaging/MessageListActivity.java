@@ -30,6 +30,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MessageListActivity extends AppCompatActivity {
@@ -42,6 +43,9 @@ public class MessageListActivity extends AppCompatActivity {
     private final List<Message> messages = new ArrayList<>();
     private ValueEventListener messageListener;
     private Query messagesQuery;
+    private boolean isAscending = true;
+    private boolean isInbox = true;
+    private String currentSortField = "timestamp";
     private ContactsManager contactsManager;
 
     private final MessageAdapter adapter = new MessageAdapter(new MessageAdapter.OnMessageActionListener() {
@@ -73,9 +77,35 @@ public class MessageListActivity extends AppCompatActivity {
         currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
         contactsManager = ContactsManager.getInstance();
 
-        // Set up the toolbar
+        // Set up toolbar and its components
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.title_messages);
+        }
+
+        // Set up inbox/outbox toggle
+        binding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            isInbox = checkedId == R.id.radio_inbox;
+            updateTitle();
+            loadMessages();
+        });
+
+        // Set up header click listeners
+        binding.textDateHeader.setOnClickListener(v -> {
+            currentSortField = "timestamp";
+            isAscending = !isAscending;
+            updateTitle();
+            loadMessages();
+        });
+
+        binding.textSubjectHeader.setOnClickListener(v -> {
+            currentSortField = "subject";
+            isAscending = !isAscending;
+            updateTitle();
+            loadMessages();
+        });
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(R.string.title_messages);
@@ -88,6 +118,9 @@ public class MessageListActivity extends AppCompatActivity {
 
         // Set up swipe to refresh
         binding.swipeRefreshLayout.setOnRefreshListener(this::loadMessages);
+
+        // Set up title text
+        updateTitle();
 
         // Set up FAB
         binding.fab.setOnClickListener(view -> {
@@ -165,12 +198,19 @@ public class MessageListActivity extends AppCompatActivity {
         // Clear existing messages
         messages.clear();
 
-        // Query to get received messages for the current user
+        // Determine which messages to load
+        String messageType = isInbox ? "received" : "sent";
+        
+        // Query messages
         messagesQuery = databaseHelper.getDatabaseReference()
                 .child("user-messages")
                 .child(currentUserId)
-                .child("received")
-                .orderByChild("timestamp");
+                .child(messageType)
+                .orderByChild(currentSortField);
+
+        if (!isAscending) {
+            messagesQuery = messagesQuery.limitToLast(100); // Only get last 100 messages
+        }
 
         // Add a value event listener for real-time updates
         messageListener = new ValueEventListener() {
@@ -199,29 +239,31 @@ public class MessageListActivity extends AppCompatActivity {
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                                     Message message = snapshot.getValue(Message.class);
                                     if (message != null) {
-                                        message.setId(snapshot.getKey());
                                         loadedMessages.add(message);
-                                        Log.d("MessageListActivity", "Loaded message: " + message.getSubject());
-                                    }
-                                    
-                                    // Check if all messages have been loaded
-                                    completedFetches[0]++;
-                                    if (completedFetches[0] >= totalMessages) {
-                                        // Sort messages by timestamp in descending order (newest first)
-                                        loadedMessages.sort((m1, m2) -> Long.compare(m2.getTimestamp(), m1.getTimestamp()));
-                                        messages.clear();
-                                        messages.addAll(loadedMessages);
-                                        updateUI(messages);
+                                        completedFetches[0]++;
+
+                                        if (completedFetches[0] == totalMessages) {
+                                            // All messages loaded, sort and update UI
+                                            if (currentSortField.equals("timestamp")) {
+                                                if (!isAscending) {
+                                                    Collections.reverse(loadedMessages);
+                                                }
+                                            } else if (currentSortField.equals("subject")) {
+                                                loadedMessages.sort((m1, m2) -> {
+                                                    String s1 = m1.getSubject() != null ? m1.getSubject() : "";
+                                                    String s2 = m2.getSubject() != null ? m2.getSubject() : "";
+                                                    return isAscending ? s1.compareTo(s2) : s2.compareTo(s1);
+                                                });
+                                            }
+                                            updateUI(loadedMessages);
+                                        }
                                     }
                                 }
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError error) {
                                     Log.e("MessageListActivity", "Error loading message: " + error.getMessage());
-                                    completedFetches[0]++;
-                                    if (completedFetches[0] >= totalMessages) {
-                                        updateUI(messages);
-                                    }
+                                    binding.swipeRefreshLayout.setRefreshing(false);
                                 }
                             });
                 }
@@ -233,7 +275,7 @@ public class MessageListActivity extends AppCompatActivity {
                 updateUI(new ArrayList<>());
             }
         };
-        
+
         // Add the listener to the query
         messagesQuery.addValueEventListener(messageListener);
     }
@@ -243,7 +285,7 @@ public class MessageListActivity extends AppCompatActivity {
         Log.d("MessageListActivity", "Updating UI with " + messages.size() + " messages");
         runOnUiThread(() -> {
             binding.swipeRefreshLayout.setRefreshing(false);
-            
+
             if (messages == null || messages.isEmpty()) {
                 binding.textEmpty.setVisibility(View.VISIBLE);
                 binding.recyclerView.setVisibility(View.GONE);
@@ -253,6 +295,18 @@ public class MessageListActivity extends AppCompatActivity {
                 adapter.updateMessages(messages);
             }
         });
+    }
+
+    private void updateTitle() {
+        String title = isInbox ? getString(R.string.label_inbox) : getString(R.string.label_outbox);
+        binding.textViewTitle.setText(title);
+    }
+
+    private void updateUI() {
+        binding.recyclerView.setVisibility(View.VISIBLE);
+        binding.emptyView.setVisibility(View.GONE);
+        binding.swipeRefreshLayout.setRefreshing(false);
+        updateTitle();
     }
 
     // Action mode for multi-selection

@@ -136,6 +136,11 @@ public class ContactsManagerTest {
                 fail("Failed to add contact: " + error);
                 latch.countDown();
             }
+
+            @Override
+            public void onContactRemoved(Contact contact) {
+                // Not used in this test
+            }
         };
         
         // Act - Set the listener and add the contact
@@ -199,6 +204,11 @@ public class ContactsManagerTest {
             public void onContactAdded(Contact contact) {}
             
             @Override
+            public void onContactRemoved(Contact contact) {
+                // Not used in this test
+            }
+            
+            @Override
             public void onError(String error) {
                 fail("Failed to load contacts: " + error);
                 latch.countDown();
@@ -207,7 +217,7 @@ public class ContactsManagerTest {
         
         // Act
         contactsManager.setLoadListener(testListener);
-        contactsManager.loadContacts();
+        contactsManager.setLoadListener(testListener);
         
         // Simulate Firebase response with test data
         verify(mockUserContactsNode).addListenerForSingleValueEvent(valueEventListenerCaptor.capture());

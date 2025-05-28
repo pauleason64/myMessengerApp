@@ -159,7 +159,11 @@
     <string name="hours_ago">%1$d hr ago</string>
     <string name="i_agree_to_terms">I agree to the Terms &amp; Conditions</string>
     <string name="just_now">Just now</string>
+    <string name="label_date">Date</string>
     <string name="label_from">From: %s</string>
+    <string name="label_inbox">Inbox</string>
+    <string name="label_outbox">Outbox</string>
+    <string name="label_subject">Subject</string>
     <string name="label_to">To: %s</string>
     <string name="loading">Loading…</string>
     <string name="manage_contacts_coming_soon">The contacts management feature will be available in the next update.\n\nYou\'ll be able to manage your contacts, view contact details, and more.</string>
@@ -360,7 +364,7 @@
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
-    <style name="Theme.SimpleMessenger" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.SimpleMessenger" parent="Theme.MaterialComponents.DayNight">
         
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>

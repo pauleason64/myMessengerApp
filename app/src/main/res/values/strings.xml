@@ -75,6 +75,10 @@
     
     <!-- Main Activity -->
     <string name="title_messages">Messages</string>
+    <string name="label_inbox">Inbox</string>
+    <string name="label_outbox">Outbox</string>
+    <string name="label_date">Date</string>
+    <string name="label_subject">Subject</string>
     <string name="title_reminders">Reminders</string>
     <string name="menu_logout">Logout</string>
     <string name="action_logout">Logout</string>

@@ -2,6 +2,8 @@ package com.example.simplemessenger.ui.main;
 
 import static com.example.simplemessenger.utils.AuthUtils.checkAuthState;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,8 +25,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.simplemessenger.databinding.ActivityMessageListBinding;
 import com.example.simplemessenger.ui.auth.AuthActivity;
+import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.ComposeMessageActivity;
+import com.example.simplemessenger.ui.messaging.MessageListFragment;
 import com.example.simplemessenger.ui.profile.ProfileActivity;
 import com.example.simplemessenger.ui.settings.SettingsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -35,27 +40,8 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
-import com.example.simplemessenger.data.DatabaseHelper;
-import com.example.simplemessenger.data.model.Message;
-import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
-import com.example.simplemessenger.ui.messaging.MessageDetailActivity;
-import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
-import com.example.simplemessenger.utils.AuthUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -107,20 +93,21 @@ public class MainActivity extends AppCompatActivity {
         // Set content view first
         setContentView(R.layout.activity_main);
         
+        // Initialize toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowTitleEnabled(true);
+                getSupportActionBar().setTitle(R.string.app_name);
+            }
+        }
+        
         // Initialize UI components
         try {
             // Initialize Firebase Auth
             mAuth = FirebaseAuth.getInstance();
             Log.d("MainActivity", "Firebase Auth initialized");
-            
-            // Set up the Toolbar
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowTitleEnabled(true);
-                getSupportActionBar().setTitle(R.string.app_name);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            }
             
             // Initialize SharedPreferences
             sharedPreferences = getSharedPreferences(
@@ -141,21 +128,11 @@ public class MainActivity extends AppCompatActivity {
     private void initializeUI() {
         try {
             Log.d("MainActivity", "Initializing UI");
-            
-            // Set up the Toolbar
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            if (toolbar != null) {
-                setSupportActionBar(toolbar);
-                if (getSupportActionBar() != null) {
-                    getSupportActionBar().setDisplayShowTitleEnabled(true);
-                }
-                Log.d("MainActivity", "Toolbar set up");
-            }
-            
+
             // Set up ViewPager and TabLayout
             try {
                 // Create the adapter that will return a fragment for each section
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
                 Log.d("MainActivity", "SectionsPagerAdapter created");
 
                 // Set up the ViewPager with the sections adapter
@@ -180,34 +157,29 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Set up FAB
-            try {
-                FloatingActionButton fab = findViewById(R.id.fab);
-                if (fab != null) {
-                    fab.setOnClickListener(view -> {
-                        try {
-                            startActivity(new Intent(MainActivity.this, ComposeMessageActivity.class));
-                        } catch (Exception e) {
-                            Log.e("MainActivity", "Error starting ComposeMessageActivity", e);
-                            showError("Cannot open message composer. Please try again.");
-                        }
-                    });
-                    Log.d("MainActivity", "FAB set up");
-                }
-            } catch (Exception e) {
-                Log.e("MainActivity", "Error setting up FAB", e);
-                // Continue without FAB
+            FloatingActionButton fab = findViewById(R.id.fab);
+            if (fab != null) {
+                fab.setOnClickListener(view -> {
+                    try {
+                        startActivity(new Intent(MainActivity.this, ComposeMessageActivity.class));
+                    } catch (Exception e) {
+                        Log.e("MainActivity", "Error starting ComposeMessageActivity", e);
+                        showError("Cannot open message composer. Please try again.");
+                    }
+                });
+                Log.d("MainActivity", "FAB set up");
+            } else {
+                Log.w("MainActivity", "FAB not found in layout");
             }
 
             // Check auth state
             checkAuthState(this, AuthActivity.class, MainActivity.class);
             Log.d("MainActivity", "onCreate completed successfully");
-            
         } catch (Exception e) {
-            Log.e("MainActivity", "Fatal error in onCreate", e);
-            showErrorAndFinish("A critical error occurred. The app will now close.");
+            Log.e("MainActivity", "Error in initializeUI", e);
+            showErrorAndFinish("Error initializing UI. Please restart the app.");
         }
     }
-
 
     @Override
     protected void onResume() {
@@ -285,248 +257,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        private RecyclerView recyclerView;
-        private MessageAdapter adapter;
-        private List<Message> messages = new ArrayList<>();
-        private DatabaseHelper databaseHelper;
-        private ValueEventListener messageListener;
-        private Query messagesQuery;
-
-        public PlaceholderFragment() {
-        }
-
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public void onCreate(@Nullable Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            databaseHelper = DatabaseHelper.getInstance();
-        }
-
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                               Bundle savedInstanceState) {
-            int section = 1;
-            if (getArguments() != null) {
-                section = getArguments().getInt(ARG_SECTION_NUMBER);
-            }
-
-            // Inflate the appropriate layout based on the section
-            View rootView;
-            if (section == 1) { // Messages section
-                rootView = inflater.inflate(R.layout.fragment_messages, container, false);
-                setupMessagesRecyclerView(rootView);
-            } else {
-                rootView = inflater.inflate(R.layout.fragment_main, container, false);
-                TextView textView = rootView.findViewById(R.id.section_label);
-                String text = getString(R.string.title_messages);
-                switch (section) {
-                    case 2:
-                        text = getString(R.string.title_reminders);
-                        break;
-                    case 3:
-                        text = getString(R.string.title_profile);
-                        break;
-                }
-                textView.setText(text);
-            }
-            return rootView;
-        }
-
-        private void setupMessagesRecyclerView(View rootView) {
-            recyclerView = rootView.findViewById(R.id.recycler_view);
-            if (recyclerView != null) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
-                
-                // Initialize adapter with empty list
-                adapter = new MessageAdapter(new MessageAdapter.OnMessageActionListener() {
-                    @Override
-                    public void onMessageSelected(Message message) {
-                        // Open message detail
-                        Intent intent = new Intent(requireContext(), MessageDetailActivity.class);
-                        intent.putExtra("message_id", message.getId());
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onMessageLongClicked(Message message) {
-                        // Handle long click if needed
-                    }
-                });
-                recyclerView.setAdapter(adapter);
-                
-                // Load messages
-                loadMessages();
-            }
-        }
-
-        private void loadMessages() {
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (currentUser == null) {
-                Log.e("PlaceholderFragment", "Current user is null");
-                return;
-            }
-
-            String currentUserId = currentUser.getUid();
-            Log.d("PlaceholderFragment", "Loading messages for user: " + currentUserId);
-            
-            DatabaseReference userMessagesRef = databaseHelper.getDatabaseReference()
-                    .child("user-messages")
-                    .child(currentUserId)
-                    .child("received");
-                    
-            Log.d("PlaceholderFragment", "Loading user message references from: " + userMessagesRef.toString());
-            
-            messagesQuery = userMessagesRef.orderByKey();
-
-            messageListener = messagesQuery.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Log.d("PlaceholderFragment", "onDataChange: " + dataSnapshot.toString());
-                    Log.d("PlaceholderFragment", "Snapshot exists: " + dataSnapshot.exists());
-                    Log.d("PlaceholderFragment", "Has children: " + dataSnapshot.hasChildren());
-                    
-                    final List<Message> messageList = new ArrayList<>();
-                    final int totalMessages = (int) dataSnapshot.getChildrenCount();
-                    
-                    if (totalMessages == 0) {
-                        updateMessages(messageList);
-                        return;
-                    }
-                    
-                    // Counter to track how many messages we've loaded
-                    final int[] loadedCount = {0};
-                    
-                    // For each message reference, fetch the actual message
-                    for (DataSnapshot messageRef : dataSnapshot.getChildren()) {
-                        String messageId = messageRef.getKey();
-                        Log.d("PlaceholderFragment", "Found message reference, ID: " + messageId);
-                        
-                        // Fetch the actual message from /messages/{messageId}
-                        databaseHelper.getDatabaseReference()
-                                .child("messages")
-                                .child(messageId)
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot messageSnapshot) {
-                                        try {
-                                            Message message = messageSnapshot.getValue(Message.class);
-                                            if (message != null) {
-                                                message.setId(messageSnapshot.getKey());
-                                                messageList.add(message);
-                                                Log.d("PlaceholderFragment", "Loaded message with ID: " + message.getId());
-                                            }
-                                        } catch (Exception e) {
-                                            Log.e("PlaceholderFragment", "Error parsing message " + messageSnapshot.getKey(), e);
-                                        }
-                                        
-                                        // Check if we've loaded all messages
-                                        loadedCount[0]++;
-                                        if (loadedCount[0] >= totalMessages) {
-                                            Log.d("PlaceholderFragment", "Successfully loaded " + messageList.size() + " out of " + totalMessages + " messages");
-                                            updateMessages(messageList);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-                                        Log.e("PlaceholderFragment", "Error loading message " + messageId, error.toException());
-                                        // Still increment the counter
-                                        loadedCount[0]++;
-                                        if (loadedCount[0] >= totalMessages) {
-                                            Log.d("PlaceholderFragment", "Finished loading " + messageList.size() + " messages (some may have failed)");
-                                            updateMessages(messageList);
-                                        }
-                                    }
-                                });
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("PlaceholderFragment", "Error loading messages", databaseError.toException());
-                }
-            });
-        }
-
-        private void updateMessages(List<Message> newMessages) {
-            if (getActivity() == null) return;
-            
-            getActivity().runOnUiThread(() -> {
-                messages.clear();
-                if (newMessages != null) {
-                    messages.addAll(newMessages);
-                }
-                if (adapter != null) {
-                    adapter.updateMessages(messages);
-                }
-                
-                // Show empty state if no messages
-                View emptyView = getView() != null ? getView().findViewById(R.id.empty_view) : null;
-                if (emptyView != null) {
-                    emptyView.setVisibility(messages.isEmpty() ? View.VISIBLE : View.GONE);
-                    if (recyclerView != null) {
-                        recyclerView.setVisibility(messages.isEmpty() ? View.GONE : View.VISIBLE);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onDestroyView() {
-            super.onDestroyView();
-            // Remove the listener when the view is destroyed
-            if (messageListener != null && messagesQuery != null) {
-                messagesQuery.removeEventListener(messageListener);
-            }
-        }
-    }
-
-    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
+        private final Context context;
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        public SectionsPagerAdapter(FragmentManager fm, Context context) {
             super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+            this.context = context;
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return MessageListFragment.newInstance(position + 1);
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return 1; // Only one section for messages
         }
-        
+
+        @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_messages);
-                case 1:
-                    return getString(R.string.title_reminders);
-                case 2:
-                    return getString(R.string.title_profile);
-            }
-            return null;
+            return context.getString(R.string.title_messages);
         }
     }
 }

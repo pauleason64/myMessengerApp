@@ -64,9 +64,48 @@ public class ComposeMessageActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(R.string.title_compose_message);
         }
         
-        // Initialize contacts and set up auto-complete
-        setupRecipientAutoComplete();
+        // Initialize contacts first
         loadContacts();
+        
+        // Set up auto-complete after contacts are loaded
+        contactsManager.setLoadListener(new ContactsManager.ContactsLoadListener() {
+            @Override
+            public void onContactsLoaded(List<Contact> contacts) {
+                Log.d("ComposeMessage", "Loaded " + contacts.size() + " contacts");
+                contactEmails.clear();
+                for (Contact contact : contacts) {
+                    if (contact.getEmailAddress() != null && !contact.getEmailAddress().isEmpty()) {
+                        contactEmails.add(contact.getEmailAddress());
+                    }
+                }
+                setupRecipientAutoComplete();  // Set up autocomplete after contacts are loaded
+            }
+
+            @Override
+            public void onContactAdded(Contact contact) {
+                if (contact.getEmailAddress() != null && !contact.getEmailAddress().isEmpty() && 
+                    !contactEmails.contains(contact.getEmailAddress())) {
+                    contactEmails.add(contact.getEmailAddress());
+                    updateAutoCompleteAdapter();
+                }
+            }
+
+            @Override
+            public void onContactRemoved(Contact contact) {
+                if (contact.getEmailAddress() != null && contact.getEmailAddress().isEmpty()) {
+                    contactEmails.remove(contact.getEmailAddress());
+                    updateAutoCompleteAdapter();
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("ComposeMessage", "Error loading contacts: " + error);
+            }
+        });
+        
+        // Load contacts from Firebase
+        contactsManager.initializeContacts();
         
         // Set up click listeners
         binding.buttonSetReminder.setOnClickListener(v -> showReminderDialog());

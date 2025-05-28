@@ -1,190 +1,194 @@
 [
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_archive.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_archive.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\menu_menu_message_actions.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\menu\\menu_message_actions.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_main.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_main.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_message_list.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_message_list.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_empty_inbox.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_empty_inbox.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\menu_menu_main.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\menu\\menu_main.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_notifications.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_notifications.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_bg_reminder.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\bg_reminder.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_manage_contacts.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_manage_contacts.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_settings_activity.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\settings_activity.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_launcher_foreground.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_archive.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_archive.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_firebase_config.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_firebase_config.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_message_detail.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_message_detail.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_compose_message.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_compose_message.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_splash.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_splash.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/xml_backup_rules.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/xml/backup_rules.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_edit.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_edit.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_reply.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_reply.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_login.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_login.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_login.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_login.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_share.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_share.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_settings.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_settings.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_compose_message.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_compose_message.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/menu_menu_main.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/menu/menu_main.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_item_message.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\item_message.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_add.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_add.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_send.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_send.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_auth.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_auth.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_fragment_messages.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\fragment_messages.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/menu_menu_message_detail.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/menu/menu_message_detail.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_main.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_lock.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_lock.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_person_add.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_person_add.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_logout.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_logout.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_lock.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_lock.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/menu_menu_compose.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/menu/menu_compose.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_settings.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_settings.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_app_logo.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_app_logo.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_notifications.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_notifications.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_access_time.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_access_time.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_person.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_person.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_person_add.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_person_add.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_empty_inbox.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_empty_inbox.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_empty_state.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_empty_state.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\xml\\data_extraction_rules.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_splash_screen_background.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/splash_screen_background.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\menu_menu_message_detail.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\menu\\menu_message_detail.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/xml_root_preferences.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/xml/root_preferences.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_delete.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_delete.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_profile.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_profile.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_message_detail.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_message_detail.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_firebase_config.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_firebase_config.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_forward.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_forward.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/menu_menu_message_actions.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/menu/menu_message_actions.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_add.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_add.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_message_list.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/activity_message_list.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\xml_root_preferences.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\xml\\root_preferences.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/xml_data_extraction_rules.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/xml/data_extraction_rules.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_reply.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_reply.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_send.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_send.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_logout.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_logout.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_person.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_person.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_dialog_progress.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\dialog_progress.xml"
+    },
+    {
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_app_logo.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_app_logo.xml"
+    },
+    {
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_access_time.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_access_time.xml"
+    },
+    {
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_auth.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_auth.xml"
     },
     {
         "merged": "com.example.simplemessenger.app-merged_res-67:/layout_activity_splash.xml.flat",
         "source": "com.example.simplemessenger.app-main-69:/layout/activity_splash.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_dialog_progress.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/dialog_progress.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\menu_menu_compose.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\menu\\menu_compose.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_item_message.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/item_message.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_splash_screen_background.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\splash_screen_background.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_contacts.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_contacts.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_profile.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_profile.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_bg_reminder.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/bg_reminder.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_activity_manage_contacts.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\activity_manage_contacts.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_settings_activity.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/settings_activity.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_contacts.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_contacts.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_edit.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_edit.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\layout_fragment_main.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\layout\\fragment_main.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_delete.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_delete.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_empty_state.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_empty_state.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_ic_forward.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\ic_forward.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_fragment_main.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/fragment_main.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\xml_backup_rules.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\xml\\backup_rules.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_ic_share.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/ic_share.xml"
-    },
-    {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/drawable_bg_rounded_dialog.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/drawable/bg_rounded_dialog.xml"
-    },
-    {
-        "merged": "com.example.simplemessenger.app-merged_res-67:/layout_fragment_messages.xml.flat",
-        "source": "com.example.simplemessenger.app-main-69:/layout/fragment_messages.xml"
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-merged_res-67:\\drawable_bg_rounded_dialog.xml.flat",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.4\\com.example.simplemessenger.app-main-69:\\drawable\\bg_rounded_dialog.xml"
     }
 ]

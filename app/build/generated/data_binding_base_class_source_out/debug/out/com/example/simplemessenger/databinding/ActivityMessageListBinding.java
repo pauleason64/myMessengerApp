@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,29 +37,60 @@ public final class ActivityMessageListBinding implements ViewBinding {
   public final FloatingActionButton fab;
 
   @NonNull
+  public final RadioGroup radioGroup;
+
+  @NonNull
+  public final RadioButton radioInbox;
+
+  @NonNull
+  public final RadioButton radioOutbox;
+
+  @NonNull
   public final RecyclerView recyclerView;
+
+  @NonNull
+  public final LinearLayout sortHeader;
 
   @NonNull
   public final SwipeRefreshLayout swipeRefreshLayout;
 
   @NonNull
+  public final TextView textDateHeader;
+
+  @NonNull
   public final TextView textEmpty;
+
+  @NonNull
+  public final TextView textSubjectHeader;
+
+  @NonNull
+  public final TextView textViewTitle;
 
   @NonNull
   public final Toolbar toolbar;
 
   private ActivityMessageListBinding(@NonNull CoordinatorLayout rootView,
       @NonNull MaterialButton buttonCompose, @NonNull LinearLayout emptyView,
-      @NonNull FloatingActionButton fab, @NonNull RecyclerView recyclerView,
-      @NonNull SwipeRefreshLayout swipeRefreshLayout, @NonNull TextView textEmpty,
-      @NonNull Toolbar toolbar) {
+      @NonNull FloatingActionButton fab, @NonNull RadioGroup radioGroup,
+      @NonNull RadioButton radioInbox, @NonNull RadioButton radioOutbox,
+      @NonNull RecyclerView recyclerView, @NonNull LinearLayout sortHeader,
+      @NonNull SwipeRefreshLayout swipeRefreshLayout, @NonNull TextView textDateHeader,
+      @NonNull TextView textEmpty, @NonNull TextView textSubjectHeader,
+      @NonNull TextView textViewTitle, @NonNull Toolbar toolbar) {
     this.rootView = rootView;
     this.buttonCompose = buttonCompose;
     this.emptyView = emptyView;
     this.fab = fab;
+    this.radioGroup = radioGroup;
+    this.radioInbox = radioInbox;
+    this.radioOutbox = radioOutbox;
     this.recyclerView = recyclerView;
+    this.sortHeader = sortHeader;
     this.swipeRefreshLayout = swipeRefreshLayout;
+    this.textDateHeader = textDateHeader;
     this.textEmpty = textEmpty;
+    this.textSubjectHeader = textSubjectHeader;
+    this.textViewTitle = textViewTitle;
     this.toolbar = toolbar;
   }
 
@@ -106,9 +139,33 @@ public final class ActivityMessageListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.radio_group;
+      RadioGroup radioGroup = ViewBindings.findChildViewById(rootView, id);
+      if (radioGroup == null) {
+        break missingId;
+      }
+
+      id = R.id.radio_inbox;
+      RadioButton radioInbox = ViewBindings.findChildViewById(rootView, id);
+      if (radioInbox == null) {
+        break missingId;
+      }
+
+      id = R.id.radio_outbox;
+      RadioButton radioOutbox = ViewBindings.findChildViewById(rootView, id);
+      if (radioOutbox == null) {
+        break missingId;
+      }
+
       id = R.id.recycler_view;
       RecyclerView recyclerView = ViewBindings.findChildViewById(rootView, id);
       if (recyclerView == null) {
+        break missingId;
+      }
+
+      id = R.id.sort_header;
+      LinearLayout sortHeader = ViewBindings.findChildViewById(rootView, id);
+      if (sortHeader == null) {
         break missingId;
       }
 
@@ -118,9 +175,27 @@ public final class ActivityMessageListBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.text_date_header;
+      TextView textDateHeader = ViewBindings.findChildViewById(rootView, id);
+      if (textDateHeader == null) {
+        break missingId;
+      }
+
       id = R.id.text_empty;
       TextView textEmpty = ViewBindings.findChildViewById(rootView, id);
       if (textEmpty == null) {
+        break missingId;
+      }
+
+      id = R.id.text_subject_header;
+      TextView textSubjectHeader = ViewBindings.findChildViewById(rootView, id);
+      if (textSubjectHeader == null) {
+        break missingId;
+      }
+
+      id = R.id.text_view_title;
+      TextView textViewTitle = ViewBindings.findChildViewById(rootView, id);
+      if (textViewTitle == null) {
         break missingId;
       }
 
@@ -131,7 +206,8 @@ public final class ActivityMessageListBinding implements ViewBinding {
       }
 
       return new ActivityMessageListBinding((CoordinatorLayout) rootView, buttonCompose, emptyView,
-          fab, recyclerView, swipeRefreshLayout, textEmpty, toolbar);
+          fab, radioGroup, radioInbox, radioOutbox, recyclerView, sortHeader, swipeRefreshLayout,
+          textDateHeader, textEmpty, textSubjectHeader, textViewTitle, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
