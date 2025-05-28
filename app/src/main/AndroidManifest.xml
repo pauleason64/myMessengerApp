@@ -23,16 +23,22 @@
         android:theme="@style/Theme.SimpleMessenger"
         tools:targetApi="31">
 
-        <!-- Splash Screen Activity -->
+        <!-- Firebase Config Activity -->
         <activity
-            android:name=".ui.splash.SplashActivity"
+            android:name=".ui.setup.FirebaseConfigActivity"
             android:exported="true"
-            android:theme="@style/Theme.SimpleMessenger.Splash">
+            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Splash Screen Activity -->
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:exported="true" />
 
         <!-- Authentication Activity -->
         <activity
@@ -74,6 +80,19 @@
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
             android:label="@string/title_settings"
+            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.simplemessenger.ui.main.MainActivity" />
+        </activity>
+
+        <!-- Manage Contacts Activity -->
+        <activity
+            android:name=".ui.contacts.ManageContactsActivity"
+            android:exported="false"
+            android:label="@string/title_manage_contacts"
             android:theme="@style/Theme.SimpleMessenger.NoActionBar"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".ui.main.MainActivity">

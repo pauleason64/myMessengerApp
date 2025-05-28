@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Firebase Configuration"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please enter your Firebase configuration values. These are available from your Firebase Console."
+            android:paddingBottom="16dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_database_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Database URL">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_database_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_storage_bucket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Storage Bucket">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_storage_bucket"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_project_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Project ID">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_project_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_api_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="API Key">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_api_key"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_auth_domain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Auth Domain">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_auth_domain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_messaging_sender_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Messaging Sender ID">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_messaging_sender_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_app_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="App ID">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_app_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btn_save_config"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Configuration"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"/>
+
+    </LinearLayout>
+</ScrollView>

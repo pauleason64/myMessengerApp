@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-66:/values-sw360dp-v13/values-sw360dp-v13.xml",
+            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-65:/values-sw360dp-v13/values-sw360dp-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.10\\transforms\\5362574f8ea9de42f2d6286af7834780\\transformed\\preference-1.2.1\\res\\values-sw360dp-v13\\values-sw360dp-v13.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\11af3f06876b052bad8edc8e11d190b4\\transformed\\preference-1.2.1\\res\\values-sw360dp-v13\\values-sw360dp-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

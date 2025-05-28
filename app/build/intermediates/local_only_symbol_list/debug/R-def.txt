@@ -25,6 +25,7 @@ drawable ic_access_time
 drawable ic_add
 drawable ic_app_logo
 drawable ic_archive
+drawable ic_contacts
 drawable ic_delete
 drawable ic_edit
 drawable ic_empty_inbox
@@ -43,6 +44,7 @@ drawable ic_settings
 drawable ic_share
 drawable splash_screen_background
 id action_archive
+id action_contacts
 id action_delete
 id action_logout
 id action_profile
@@ -56,12 +58,20 @@ id btnSignOut
 id btn_login
 id btn_register
 id btn_register_submit
+id btn_save_config
 id button_compose
 id button_set_reminder
 id check_remember_me
 id check_terms
 id checkbox_set_reminder
 id container
+id edit_api_key
+id edit_app_id
+id edit_auth_domain
+id edit_database_url
+id edit_messaging_sender_id
+id edit_project_id
+id edit_storage_bucket
 id empty_view
 id fab
 id fab_delete
@@ -98,6 +108,13 @@ id text_date
 id text_empty
 id text_forgot_password
 id text_from
+id text_input_api_key
+id text_input_app_id
+id text_input_auth_domain
+id text_input_database_url
+id text_input_messaging_sender_id
+id text_input_project_id
+id text_input_storage_bucket
 id text_login
 id text_message
 id text_preview
@@ -113,7 +130,9 @@ id tvName
 id tv_message
 layout activity_auth
 layout activity_compose_message
+layout activity_firebase_config
 layout activity_main
+layout activity_manage_contacts
 layout activity_message_detail
 layout activity_message_list
 layout activity_profile
@@ -169,6 +188,7 @@ string channel_description
 string channel_name
 string channel_reminder_description
 string channel_reminder_name
+string coming_soon
 string confirm_logout
 string confirm_password
 string copied_to_clipboard
@@ -217,11 +237,6 @@ string forward_message
 string forward_prefix
 string from
 string full_date_format
-string gcm_defaultSenderId
-string google_api_key
-string google_app_id
-string google_crash_reporting_api_key
-string google_storage_bucket
 string hint_bcc
 string hint_cc
 string hint_confirm_password
@@ -238,6 +253,8 @@ string just_now
 string label_from
 string label_to
 string loading
+string manage_contacts_coming_soon
+string menu_contacts
 string menu_logout
 string menu_settings
 string message
@@ -337,7 +354,6 @@ string pref_title_theme
 string pref_title_version
 string print_message
 string profile_picture
-string project_id
 string prompt_email
 string prompt_password
 string remember_me
@@ -391,6 +407,7 @@ string title_edit_profile
 string title_forward_message
 string title_help
 string title_language
+string title_manage_contacts
 string title_message_detail
 string title_messages
 string title_notification_settings

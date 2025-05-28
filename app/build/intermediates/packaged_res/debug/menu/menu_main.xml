@@ -7,6 +7,11 @@
         android:title="@string/title_profile"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_contacts"
+        android:icon="@drawable/ic_contacts"
+        android:title="@string/menu_contacts"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/title_settings"

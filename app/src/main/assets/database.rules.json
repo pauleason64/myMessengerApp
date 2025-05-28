@@ -1,0 +1,70 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['email', 'name'])",
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        }
+      }
+    },
+    "user-contacts": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "$contactId": {
+          ".validate": "newData.hasChildren(['userId', 'contactId', 'userName', 'emailAddress']) && newData.child('userId').val() === $uid && newData.child('contactId').isString() && newData.child('userName').isString() && newData.child('emailAddress').isString() && newData.child('emailAddress').val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
+        }
+      }
+    },
+    "messages": {
+      "$messageId": {
+        ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid)",
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['senderId', 'recipientId', 'message', 'timestamp', 'read', 'subject'])",
+        "senderId": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "recipientId": {
+          ".validate": "newData.isString()"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "read": {
+          ".validate": "newData.isBoolean()"
+        },
+        "subject": {
+          ".validate": "newData.isString()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "user-messages": {
+      "$uid": {
+        "sent": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$messageId": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "received": {
+          ".read": "auth != null && auth.uid === $uid",
+          "$messageId": {
+            ".write": "auth != null"
+          }
+        }
+      }
+    }
+  }
+}

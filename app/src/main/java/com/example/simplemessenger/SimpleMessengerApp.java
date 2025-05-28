@@ -10,8 +10,8 @@ import android.util.Log;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
+import com.example.simplemessenger.util.FirebaseFactory;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class SimpleMessengerApp extends Application implements Configuration.Provider {
     
@@ -30,15 +30,16 @@ public class SimpleMessengerApp extends Application implements Configuration.Pro
         super.onCreate();
         
         // Initialize Firebase
-        FirebaseApp.initializeApp(this);
-        
-        // Enable Firebase Database persistence with the correct URL
         try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app");
-            database.setPersistenceEnabled(true);
-            Log.d("SimpleMessengerApp", "Firebase Database persistence enabled for Europe region");
+            // First initialize FirebaseApp
+            FirebaseApp.initializeApp(this);
+            
+            // Then initialize our custom Firebase configuration
+            FirebaseFactory.initialize(this);
+            FirebaseFactory.getDatabase().setPersistenceEnabled(true);
+            Log.d("SimpleMessengerApp", "Firebase Database persistence enabled");
         } catch (Exception e) {
-            Log.e("SimpleMessengerApp", "Failed to enable Firebase Database persistence", e);
+            Log.e("SimpleMessengerApp", "Failed to initialize Firebase", e);
         }
         
         // Create notification channel

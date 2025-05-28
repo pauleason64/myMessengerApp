@@ -43,12 +43,13 @@
                 android:layout_marginBottom="16dp"
                 android:hint="@string/hint_recipient">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <AutoCompleteTextView
                     android:id="@+id/input_recipient"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
+                    android:completionThreshold="1"
                     android:singleLine="true"
                     tools:ignore="TextFields" />
             </com.google.android.material.textfield.TextInputLayout>

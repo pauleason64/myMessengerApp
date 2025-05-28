@@ -1,5 +1,7 @@
 package com.example.simplemessenger.data.model;
 
+import androidx.annotation.Nullable;
+
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
@@ -7,33 +9,35 @@ import com.google.firebase.database.ServerValue;
 import java.util.HashMap;
 import java.util.Map;
 
-@IgnoreExtraProperties
+@com.google.firebase.database.IgnoreExtraProperties
 
 public class Message {
-    private String id;
-    private String senderId;
-    private String senderEmail;
-    private String recipientEmail;
-    private String subject;
-    private String message;
-    private long timestamp;
-    private boolean read;
-    private boolean hasReminder;
-    private long reminderTime;
-    private boolean archived;
+    private String id = "";
+    private String senderId = "";
+    private String senderEmail = "";
+    private String recipientId = "";
+    private String recipientEmail = "";
+    private String subject = "";
+    private String content = "";
+    private long timestamp = 0;
+    private boolean read = false;
+    private boolean hasReminder = false;
+    private long reminderTime = 0;
+    private boolean archived = false;
 
     // Required empty constructor for Firebase
     public Message() {
         this.timestamp = 0; // Will be set when saving to database
     }
 
-    public Message(String senderId, String senderEmail, String recipientEmail, 
-                  String subject, String message) {
+    public Message(String senderId, String senderEmail, String recipientId, String recipientEmail, 
+                  String subject, String content) {
         this.senderId = senderId;
         this.senderEmail = senderEmail;
+        this.recipientId = recipientId;
         this.recipientEmail = recipientEmail;
         this.subject = subject;
-        this.message = message;
+        this.content = content;
         this.read = false;
         this.hasReminder = false;
         this.archived = false;
@@ -64,6 +68,14 @@ public class Message {
         this.senderEmail = senderEmail;
     }
 
+    public String getRecipientId() {
+        return recipientId;
+    }
+
+    public void setRecipientId(String recipientId) {
+        this.recipientId = recipientId;
+    }
+
     public String getRecipientEmail() {
         return recipientEmail;
     }
@@ -80,12 +92,12 @@ public class Message {
         this.subject = subject;
     }
 
-    public String getMessage() {
-        return message;
+    public String getContent() {
+        return content;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public long getTimestamp() {
@@ -105,6 +117,7 @@ public class Message {
     }
     
     // Overloaded setter for direct long assignment
+    @Exclude
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
@@ -169,7 +182,7 @@ public class Message {
         map.put("senderEmail", senderEmail);
         map.put("recipientEmail", recipientEmail);
         map.put("subject", subject);
-        map.put("message", message);
+        map.put("content", content);
         map.put("timestamp", timestamp > 0 ? timestamp : ServerValue.TIMESTAMP);
         map.put("read", read);
         map.put("hasReminder", hasReminder);
@@ -180,4 +193,6 @@ public class Message {
         return map;
     }
 
+    public void setContents(String messageText) {
+    }
 }

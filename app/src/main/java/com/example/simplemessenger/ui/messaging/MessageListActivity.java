@@ -16,7 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.simplemessenger.R;
+import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.data.DatabaseHelper;
+import com.example.simplemessenger.data.model.Contact;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityMessageListBinding;
 import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
@@ -40,6 +42,7 @@ public class MessageListActivity extends AppCompatActivity {
     private final List<Message> messages = new ArrayList<>();
     private ValueEventListener messageListener;
     private Query messagesQuery;
+    private ContactsManager contactsManager;
 
     private final MessageAdapter adapter = new MessageAdapter(new MessageAdapter.OnMessageActionListener() {
         @Override
@@ -68,6 +71,7 @@ public class MessageListActivity extends AppCompatActivity {
         databaseHelper = DatabaseHelper.getInstance();
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        contactsManager = ContactsManager.getInstance();
 
         // Set up the toolbar
         Toolbar toolbar = binding.toolbar;
@@ -97,7 +101,41 @@ public class MessageListActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadMessages();
+        loadContactsAndMessages();
+    }
+
+    private void loadContactsAndMessages() {
+        // First load contacts
+        contactsManager.initializeContacts();
+        contactsManager.setLoadListener(new ContactsManager.ContactsLoadListener() {
+            @Override
+            public void onContactsLoaded(List<Contact> contacts) {
+                if (contacts != null) {
+                Log.d("MessageList", "Contacts loaded: " + contacts.size() + " contacts");
+                } else {
+                Log.d("MessageList", "No contacts created yet");
+                }
+                // Now load messages after contacts are loaded
+                loadMessages();
+            }
+
+            @Override
+            public void onContactAdded(Contact contact) {
+                Log.d("MessageList", "Contact added: " + contact.getEmailAddress());
+            }
+
+            @Override
+            public void onContactRemoved(Contact contact) {
+                Log.d("MessageList", "Contact removed: " + contact.getEmailAddress());
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("MessageList", "Error loading contacts: " + error);
+                // Load messages even if contacts fail to load
+                loadMessages();
+            }
+        });
     }
 
     @Override

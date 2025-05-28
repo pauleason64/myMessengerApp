@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-66:/values-night-v8/values-night-v8.xml",
+            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-65:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.10\\transforms\\9d69ff030d17892804452a758dcf7e45\\transformed\\appcompat-1.6.1\\res\\values-night-v8\\values-night-v8.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\c5bedcfccbb52b3a46e81083589ddedb\\transformed\\appcompat-1.6.1\\res\\values-night-v8\\values-night-v8.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.10\\transforms\\3b252a9b8bb38e2f191401032845355d\\transformed\\material-1.11.0\\res\\values-night-v8\\values-night-v8.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\2ef7afba87b546f0f27fb6815bf14b2f\\transformed\\material-1.11.0\\res\\values-night-v8\\values-night-v8.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

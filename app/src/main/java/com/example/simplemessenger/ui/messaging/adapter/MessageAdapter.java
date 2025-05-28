@@ -110,7 +110,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             textSubject.setText(message.getSubject());
             
             // Set message preview
-            textPreview.setText(message.getMessage());
+            textPreview.setText(message.getContent());
             
             // Show reminder icon if message has a reminder
             imageReminder.setVisibility(message.isHasReminder() ? View.VISIBLE : View.GONE);

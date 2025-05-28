@@ -2,11 +2,15 @@ package com.example.simplemessenger.ui.messaging;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,7 +28,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.example.simplemessenger.data.ContactsManager;
+import com.example.simplemessenger.data.model.Contact;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ComposeMessageActivity extends AppCompatActivity {
@@ -32,6 +41,8 @@ public class ComposeMessageActivity extends AppCompatActivity {
     private ActivityComposeMessageBinding binding;
     private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
+    private ContactsManager contactsManager;
+    private List<String> contactEmails = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +53,8 @@ public class ComposeMessageActivity extends AppCompatActivity {
         // Initialize Firebase and DatabaseHelper
         mAuth = FirebaseAuth.getInstance();
         databaseHelper = DatabaseHelper.getInstance();
-
+        contactsManager = ContactsManager.getInstance();
+        
         // Set up the toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
@@ -51,7 +63,11 @@ public class ComposeMessageActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle(R.string.title_compose_message);
         }
-
+        
+        // Initialize contacts and set up auto-complete
+        setupRecipientAutoComplete();
+        loadContacts();
+        
         // Set up click listeners
         binding.buttonSetReminder.setOnClickListener(v -> showReminderDialog());
     }
@@ -77,6 +93,99 @@ public class ComposeMessageActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void loadContacts() {
+        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        if (currentUserId == null) {
+            Log.e("ComposeMessage", "User not authenticated");
+            return;
+        }
+        
+        contactsManager.setLoadListener(new ContactsManager.ContactsLoadListener() {
+            @Override
+            public void onContactsLoaded(List<Contact> contacts) {
+                Log.d("ComposeMessage", "Loaded " + contacts.size() + " contacts");
+                contactEmails.clear();
+                for (Contact contact : contacts) {
+                    if (contact.getEmailAddress() != null && !contact.getEmailAddress().isEmpty()) {
+                        contactEmails.add(contact.getEmailAddress());
+                    }
+                }
+                updateAutoCompleteAdapter();
+            }
+
+            @Override
+            public void onContactAdded(Contact contact) {
+                if (contact.getEmailAddress() != null && !contact.getEmailAddress().isEmpty() && 
+                    !contactEmails.contains(contact.getEmailAddress())) {
+                    contactEmails.add(contact.getEmailAddress());
+                    updateAutoCompleteAdapter();
+                }
+            }
+
+            @Override
+            public void onContactRemoved(Contact contact) {
+
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("ComposeMessage", "Error loading contacts: " + error);
+            }
+        });
+        
+        // Load contacts from Firebase
+        contactsManager.initializeContacts();
+    }
+    
+    private void setupRecipientAutoComplete() {
+        // The input_recipient is now an AutoCompleteTextView in the layout
+        AutoCompleteTextView recipientInput = findViewById(R.id.input_recipient);
+        
+        if (recipientInput == null) {
+            Log.e("ComposeMessage", "Could not find input_recipient AutoCompleteTextView");
+            return;
+        }
+        
+        // Set up the adapter for the AutoCompleteTextView
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                contactEmails
+        );
+        
+        // Set the adapter
+        recipientInput.setAdapter(adapter);
+        
+        // Set the threshold to 1 character
+        recipientInput.setThreshold(1);
+        
+        // Add text changed listener to handle adding new contacts
+        recipientInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            
+            @Override
+            public void afterTextChanged(Editable s) {
+                // You could add validation or other logic here
+            }
+        });
+    }
+    
+    private void updateAutoCompleteAdapter() {
+        AutoCompleteTextView recipientInput = findViewById(R.id.input_recipient);
+        if (recipientInput != null) {
+            ArrayAdapter<String> adapter = (ArrayAdapter<String>) recipientInput.getAdapter();
+            if (adapter != null) {
+                adapter.clear();
+                adapter.addAll(contactEmails);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+    
     private void showReminderDialog() {
         // TODO: Implement reminder dialog
         Toast.makeText(this, "Reminder functionality will be implemented here", Toast.LENGTH_SHORT).show();
@@ -84,14 +193,47 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
     private void sendMessage() {
         Log.d("SendMessage", "Starting sendMessage");
-        Log.d("SendMessage", "Current user: " + (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "null"));
+        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
         
+        if (currentUserId == null) {
+            Toast.makeText(this, "Please log in first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String recipientEmail = binding.inputRecipient.getText().toString().trim();
         String subject = binding.inputSubject.getText().toString().trim();
         String messageText = binding.inputMessage.getText().toString().trim();
-        
-        Log.d("SendMessage", "Recipient email: " + recipientEmail);
-        Log.d("SendMessage", "Subject: " + subject);
+
+        // Check if recipient exists in contacts
+        Contact recipientContact = contactsManager.getContactByEmail(recipientEmail);
+        if (recipientContact == null) {
+            // Create new contact
+            contactsManager.addContact(recipientEmail, recipientEmail, recipientEmail);
+        }
+
+        // Create message
+        Message message = new Message();
+        message.setSenderId(currentUserId);
+        message.setRecipientEmail(recipientEmail);
+        message.setSubject(subject);
+        message.setContent(messageText);
+        message.setTimestamp(System.currentTimeMillis());
+        message.setRead(false);
+        message.setArchived(false);
+
+        // Save message
+        databaseHelper.sendMessage(message, new DatabaseHelper.DatabaseCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Toast.makeText(ComposeMessageActivity.this, "Message sent successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(ComposeMessageActivity.this, "Error sending message: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Validate inputs
         if (TextUtils.isEmpty(recipientEmail)) {
@@ -107,7 +249,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
         }
 
         // Get current user
-        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+//        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
         String currentUserEmail = mAuth.getCurrentUser() != null ? 
                 mAuth.getCurrentUser().getEmail() : "Unknown";
 

@@ -2128,6 +2128,7 @@
     <string name="character_counter_overflowed_content_description">Character limit exceeded %1$d of %2$d</string>
     <string name="character_counter_pattern" translatable="false">%1$d/%2$d</string>
     <string name="clear_text_end_icon_content_description">Clear text</string>
+    <string name="coming_soon">Coming Soon</string>
     <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Enable</string>
     <string msgid="227660514972886228" name="common_google_play_services_enable_text"><ns2:g id="app_name">%1$s</ns2:g> won\'t work unless you enable Google Play services.</string>
     <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Enable Google Play services</string>
@@ -2209,11 +2210,6 @@
     <string name="forward_prefix">Fwd: </string>
     <string name="from">From: %1$s</string>
     <string name="full_date_format">EEEE, MMMM d, yyyy</string>
-    <string name="gcm_defaultSenderId" translatable="false">126830894242</string>
-    <string name="google_api_key" translatable="false">AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I</string>
-    <string name="google_app_id" translatable="false">1:126830894242:android:d393abd1bd0d43ab774bfb</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I</string>
-    <string name="google_storage_bucket" translatable="false">simplemessenger-c0a47.firebasestorage.app</string>
     <string name="hide_bottom_view_on_scroll_behavior" translatable="false">com.google.android.material.behavior.HideBottomViewOnScrollBehavior</string>
     <string name="hint_bcc">Bcc</string>
     <string name="hint_cc">Cc</string>
@@ -2249,6 +2245,7 @@
     <string name="m3_sys_motion_easing_standard" translatable="false">cubic-bezier(0.2, 0, 0, 1)</string>
     <string name="m3_sys_motion_easing_standard_accelerate" translatable="false">cubic-bezier(0.3, 0, 1, 1)</string>
     <string name="m3_sys_motion_easing_standard_decelerate" translatable="false">cubic-bezier(0, 0, 0, 1)</string>
+    <string name="manage_contacts_coming_soon">The contacts management feature will be available in the next update.\n\nYou\'ll be able to manage your contacts, view contact details, and more.</string>
     <string name="material_clock_display_divider" translatable="false">:</string>
     <string description="Description for the toggle to choose between AM and PM [CHAR_LIMIT=NONE]" name="material_clock_toggle_content_description">Select AM or PM</string>
     <string description="Spoken suffix for an hour in the 24-hour clock [CHAR_LIMIT=10]" name="material_hour_24h_suffix"><ns2:g id="number">%1$s</ns2:g> hours</string>
@@ -2271,6 +2268,7 @@
     <string description="Suffix for time in 12-hour standard, after noon. [CHAR_LIMIT=2]" name="material_timepicker_pm">PM</string>
     <string description="Title for the dialog with a time picker. [CHAR_LIMIT=32]" name="material_timepicker_select_time">Select time</string>
     <string name="material_timepicker_text_input_mode_description">Switch to text input mode for the time input.</string>
+    <string name="menu_contacts">Contacts</string>
     <string name="menu_logout">Logout</string>
     <string name="menu_settings">Settings</string>
     <string name="message">Message</string>
@@ -2449,7 +2447,6 @@
     </string>
     <string name="print_message">Print</string>
     <string name="profile_picture">Profile Picture</string>
-    <string name="project_id" translatable="false">simplemessenger-c0a47</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="remember_me">Remember me</string>
@@ -2513,6 +2510,7 @@
     <string name="title_forward_message">Forward Message</string>
     <string name="title_help">Help</string>
     <string name="title_language">Language</string>
+    <string name="title_manage_contacts">Manage Contacts</string>
     <string name="title_message_detail">Message</string>
     <string name="title_messages">Messages</string>
     <string name="title_notification_settings">Notification Settings</string>

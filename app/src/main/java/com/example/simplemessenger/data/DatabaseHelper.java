@@ -1,10 +1,13 @@
 package com.example.simplemessenger.data;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.simplemessenger.data.model.Message;
+import com.example.simplemessenger.util.FirebaseConfigManager;
+import com.example.simplemessenger.util.FirebaseFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -22,15 +25,32 @@ public class DatabaseHelper {
     private final FirebaseAuth mAuth;
 
     // Database paths
-    private static final String MESSAGES_NODE = "messages";
-    private static final String USER_MESSAGES_NODE = "user-messages";
-    private static final String USER_SENT_NODE = "sent";
-    private static final String USER_RECEIVED_NODE = "received";
+    protected static final String MESSAGES_NODE = "messages";
+    protected static final String USER_MESSAGES_NODE = "user-messages";
+    protected static final String USER_SENT_NODE = "sent";
+    protected static final String USER_RECEIVED_NODE = "received";
 
     private DatabaseHelper() {
-        // Initialize Firebase Database with custom URL
-        databaseReference = FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app").getReference();
-        mAuth = FirebaseAuth.getInstance();
+        this(FirebaseFactory.getDatabase().getReference(),
+             FirebaseFactory.getAuth());
+    }
+    
+    /**
+     * Package-private constructor for testing
+     */
+    DatabaseHelper(String databaseUrl) {
+        this(
+            FirebaseDatabase.getInstance(databaseUrl).getReference(),
+            FirebaseAuth.getInstance()
+        );
+    }
+    
+    /**
+     * Package-private constructor for dependency injection in tests
+     */
+    DatabaseHelper(DatabaseReference databaseReference, FirebaseAuth firebaseAuth) {
+        this.databaseReference = databaseReference;
+        this.mAuth = firebaseAuth;
     }
 
     public static synchronized DatabaseHelper getInstance() {
@@ -53,6 +73,19 @@ public class DatabaseHelper {
             return;
         }
 
+        // Get current user's email
+        String currentEmail = mAuth.getCurrentUser().getEmail();
+        if (currentEmail == null || currentEmail.isEmpty()) {
+            callback.onError("User email not available");
+            return;
+        }
+
+        // Set sender and recipient emails
+        message.setSenderId(mAuth.getCurrentUser().getUid());
+        message.setSenderEmail(currentEmail);
+        message.setRecipientId(getUserIdFromEmail(message.getRecipientEmail()));
+        message.setRecipientEmail(message.getRecipientEmail());
+        
         message.setId(messageId);
         // The timestamp will be set by the Message.toMap() method using ServerValue.TIMESTAMP
         
@@ -120,6 +153,40 @@ public class DatabaseHelper {
     // Helper method to convert email to user ID (replace @ and . with _)
     private String getUserIdFromEmail(String email) {
         return email.replace("@", "_").replace(".", "_");
+    }
+    
+    /**
+     * Fetches a single message by its ID
+     * @param messageId The ID of the message to fetch
+     * @param callback Callback to handle the result or error
+     */
+    public void getMessage(String messageId, final DatabaseCallback callback) {
+        if (messageId == null || messageId.isEmpty()) {
+            callback.onError("Message ID cannot be null or empty");
+            return;
+        }
+        
+        databaseReference.child(MESSAGES_NODE).child(messageId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            Message message = dataSnapshot.getValue(Message.class);
+                            if (message != null) {
+                                message.setId(dataSnapshot.getKey());
+                                callback.onSuccess(message);
+                                return;
+                            }
+                        }
+                        callback.onError("Message not found");
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.e(TAG, "Error getting message: " + databaseError.getMessage());
+                        callback.onError(databaseError.getMessage());
+                    }
+                });
     }
 
     // Callback interface for database operations

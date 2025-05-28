@@ -4,6 +4,7 @@ package com.example.simplemessenger.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -34,7 +35,7 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
   public final TextInputEditText inputMessage;
 
   @NonNull
-  public final TextInputEditText inputRecipient;
+  public final AutoCompleteTextView inputRecipient;
 
   @NonNull
   public final TextInputEditText inputSubject;
@@ -56,7 +57,7 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
 
   private ActivityComposeMessageBinding(@NonNull CoordinatorLayout rootView,
       @NonNull MaterialButton buttonSetReminder, @NonNull CheckBox checkboxSetReminder,
-      @NonNull TextInputEditText inputMessage, @NonNull TextInputEditText inputRecipient,
+      @NonNull TextInputEditText inputMessage, @NonNull AutoCompleteTextView inputRecipient,
       @NonNull TextInputEditText inputSubject, @NonNull TextInputLayout layoutMessage,
       @NonNull TextInputLayout layoutRecipient, @NonNull TextInputLayout layoutSubject,
       @NonNull TextView textReminderTime, @NonNull Toolbar toolbar) {
@@ -119,7 +120,7 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
       }
 
       id = R.id.input_recipient;
-      TextInputEditText inputRecipient = ViewBindings.findChildViewById(rootView, id);
+      AutoCompleteTextView inputRecipient = ViewBindings.findChildViewById(rootView, id);
       if (inputRecipient == null) {
         break missingId;
       }

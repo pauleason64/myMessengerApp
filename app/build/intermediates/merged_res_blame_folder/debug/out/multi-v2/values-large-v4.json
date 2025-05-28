@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-66:/values-large-v4/values-large-v4.xml",
+            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-65:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.10\\transforms\\9d69ff030d17892804452a758dcf7e45\\transformed\\appcompat-1.6.1\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\c5bedcfccbb52b3a46e81083589ddedb\\transformed\\appcompat-1.6.1\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\peaso\\.gradle\\caches\\8.10\\transforms\\3b252a9b8bb38e2f191401032845355d\\transformed\\material-1.11.0\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\peaso\\.gradle\\caches\\transforms-3\\2ef7afba87b546f0f27fb6815bf14b2f\\transformed\\material-1.11.0\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",

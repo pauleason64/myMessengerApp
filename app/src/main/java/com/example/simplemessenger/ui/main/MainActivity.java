@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
@@ -44,10 +45,13 @@ import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
 import com.example.simplemessenger.ui.messaging.MessageDetailActivity;
+import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.utils.AuthUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("MainActivity", "onCreate started");
+        Log.d("MainActivity", "main onCreate started");
         super.onCreate(savedInstanceState);
         
         // Set content view first
@@ -236,6 +240,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_profile) {
             startActivity(new Intent(this, ProfileActivity.class));
             return true;
+        } else if (id == R.id.action_contacts) {
+            startActivity(new Intent(this, ManageContactsActivity.class));
+            return true;
         } else if (id == R.id.action_logout) {
             confirmLogout();
             return true;
@@ -367,27 +374,83 @@ public class MainActivity extends AppCompatActivity {
         private void loadMessages() {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser == null) {
+                Log.e("PlaceholderFragment", "Current user is null");
                 return;
             }
 
             String currentUserId = currentUser.getUid();
-            messagesQuery = databaseHelper.getDatabaseReference()
+            Log.d("PlaceholderFragment", "Loading messages for user: " + currentUserId);
+            
+            DatabaseReference userMessagesRef = databaseHelper.getDatabaseReference()
                     .child("user-messages")
                     .child(currentUserId)
-                    .child("received")
-                    .orderByChild("timestamp");
+                    .child("received");
+                    
+            Log.d("PlaceholderFragment", "Loading user message references from: " + userMessagesRef.toString());
+            
+            messagesQuery = userMessagesRef.orderByKey();
 
             messageListener = messagesQuery.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    List<Message> messageList = new ArrayList<>();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        Message message = snapshot.getValue(Message.class);
-                        if (message != null) {
-                            messageList.add(message);
-                        }
+                    Log.d("PlaceholderFragment", "onDataChange: " + dataSnapshot.toString());
+                    Log.d("PlaceholderFragment", "Snapshot exists: " + dataSnapshot.exists());
+                    Log.d("PlaceholderFragment", "Has children: " + dataSnapshot.hasChildren());
+                    
+                    final List<Message> messageList = new ArrayList<>();
+                    final int totalMessages = (int) dataSnapshot.getChildrenCount();
+                    
+                    if (totalMessages == 0) {
+                        updateMessages(messageList);
+                        return;
                     }
-                    updateMessages(messageList);
+                    
+                    // Counter to track how many messages we've loaded
+                    final int[] loadedCount = {0};
+                    
+                    // For each message reference, fetch the actual message
+                    for (DataSnapshot messageRef : dataSnapshot.getChildren()) {
+                        String messageId = messageRef.getKey();
+                        Log.d("PlaceholderFragment", "Found message reference, ID: " + messageId);
+                        
+                        // Fetch the actual message from /messages/{messageId}
+                        databaseHelper.getDatabaseReference()
+                                .child("messages")
+                                .child(messageId)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot messageSnapshot) {
+                                        try {
+                                            Message message = messageSnapshot.getValue(Message.class);
+                                            if (message != null) {
+                                                message.setId(messageSnapshot.getKey());
+                                                messageList.add(message);
+                                                Log.d("PlaceholderFragment", "Loaded message with ID: " + message.getId());
+                                            }
+                                        } catch (Exception e) {
+                                            Log.e("PlaceholderFragment", "Error parsing message " + messageSnapshot.getKey(), e);
+                                        }
+                                        
+                                        // Check if we've loaded all messages
+                                        loadedCount[0]++;
+                                        if (loadedCount[0] >= totalMessages) {
+                                            Log.d("PlaceholderFragment", "Successfully loaded " + messageList.size() + " out of " + totalMessages + " messages");
+                                            updateMessages(messageList);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Log.e("PlaceholderFragment", "Error loading message " + messageId, error.toException());
+                                        // Still increment the counter
+                                        loadedCount[0]++;
+                                        if (loadedCount[0] >= totalMessages) {
+                                            Log.d("PlaceholderFragment", "Finished loading " + messageList.size() + " messages (some may have failed)");
+                                            updateMessages(messageList);
+                                        }
+                                    }
+                                });
+                    }
                 }
 
                 @Override
