@@ -16,18 +16,15 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.data.DatabaseHelper;
+import com.example.simplemessenger.data.MessageLoader;
 import com.example.simplemessenger.data.model.Contact;
 import com.example.simplemessenger.data.model.Message;
-import com.example.simplemessenger.databinding.ActivityMessageListBinding;
 import com.example.simplemessenger.ui.auth.AuthActivity;
 import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
 import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
@@ -39,14 +36,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import android.util.SparseArray;
 
@@ -85,8 +76,7 @@ public class MessageListActivity extends AppCompatActivity {
     private ActionMode actionMode;
     private String currentUserId;
     private final List<Message> messages = new ArrayList<>();
-    private ValueEventListener messageListener;
-    private Query messagesQuery;
+    private MessageLoader messageLoader;
     private boolean isAscending = true;
     private boolean isInbox = true;
     private String currentSortField = "timestamp";
@@ -225,12 +215,6 @@ public class MessageListActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         loadContactsAndMessages();
-        
-        // Post a message to the handler to ensure fragments are created
-//        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-//            // Load messages for the current tab
-//            loadMessages();
-//        }, 100);
     }
 
     private void loadContactsAndMessages() {
@@ -304,9 +288,9 @@ public class MessageListActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // Remove the listener when the activity is stopped
-        if (messageListener != null && messagesQuery != null) {
-            messagesQuery.removeEventListener(messageListener);
+        // Clean up the message loader when the activity is stopped
+        if (messageLoader != null) {
+            messageLoader.cleanup();
         }
     }
     
@@ -366,114 +350,42 @@ public class MessageListActivity extends AppCompatActivity {
         Log.d("MessageList", logMessage);
         showSnackbar(logMessage);
 
-        // Remove any existing listener to prevent duplicates
-        if (messageListener != null && messagesQuery != null) {
-            messagesQuery.removeEventListener(messageListener);
-        }
-
         // Clear existing messages and update UI immediately
         messages.clear();
         updateUI(messages);
-
-        // Determine which messages to load based on current tab
-        String messageType = isInbox ? "received" : "sent";
         
-        // Query messages
-        DatabaseReference userMessagesRef = databaseHelper.getDatabaseReference()
-                .child("user-messages")
-                .child(currentUserId)
-                .child(messageType);
-                
-        // Add a listener to check if the reference exists
-        userMessagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()) {
-                    Log.d("MessageListActivity", "No " + messageType + " messages found for user");
-                    updateUI(new ArrayList<>());
-                    return;
-                }
-                
-                // If reference exists, proceed with the query
-                messagesQuery = userMessagesRef.orderByChild(currentSortField);
-
-        if (!isAscending) {
-            messagesQuery = messagesQuery.limitToLast(100); // Only get last 100 messages
+        // Create or reuse message loader
+        if (messageLoader != null) {
+            messageLoader.cleanup();
         }
-
-        // Add a value event listener for real-time updates
-        messageListener = new ValueEventListener() {
+        
+        messageLoader = new MessageLoader(
+            databaseHelper,
+            contactsManager,
+            currentUserId,
+            isInbox,
+            currentSortField,
+            isAscending
+        );
+        
+        messageLoader.loadMessages(new MessageLoader.MessageLoadListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.d("MessageListActivity", "onDataChange, messages count: " + dataSnapshot.getChildrenCount());
-                
-                if (dataSnapshot.getChildrenCount() == 0) {
+            public void onMessagesLoaded(List<Message> loadedMessages) {
+                runOnUiThread(() -> {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                    messagesLoaded = true;
+                    updateUI(loadedMessages);
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                Log.e("MessageList", "Error loading messages: " + error);
+                runOnUiThread(() -> {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                    showSnackbar("Error loading messages: " + error);
                     updateUI(new ArrayList<>());
-                    return;
-                }
-                
-                final List<Message> loadedMessages = new ArrayList<>();
-                final int[] completedFetches = {0};
-                final int totalMessages = (int) dataSnapshot.getChildrenCount();
-                
-                for (DataSnapshot messageRef : dataSnapshot.getChildren()) {
-                    String messageId = messageRef.getKey();
-                    Log.d("MessageListActivity", "Fetching message with ID: " + messageId);
-                    
-                    databaseHelper.getDatabaseReference()
-                            .child("messages")
-                            .child(messageId)
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    Message message = snapshot.getValue(Message.class);
-                                    if (message != null) {
-                                        loadedMessages.add(message);
-                                        completedFetches[0]++;
-
-                                        if (completedFetches[0] == totalMessages) {
-                                            // All messages loaded, sort and update UI
-                                            if (currentSortField.equals("timestamp")) {
-                                                if (!isAscending) {
-                                                    Collections.reverse(loadedMessages);
-                                                }
-                                            } else if (currentSortField.equals("subject")) {
-                                                loadedMessages.sort((m1, m2) -> {
-                                                    String s1 = m1.getSubject() != null ? m1.getSubject() : "";
-                                                    String s2 = m2.getSubject() != null ? m2.getSubject() : "";
-                                                    return isAscending ? s1.compareTo(s2) : s2.compareTo(s1);
-                                                });
-                                            }
-                                            updateUI(loadedMessages);
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    Log.e("MessageListActivity", "Error loading message: " + error.getMessage());
-                                    binding.swipeRefreshLayout.setRefreshing(false);
-                                }
-                            });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("MessageListActivity", "Error loading messages: " + databaseError.getMessage());
-                updateUI(new ArrayList<>());
-            }
-        };
-
-                // Add the listener to the query
-                messagesQuery.addValueEventListener(messageListener);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("MessageListActivity", "Error checking messages reference: " + error.getMessage());
-                binding.swipeRefreshLayout.setRefreshing(false);
-                updateUI(new ArrayList<>());
+                });
             }
         });
     }

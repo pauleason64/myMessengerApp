@@ -106,13 +106,6 @@ public class ContactsManager {
     public void initializeContacts() {
         Log.d(TAG, "initializeContacts() called");
         
-        if (loadListener == null) {
-            Log.w(TAG, "initializeContacts: No loadListener set, contacts loading will be delayed");
-            return; // The listener will be set later
-        } else {
-            Log.d(TAG, "initializeContacts: LoadListener is set");
-        }
-        
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {
             String errorMsg = "User not authenticated in initializeContacts()";
@@ -121,8 +114,20 @@ public class ContactsManager {
                 loadListener.onError(errorMsg);
             }
             return;
-        } else {
-            Log.d(TAG, "initializeContacts: Current user ID: " + currentUserId);
+        }
+        
+        Log.d(TAG, "initializeContacts: Current user ID: " + currentUserId);
+        
+        // Clean up any existing listeners to prevent duplicates
+        cleanupListeners();
+        
+        // If we have cached contacts, notify immediately
+        if (!contactsCache.isEmpty()) {
+            Log.d(TAG, "initializeContacts: Using " + contactsCache.size() + " cached contacts");
+            if (loadListener != null) {
+                loadListener.onContactsLoaded(new ArrayList<>(contactsCache.values()));
+            }
+            return;
         }
 
         // First load existing contacts
@@ -410,32 +415,47 @@ public class ContactsManager {
     }
     
     /**
+     * Cleans up all Firebase listeners without clearing the cache or load listener.
+     * This is useful for reinitializing the listeners.
+     */
+    private void cleanupListeners() {
+        Log.d(TAG, "Cleaning up Firebase listeners");
+        String currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            Log.w(TAG, "Cannot clean up listeners: No current user ID");
+            return;
+        }
+        
+        DatabaseReference contactsRef = databaseReference.child(CONTACTS_NODE).child(currentUserId);
+        
+        if (contactListener != null) {
+            contactsRef.removeEventListener(contactListener);
+            contactListener = null;
+        }
+        
+        if (contactChildListener != null) {
+            contactsRef.removeEventListener(contactChildListener);
+            contactChildListener = null;
+        }
+        
+        Log.d(TAG, "Firebase listeners cleaned up");
+    }
+    
+    /**
      * Cleans up all listeners and clears the cache.
      * Call this when the app is going to background or being destroyed.
      */
     public void cleanup() {
-        String currentUserId = getCurrentUserId();
-        if (currentUserId != null) {
-            // Remove all listeners
-            if (contactListener != null) {
-                databaseReference.child(CONTACTS_NODE).child(currentUserId)
-                        .removeEventListener(contactListener);
-                contactListener = null;
-            }
-            if (contactChildListener != null) {
-                databaseReference.child(CONTACTS_NODE).child(currentUserId)
-                        .removeEventListener(contactChildListener);
-                contactChildListener = null;
-            }
-        }
+        Log.d(TAG, "Starting cleanup of ContactsManager");
+        cleanupListeners();
         
         // Clear the cache
         contactsCache.clear();
         
-        // Clear the listener
+        // Clear the listeners
         loadListener = null;
         previousListener = null;
         
-        log.d(TAG, "ContactsManager cleaned up");
+        Log.d(TAG, "ContactsManager cleanup completed");
     }
 }
