@@ -30,14 +30,22 @@ public class FirebaseConfigManager {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         configMap = new HashMap<>();
         
-        // First try to load from assets file
-        try {
-            loadFromAssets(context);
-        } catch (Exception e) {
-            Log.w(TAG, "Failed to load from assets file, will use SharedPreferences", e);
-        }
+        // First, load from SharedPreferences
+        loadFromSharedPreferences();
         
-        // Load existing values from SharedPreferences
+        // If not fully configured, try to load from assets file
+        if (!isMinimallyConfigured()) {
+            try {
+                loadFromAssets(context);
+                // If we successfully loaded from assets, save to SharedPreferences
+                saveToSharedPreferences();
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to load from assets file", e);
+            }
+        }
+    }
+    
+    private void loadFromSharedPreferences() {
         configMap.put(KEY_DATABASE_URL, prefs.getString(KEY_DATABASE_URL, ""));
         configMap.put(KEY_STORAGE_BUCKET, prefs.getString(KEY_STORAGE_BUCKET, ""));
         configMap.put(KEY_PROJECT_ID, prefs.getString(KEY_PROJECT_ID, ""));
@@ -46,37 +54,83 @@ public class FirebaseConfigManager {
         configMap.put(KEY_MESSAGING_SENDER_ID, prefs.getString(KEY_MESSAGING_SENDER_ID, ""));
         configMap.put(KEY_APP_ID, prefs.getString(KEY_APP_ID, ""));
     }
+    
+    public void saveToSharedPreferences() {
+        SharedPreferences.Editor editor = prefs.edit();
+        for (Map.Entry<String, String> entry : configMap.entrySet()) {
+            editor.putString(entry.getKey(), entry.getValue());
+        }
+        editor.apply();
+    }
+    
+    private boolean isMinimallyConfigured() {
+        return !configMap.get(KEY_DATABASE_URL).isEmpty() &&
+               !configMap.get(KEY_STORAGE_BUCKET).isEmpty() &&
+               !configMap.get(KEY_APP_ID).isEmpty();
+    }
 
     public void loadFromAssets(Context context) throws Exception {
+        Log.d(TAG, "Attempting to load firebase.properties from assets");
+        AssetManager assetManager = context.getAssets();
+        
+        // First check if the file exists
         try {
-            AssetManager assetManager = context.getAssets();
-            InputStream inputStream = assetManager.open("firebase.properties");
-            Properties properties = new Properties();
-            properties.load(inputStream);
+            String[] files = assetManager.list("");
+            boolean fileExists = false;
+            for (String file : files) {
+                if (file.equals("firebase.properties")) {
+                    fileExists = true;
+                    break;
+                }
+            }
             
-            // Load all properties with firebase prefix
-            configMap.put(KEY_DATABASE_URL, properties.getProperty("firebase.database.url", ""));
-            configMap.put(KEY_STORAGE_BUCKET, properties.getProperty("firebase.storage.bucket", ""));
-            configMap.put(KEY_PROJECT_ID, properties.getProperty("firebase.project.id", ""));
-            configMap.put(KEY_API_KEY, properties.getProperty("firebase.api.key", ""));
-            configMap.put(KEY_AUTH_DOMAIN, properties.getProperty("firebase.auth.domain", ""));
-            configMap.put(KEY_MESSAGING_SENDER_ID, properties.getProperty("firebase.messaging.sender.id", ""));
-            configMap.put(KEY_APP_ID, properties.getProperty("firebase.app.id", ""));
+            if (!fileExists) {
+                throw new Exception("firebase.properties not found in assets");
+            }
             
-            // Save to SharedPreferences
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(KEY_DATABASE_URL, configMap.get(KEY_DATABASE_URL));
-            editor.putString(KEY_STORAGE_BUCKET, configMap.get(KEY_STORAGE_BUCKET));
-            editor.putString(KEY_PROJECT_ID, configMap.get(KEY_PROJECT_ID));
-            editor.putString(KEY_API_KEY, configMap.get(KEY_API_KEY));
-            editor.putString(KEY_AUTH_DOMAIN, configMap.get(KEY_AUTH_DOMAIN));
-            editor.putString(KEY_MESSAGING_SENDER_ID, configMap.get(KEY_MESSAGING_SENDER_ID));
-            editor.putString(KEY_APP_ID, configMap.get(KEY_APP_ID));
-            editor.apply();
-            Log.d(TAG, configMap.toString());
-            Log.d(TAG, "Successfully loaded Firebase configuration from assets");
+            // Now read the file
+            try (InputStream inputStream = assetManager.open("firebase.properties")) {
+                Properties properties = new Properties();
+                properties.load(inputStream);
+                
+                // Log all properties for debugging
+                Log.d(TAG, "Properties found in firebase.properties: " + properties.toString());
+                
+                // Load all properties with firebase prefix
+                String dbUrl = properties.getProperty("firebase.database.url", "").trim();
+                String storageBucket = properties.getProperty("firebase.storage.bucket", "").trim();
+                String appId = properties.getProperty("firebase.app.id", "").trim();
+                
+                Log.d(TAG, String.format("Loaded values - DB: %s, Bucket: %s, AppID: %s", 
+                    dbUrl, storageBucket, appId));
+                
+                // Only update if we have the required minimal configuration
+                if (!dbUrl.isEmpty() && !storageBucket.isEmpty() && !appId.isEmpty()) {
+                    configMap.put(KEY_DATABASE_URL, dbUrl);
+                    configMap.put(KEY_STORAGE_BUCKET, storageBucket);
+                    configMap.put(KEY_APP_ID, appId);
+                    
+                    // Optional fields - only set if present
+                    String projectId = properties.getProperty("firebase.project.id", "").trim();
+                    String apiKey = properties.getProperty("firebase.api.key", "").trim();
+                    String authDomain = properties.getProperty("firebase.auth.domain", "").trim();
+                    String senderId = properties.getProperty("firebase.messaging.sender.id", "").trim();
+                    
+                    if (!projectId.isEmpty()) configMap.put(KEY_PROJECT_ID, projectId);
+                    if (!apiKey.isEmpty()) configMap.put(KEY_API_KEY, apiKey);
+                    if (!authDomain.isEmpty()) configMap.put(KEY_AUTH_DOMAIN, authDomain);
+                    if (!senderId.isEmpty()) configMap.put(KEY_MESSAGING_SENDER_ID, senderId);
+                    
+                    Log.d(TAG, "Successfully loaded Firebase configuration from assets");
+                    Log.d(TAG, "Config map after loading: " + configMap.toString());
+                    return; // Successfully loaded from assets
+                } else {
+                    throw new Exception("firebase.properties is missing required fields (database URL, storage bucket, or app ID)");
+                }
+            }
         } catch (IOException e) {
-            throw new Exception("Failed to load firebase.properties from assets", e);
+            Log.e(TAG, "Error reading firebase.properties", e);
+            throw new Exception("Failed to read firebase.properties from assets: " + e.getMessage(), e);
         }
     }
 
@@ -91,9 +145,6 @@ public class FirebaseConfigManager {
         return !configMap.get(KEY_DATABASE_URL).isEmpty() &&
                !configMap.get(KEY_STORAGE_BUCKET).isEmpty() &&
                !configMap.get(KEY_PROJECT_ID).isEmpty() &&
-               !configMap.get(KEY_API_KEY).isEmpty() &&
-               !configMap.get(KEY_AUTH_DOMAIN).isEmpty() &&
-               !configMap.get(KEY_MESSAGING_SENDER_ID).isEmpty() &&
                !configMap.get(KEY_APP_ID).isEmpty();
     }
 

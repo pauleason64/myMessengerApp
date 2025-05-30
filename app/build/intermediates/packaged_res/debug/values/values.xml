@@ -63,6 +63,10 @@
         <item quantity="one">%d year ago</item>
         <item quantity="other">%d years ago</item>
     </plurals>
+    <string name="about">About</string>
+    <string name="about_app">About App</string>
+    <string name="accept">Accept</string>
+    <string name="account_settings">Account Settings</string>
     <string name="action_already_have_account">Already have an account? Sign in</string>
     <string name="action_archive">Archive</string>
     <string name="action_cancel">Cancel</string>
@@ -84,12 +88,17 @@
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="add_attachment">Add attachment</string>
+    <string name="add_contact">Add contact</string>
     <string name="add_recipient">Add recipient</string>
+    <string name="app_description">Simple Messenger - A simple and secure messaging app</string>
     <string name="app_logo">App Logo</string>
     <string name="app_name">Simple Messenger</string>
+    <string name="app_settings">App Settings</string>
     <string name="archive">Archive</string>
     <string name="archive_message_confirmation">Archive this message?</string>
     <string name="archive_message_confirmation_multiple">Archive %1$d selected messages?</string>
+    <string name="are_you_sure_logout">Are you sure you want to logout?</string>
+    <string name="blocked_contacts">Blocked Contacts</string>
     <string name="cancel">Cancel</string>
     <string name="change_password">Change Password</string>
     <string name="change_password_dialog_message">Enter your current and new password</string>
@@ -97,9 +106,12 @@
     <string name="channel_name">Messages</string>
     <string name="channel_reminder_description">Scheduled reminders for messages</string>
     <string name="channel_reminder_name">Reminders</string>
+    <string name="choose_theme">Choose Theme</string>
     <string name="coming_soon">Coming Soon</string>
+    <string name="compose_message">Compose Message</string>
     <string name="confirm_logout">Are you sure you want to logout?</string>
     <string name="confirm_password">Confirm new password</string>
+    <string name="contact_requests">Contact Requests</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
     <string name="current_password">Current password</string>
@@ -107,6 +119,7 @@
     <string name="date_format">MMM d, yyyy</string>
     <string name="date_time_format">MMM d, yyyy h:mm a</string>
     <string name="days_ago">%1$d days ago</string>
+    <string name="decline">Decline</string>
     <string name="delete">Delete</string>
     <string name="delete_draft_confirmation">Discard this draft?</string>
     <string name="delete_draft_confirmation_multiple">Discard %1$d selected drafts?</string>
@@ -117,8 +130,10 @@
     <string name="dismiss">Dismiss</string>
     <string name="edit">Edit</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="email">Email</string>
     <string name="email_not_verified_message">Please verify your email address before logging in. Check your inbox for the verification email.</string>
     <string name="email_not_verified_title">Email Not Verified</string>
+    <string name="email_notifications">Email Notifications</string>
     <string name="error">Error</string>
     <string name="error_accept_terms">Please accept the terms and conditions</string>
     <string name="error_authentication_required">Please sign in to continue</string>
@@ -141,11 +156,13 @@
     <string name="error_unknown">An unknown error occurred</string>
     <string name="error_user_not_found">User not found</string>
     <string name="ethernet">Ethernet</string>
+    <string name="firebase_settings">Firebase Settings</string>
     <string name="forward">Forward</string>
     <string name="forward_message">Forward Message</string>
     <string name="forward_prefix">Fwd: </string>
     <string name="from">From: %1$s</string>
     <string name="full_date_format">EEEE, MMMM d, yyyy</string>
+    <string name="help_center">Help Center</string>
     <string name="hint_bcc">Bcc</string>
     <string name="hint_cc">Cc</string>
     <string name="hint_confirm_password">Confirm Password</string>
@@ -165,7 +182,9 @@
     <string name="label_outbox">Outbox</string>
     <string name="label_subject">Subject</string>
     <string name="label_to">To: %s</string>
+    <string name="language">Language</string>
     <string name="loading">Loading…</string>
+    <string name="logout">Logout</string>
     <string name="manage_contacts_coming_soon">The contacts management feature will be available in the next update.\n\nYou\'ll be able to manage your contacts, view contact details, and more.</string>
     <string name="menu_contacts">Contacts</string>
     <string name="menu_logout">Logout</string>
@@ -186,13 +205,17 @@
     <string name="minutes_ago">%1$d min ago</string>
     <string name="mobile_data">Mobile data</string>
     <string name="months_ago">%1$d months ago</string>
+    <string name="name">Name</string>
     <string name="new_message">New message</string>
     <string name="new_message_from">New message from %1$s</string>
     <string name="new_password">New password</string>
     <string name="no">No</string>
     <string name="no_attachments">No attachments</string>
+    <string name="no_blocked_users">No blocked users</string>
     <string name="no_connection">No connection</string>
     <string name="no_connection_desc">Couldn\'t connect to the server. Check your internet connection and try again.</string>
+    <string name="no_contact_requests">No contact requests</string>
+    <string name="no_contacts_found">No contacts found</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="no_message">(No message)</string>
     <string name="no_messages">No messages yet</string>
@@ -209,6 +232,7 @@
     <string name="ok">OK</string>
     <string name="original_message">Original Message</string>
     <string name="password_changed">Password changed successfully</string>
+    <string name="phone">Phone</string>
     <string name="pref_header_about">About</string>
     <string name="pref_header_account">Account</string>
     <string name="pref_header_display">Display</string>
@@ -269,6 +293,7 @@
     <string name="profile_picture">Profile Picture</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
+    <string name="push_notifications">Push Notifications</string>
     <string name="remember_me">Remember me</string>
     <string name="reminder">Reminder</string>
     <string name="reminder_custom">Custom…</string>
@@ -304,10 +329,13 @@
     <string name="sign_out_dialog_message">Are you sure you want to sign out?</string>
     <string name="sign_out_dialog_title">Sign out?</string>
     <string name="something_went_wrong">Something went wrong</string>
+    <string name="sound">Sound</string>
     <string name="subject">Subject</string>
+    <string name="theme">Theme</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
     <string name="theme_system">System Default</string>
+    <string name="theme_system_default">System Default</string>
     <string name="time">Time</string>
     <string name="time_format">h:mm a</string>
     <string name="title_about">About</string>
@@ -338,6 +366,7 @@
     <string name="tomorrow">Tomorrow</string>
     <string name="translate_message">Translate</string>
     <string name="try_again">Please try again</string>
+    <string name="unblock">Unblock</string>
     <string name="unknown">Unknown</string>
     <string name="verification_email_sent_message">A verification email has been sent to %1$s. Please check your inbox and verify your email address before logging in.</string>
     <string name="verification_email_sent_title">Verify Your Email</string>
@@ -357,7 +386,6 @@
     <style name="TextAppearance.Body1" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
     <style name="TextAppearance.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
         <item name="android:textSize">24sp</item>
@@ -387,5 +415,15 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="Widget.MaterialComponents.TextView.ListItem" parent="Widget.MaterialComponents.TextView">
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle1</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 </resources>

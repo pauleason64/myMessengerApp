@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
 import com.example.simplemessenger.data.DatabaseHelper;
+import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.ui.main.MainActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -346,6 +347,18 @@ public class AuthActivity extends AppCompatActivity {
             // Save login state
             Log.d("AuthActivity", "Saving login state");
             saveLoginState(email);
+            
+            // Initialize contacts before going to main activity
+            try {
+                Log.d("AuthActivity", "Initializing contacts");
+                ContactsManager contactsManager = ContactsManager.getInstance();
+                contactsManager.initializeContacts();
+                Log.d("AuthActivity", "Contacts initialized");
+            } catch (Exception e) {
+                Log.e("AuthActivity", "Error initializing contacts", e);
+                showError("Error initializing contacts. Please restart the app.");
+                return;
+            }
             
             // Go to main activity
             Log.d("AuthActivity", "Starting MainActivity");

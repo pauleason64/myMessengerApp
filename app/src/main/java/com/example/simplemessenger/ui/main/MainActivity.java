@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -27,14 +28,17 @@ import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
 import com.example.simplemessenger.databinding.ActivityMessageListBinding;
 import com.example.simplemessenger.ui.auth.AuthActivity;
+import com.example.simplemessenger.ui.contacts.ContactsFragment;
+import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.ComposeMessageActivity;
 import com.example.simplemessenger.ui.messaging.MessageListFragment;
 import com.example.simplemessenger.ui.profile.ProfileActivity;
 import com.example.simplemessenger.ui.settings.SettingsActivity;
+import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
+
 import android.util.Log;
 import android.widget.Toast;
 
@@ -87,20 +91,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("MainActivity", "main onCreate started");
         super.onCreate(savedInstanceState);
-        
-        // Set content view first
         setContentView(R.layout.activity_main);
         
-        // Initialize toolbar
+        // Initialize and set up the Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowTitleEnabled(true);
-                getSupportActionBar().setTitle(R.string.app_name);
-            }
+        setSupportActionBar(toolbar);
+        
+        // Set the Toolbar title and disable the home button (since this is the main activity)
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            getSupportActionBar().setTitle(R.string.app_name);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setHomeButtonEnabled(false);
+        }
+        
+        // Initialize floating action button
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            // Handle FAB click (e.g., compose new message)
+            // startActivity(new Intent(this, ComposeMessageActivity.class));
+        });
+        
+        // Load the initial fragment if this is the first time
+        if (savedInstanceState == null) {
+            navigateToMessageList();
         }
         
         // Initialize UI components
@@ -129,9 +144,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             Log.d("MainActivity", "Initializing UI");
 
-            // Set up ViewPager and TabLayout
+            // Set up ViewPager
             try {
-                // Create the adapter that will return a fragment for each section
+                // Create the adapter that will return the fragment
                 mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
                 Log.d("MainActivity", "SectionsPagerAdapter created");
 
@@ -142,16 +157,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mViewPager.setAdapter(mSectionsPagerAdapter);
                 Log.d("MainActivity", "ViewPager adapter set");
-
-                TabLayout tabLayout = findViewById(R.id.tabs);
-                if (tabLayout == null) {
-                    throw new IllegalStateException("TabLayout not found in layout");
-                }
-                mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-                tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-                Log.d("MainActivity", "TabLayout set up");
             } catch (Exception e) {
-                Log.e("MainActivity", "Error setting up ViewPager/TabLayout", e);
+                Log.e("MainActivity", "Error setting up ViewPager", e);
                 showErrorAndFinish("Error initializing app interface. Please restart the app.");
                 return;
             }
@@ -192,7 +199,56 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+        
+        // Initialize and load contacts
+        try {
+            Log.d("MainActivity", "Initializing contacts");
+            ContactsManager contactsManager = ContactsManager.getInstance();
+            contactsManager.initializeContacts();
+            Log.d("MainActivity", "ContactsManager initialized");
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error initializing contacts", e);
+            showError("Error loading contacts. Please try again.");
+        }
+        
         checkAuthState(this, AuthActivity.class, MainActivity.class);
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("MainActivity", "onPause");
+        
+        // Clean up contacts manager when app goes to background
+        try {
+            ContactsManager contactsManager = ContactsManager.getInstance();
+            contactsManager.cleanup();
+            Log.d("MainActivity", "ContactsManager cleaned up in onPause");
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error cleaning up ContactsManager in onPause", e);
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("MainActivity", "onDestroy");
+        
+        // Clean up any references to prevent memory leaks
+        mViewPager = null;
+        mSectionsPagerAdapter = null;
+        
+        // Clean up contacts manager
+        try {
+            ContactsManager contactsManager = ContactsManager.getInstance();
+            contactsManager.cleanup();
+            Log.d("MainActivity", "ContactsManager cleaned up in onDestroy");
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error cleaning up ContactsManager in onDestroy", e);
+        }
+        
+        mAuth = null;
+        sharedPreferences = null;
     }
 
     @Override
@@ -201,26 +257,106 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
+        // Handle home/up button press
+        if (id == android.R.id.home) {
+            // If there are fragments in the back stack, pop the top one
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();
+                return true;
+            }
+            // If no fragments in back stack, let the system handle it
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_settings) {
+            navigateToSettings();
             return true;
         } else if (id == R.id.action_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
+            navigateToProfile();
             return true;
         } else if (id == R.id.action_contacts) {
-            startActivity(new Intent(this, ManageContactsActivity.class));
+            navigateToContacts();
             return true;
         } else if (id == R.id.action_logout) {
             confirmLogout();
             return true;
+        } else if (id == R.id.action_firebase_settings) {
+            navigateToFirebaseSettings();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    
+    // Navigation methods
+    public void navigateToMessageList() {
+        MessageListFragment fragment = MessageListFragment.newInstance(0); // 0 is the default section number
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, fragment)
+                .commit();
+        
+        // Update toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.title_messages);
+        }
+    }
+    
+    private void navigateToSettings() {
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
+    
+    private void navigateToProfile() {
+        startActivity(new Intent(this, ProfileActivity.class));
+    }
+    
+    private void navigateToContacts() {
+        ContactsFragment contactsFragment = ContactsFragment.newInstance();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, contactsFragment)
+                .addToBackStack("contacts")
+                .commit();
+                
+        // Update toolbar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.menu_contacts);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+    }
+    
+    private void navigateToFirebaseSettings() {
+        startActivity(new Intent(this, FirebaseConfigActivity.class));
+    }
+    
+    @Override
+    public boolean onSupportNavigateUp() {
+        // Handle back button in the toolbar
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            return true;
+        }
+        return super.onSupportNavigateUp();
+    }
+    
+    @Override
+    public void onBackPressed() {
+        // If there are fragments in the back stack, pop them
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+    
+    // Helper method to update the toolbar title
+    public void updateToolbarTitle(String title) {
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
+        }
     }
 
     private void confirmLogout() {

@@ -21,7 +21,12 @@ import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Contact;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityMessageListBinding;
+import com.example.simplemessenger.ui.auth.AuthActivity;
+import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
+import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
+import com.example.simplemessenger.ui.profile.ProfileActivity;
+import com.example.simplemessenger.ui.settings.SettingsActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -77,12 +82,15 @@ public class MessageListActivity extends AppCompatActivity {
         currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
         contactsManager = ContactsManager.getInstance();
 
-        // Set up toolbar and its components
+        // Set up toolbar
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
+        
+        // Enable home/up button and show title
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.title_messages);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         }
 
         // Set up inbox/outbox toggle
@@ -106,10 +114,6 @@ public class MessageListActivity extends AppCompatActivity {
             updateTitle();
             loadMessages();
         });
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.title_messages);
-        }
 
         // Set up RecyclerView
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -178,6 +182,44 @@ public class MessageListActivity extends AppCompatActivity {
         if (messageListener != null && messagesQuery != null) {
             messagesQuery.removeEventListener(messageListener);
         }
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        // Handle home/up button press
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        } else if (id == R.id.action_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
+            return true;
+        } else if (id == R.id.action_contacts) {
+            startActivity(new Intent(this, ManageContactsActivity.class));
+            return true;
+        } else if (id == R.id.action_logout) {
+            // Handle logout
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, AuthActivity.class));
+            finish();
+            return true;
+        } else if (id == R.id.action_firebase_settings) {
+            startActivity(new Intent(this, FirebaseConfigActivity.class));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadMessages() {

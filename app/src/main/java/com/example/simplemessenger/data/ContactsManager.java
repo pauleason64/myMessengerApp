@@ -17,6 +17,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -337,5 +339,69 @@ public class ContactsManager {
 
     public Map<String, Contact> getContactsCache() {
         return contactsCache;
+    }
+    
+    public Task<Void> removeContact(String contactId) {
+        String currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            if (loadListener != null) {
+                loadListener.onError("User not authenticated");
+            }
+            return Tasks.forException(new IllegalStateException("User not authenticated"));
+        }
+        
+        // Find the contact in the cache to get its key
+        for (Map.Entry<String, Contact> entry : contactsCache.entrySet()) {
+            if (entry.getValue().getContactId().equals(contactId)) {
+                // Remove from Firebase and return the task
+                return databaseReference.child(CONTACTS_NODE).child(currentUserId).child(entry.getKey())
+                        .removeValue()
+                        .addOnSuccessListener(aVoid -> {
+                            // The onChildRemoved listener will handle updating the cache and notifying listeners
+                            log.d(TAG, "Contact removed successfully: " + contactId);
+                        })
+                        .addOnFailureListener(e -> {
+                            log.e(TAG, "Error removing contact: " + e.getMessage(), e);
+                            if (loadListener != null) {
+                                loadListener.onError("Failed to remove contact: " + e.getMessage());
+                            }
+                        });
+            }
+        }
+        return Tasks.forException(new IllegalStateException("Contact not found"));
+    }
+    
+    public List<Contact> getCachedContacts() {
+        return new ArrayList<>(contactsCache.values());
+    }
+    
+    /**
+     * Cleans up all listeners and clears the cache.
+     * Call this when the app is going to background or being destroyed.
+     */
+    public void cleanup() {
+        String currentUserId = getCurrentUserId();
+        if (currentUserId != null) {
+            // Remove all listeners
+            if (contactListener != null) {
+                databaseReference.child(CONTACTS_NODE).child(currentUserId)
+                        .removeEventListener(contactListener);
+                contactListener = null;
+            }
+            if (contactChildListener != null) {
+                databaseReference.child(CONTACTS_NODE).child(currentUserId)
+                        .removeEventListener(contactChildListener);
+                contactChildListener = null;
+            }
+        }
+        
+        // Clear the cache
+        contactsCache.clear();
+        
+        // Clear the listener
+        loadListener = null;
+        previousListener = null;
+        
+        log.d(TAG, "ContactsManager cleaned up");
     }
 }

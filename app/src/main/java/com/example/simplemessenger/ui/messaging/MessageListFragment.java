@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.simplemessenger.R;
-import com.example.simplemessenger.databinding.ActivityMessageListBinding;
+import com.example.simplemessenger.databinding.FragmentMessageListBinding;
 import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
@@ -47,7 +47,7 @@ public class MessageListFragment extends Fragment {
     private boolean isAscending = true;
     private boolean isInbox = true;
     private String currentSortField = "timestamp";
-    private ActivityMessageListBinding binding;
+    private FragmentMessageListBinding binding;
 
     public MessageListFragment() {
     }
@@ -69,55 +69,45 @@ public class MessageListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                          Bundle savedInstanceState) {
-        binding = ActivityMessageListBinding.inflate(inflater, container, false);
+        binding = FragmentMessageListBinding.inflate(inflater, container, false);
         View rootView = binding.getRoot();
+        
+        // Initialize RecyclerView and other views
         recyclerView = binding.recyclerView;
-        if (recyclerView != null) {
-            setupRecyclerView();
-            setupToolbar();
-        }
+        setupRecyclerView();
+        
+        // Set up inbox/outbox toggle
+        binding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            isInbox = checkedId == R.id.radio_inbox;
+            updateToolbarTitle();
+            loadMessages();
+        });
+        
+        // Set up swipe to refresh
+        binding.swipeRefreshLayout.setOnRefreshListener(this::loadMessages);
+        
+        // Set up FAB
+        binding.fabCompose.setOnClickListener(v -> {
+            // Handle compose message
+            // startActivity(new Intent(requireContext(), ComposeMessageActivity.class));
+        });
+        
         return rootView;
     }
-
-    private void setupToolbar() {
-        Toolbar toolbar = binding.toolbar;
-        if (toolbar != null) {
-            ((AppCompatActivity) requireActivity()).setSupportActionBar(toolbar);
-            if (((AppCompatActivity) requireActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity) requireActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(R.string.title_messages);
-            }
-
-            // Set up inbox/outbox toggle
-            binding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-                isInbox = checkedId == R.id.radio_inbox;
-                updateTitle();
-                loadMessages();
-            });
-
-            // Set up header click listeners
-            binding.textDateHeader.setOnClickListener(v -> {
-                currentSortField = "timestamp";
-                isAscending = !isAscending;
-                updateTitle();
-                loadMessages();
-            });
-
-            binding.textSubjectHeader.setOnClickListener(v -> {
-                currentSortField = "subject";
-                isAscending = !isAscending;
-                updateTitle();
-                loadMessages();
-            });
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        updateToolbarTitle();
+    }
+    
+    private void updateToolbarTitle() {
+        if (getActivity() instanceof AppCompatActivity) {
+            String title = isInbox ? getString(R.string.label_inbox) : getString(R.string.label_outbox);
+            ((AppCompatActivity) getActivity()).setTitle(title);
         }
     }
 
-    private void updateTitle() {
-        String title = isInbox ? getString(R.string.label_inbox) : getString(R.string.label_outbox);
-        if (binding.textViewTitle != null) {
-            binding.textViewTitle.setText(title);
-        }
-    }
 
     private void setupRecyclerView() {
         if (recyclerView == null) return;
@@ -126,17 +116,21 @@ public class MessageListFragment extends Fragment {
             @Override
             public void onMessageSelected(Message message) {
                 // Handle message click
+                // Intent intent = new Intent(requireContext(), MessageDetailActivity.class);
+                // intent.putExtra(MessageDetailActivity.EXTRA_MESSAGE_ID, message.getId());
+                // startActivity(intent);
             }
+
 
             @Override
             public void onMessageLongClicked(Message message) {
-                // Handle message long click
+                // Handle message long click (e.g., show context menu)
             }
         });
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
     }
 
     @Override

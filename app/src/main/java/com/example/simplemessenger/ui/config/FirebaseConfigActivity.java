@@ -1,6 +1,8 @@
 package com.example.simplemessenger.ui.config;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +29,37 @@ public class FirebaseConfigActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        FirebaseConfigManager configManager = FirebaseConfigManager.getInstance(this);
+        
+        // First try to load from SharedPreferences
+        boolean isConfigured = configManager.isConfigured();
+        
+        // If not configured, try to load from assets
+        if (!isConfigured) {
+            try {
+                configManager.loadFromAssets(this);
+                if (configManager.isConfigured()) {
+                    // If we successfully loaded from assets, save to SharedPreferences
+                    configManager.saveToSharedPreferences();
+                    isConfigured = true;
+                    Log.d("FirebaseConfigActivity", "Successfully loaded config from firebase.properties");
+                }
+            } catch (Exception e) {
+                Log.e("FirebaseConfigActivity", "Error loading from assets: " + e.getMessage(), e);
+            }
+        }
+        
+        // If configured (either from prefs or assets), go to MainActivity
+        if (isConfigured) {
+            Log.d("FirebaseConfigActivity", "Firebase is already configured, proceeding to MainActivity");
+            startActivity(new Intent(this, com.example.simplemessenger.ui.main.MainActivity.class));
+            finish();
+            return;
+        }
+        
+        // If we get here, we need to show the config screen
+        Log.d("FirebaseConfigActivity", "Showing Firebase config screen");
         setContentView(R.layout.activity_firebase_config);
 
         // Initialize views
@@ -41,6 +74,22 @@ public class FirebaseConfigActivity extends AppCompatActivity {
 
         // Set up save button
         btnSave.setOnClickListener(v -> saveConfiguration());
+        
+        // Try to pre-fill any values we might have
+        prefillFormIfNeeded();
+    }
+    
+    private void prefillFormIfNeeded() {
+        FirebaseConfigManager configManager = FirebaseConfigManager.getInstance(this);
+        Map<String, String> config = configManager.getConfig();
+        
+        if (!config.get("databaseurl").isEmpty()) etDatabaseUrl.setText(config.get("databaseurl"));
+        if (!config.get("storagebucket").isEmpty()) etStorageBucket.setText(config.get("storagebucket"));
+        if (!config.get("projectid").isEmpty()) etProjectId.setText(config.get("projectid"));
+        if (!config.get("apikey").isEmpty()) etApiKey.setText(config.get("apikey"));
+        if (!config.get("authdomain").isEmpty()) etAuthDomain.setText(config.get("authdomain"));
+        if (!config.get("messagingsenderid").isEmpty()) etMessagingSenderId.setText(config.get("messagingsenderid"));
+        if (!config.get("appid").isEmpty()) etAppId.setText(config.get("appid"));
     }
 
     private void saveConfiguration() {
