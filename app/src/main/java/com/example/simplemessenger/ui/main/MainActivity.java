@@ -30,6 +30,7 @@ import com.example.simplemessenger.databinding.ActivityMessageListBinding;
 import com.example.simplemessenger.ui.auth.AuthActivity;
 import com.example.simplemessenger.ui.contacts.ContactsFragment;
 import com.example.simplemessenger.data.ContactsManager;
+import com.example.simplemessenger.ui.contacts.ContactsListFragment;
 import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.ComposeMessageActivity;
 import com.example.simplemessenger.ui.messaging.MessageListFragment;
@@ -38,6 +39,7 @@ import com.example.simplemessenger.ui.settings.SettingsActivity;
 import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
 
 import android.util.Log;
 import android.widget.Toast;
@@ -94,31 +96,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        // Initialize and set up the Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        
-        // Set the Toolbar title and disable the home button (since this is the main activity)
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-            getSupportActionBar().setTitle(R.string.app_name);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setHomeButtonEnabled(false);
-        }
-        
-        // Initialize floating action button
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
-            // Handle FAB click (e.g., compose new message)
-            // startActivity(new Intent(this, ComposeMessageActivity.class));
-        });
-        
-        // Load the initial fragment if this is the first time
-        if (savedInstanceState == null) {
-            navigateToMessageList();
-        }
-        
-        // Initialize UI components
         try {
             // Initialize Firebase Auth
             mAuth = FirebaseAuth.getInstance();
@@ -130,6 +107,18 @@ public class MainActivity extends AppCompatActivity {
                     MODE_PRIVATE
             );
             Log.d("MainActivity", "SharedPreferences initialized");
+            
+            // Initialize and set up the Toolbar
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            
+            // Set the Toolbar title and disable the home button (since this is the main activity)
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowTitleEnabled(true);
+                getSupportActionBar().setTitle(R.string.app_name);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                getSupportActionBar().setHomeButtonEnabled(false);
+            }
             
             // Initialize the UI
             initializeUI();
@@ -144,9 +133,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             Log.d("MainActivity", "Initializing UI");
 
-            // Set up ViewPager
+            // Set up ViewPager and TabLayout
             try {
-                // Create the adapter that will return the fragment
+                // Create the adapter that will return the fragments
                 mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
                 Log.d("MainActivity", "SectionsPagerAdapter created");
 
@@ -157,8 +146,18 @@ public class MainActivity extends AppCompatActivity {
                 }
                 mViewPager.setAdapter(mSectionsPagerAdapter);
                 Log.d("MainActivity", "ViewPager adapter set");
+                
+                // Set up the TabLayout with the ViewPager
+                TabLayout tabLayout = findViewById(R.id.tabs);
+                if (tabLayout != null) {
+                    tabLayout.setupWithViewPager(mViewPager);
+                    Log.d("MainActivity", "TabLayout set up with ViewPager");
+                } else {
+                    Log.w("MainActivity", "TabLayout not found in layout");
+                }
+                
             } catch (Exception e) {
-                Log.e("MainActivity", "Error setting up ViewPager", e);
+                Log.e("MainActivity", "Error setting up ViewPager/TabLayout", e);
                 showErrorAndFinish("Error initializing app interface. Please restart the app.");
                 return;
             }
@@ -168,10 +167,16 @@ public class MainActivity extends AppCompatActivity {
             if (fab != null) {
                 fab.setOnClickListener(view -> {
                     try {
-                        startActivity(new Intent(MainActivity.this, ComposeMessageActivity.class));
+                        // Handle FAB click based on the current tab
+                        int currentTab = mViewPager.getCurrentItem();
+                        if (currentTab == 0) { // Messages tab
+                            startActivity(new Intent(MainActivity.this, ComposeMessageActivity.class));
+                        } else if (currentTab == 1) { // Contacts tab
+                            startActivity(new Intent(MainActivity.this, ManageContactsActivity.class));
+                        }
                     } catch (Exception e) {
-                        Log.e("MainActivity", "Error starting ComposeMessageActivity", e);
-                        showError("Cannot open message composer. Please try again.");
+                        Log.e("MainActivity", "Error handling FAB click", e);
+                        showError("Cannot perform this action. Please try again.");
                     }
                 });
                 Log.d("MainActivity", "FAB set up");
@@ -181,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Check auth state
             checkAuthState(this, AuthActivity.class, MainActivity.class);
-            Log.d("MainActivity", "onCreate completed successfully");
+            Log.d("MainActivity", "UI initialization completed successfully");
         } catch (Exception e) {
             Log.e("MainActivity", "Error in initializeUI", e);
             showErrorAndFinish("Error initializing UI. Please restart the app.");
@@ -200,17 +205,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         
-        // Initialize and load contacts
-        try {
-            Log.d("MainActivity", "Initializing contacts");
-            ContactsManager contactsManager = ContactsManager.getInstance();
-            contactsManager.initializeContacts();
-            Log.d("MainActivity", "ContactsManager initialized");
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error initializing contacts", e);
-            showError("Error loading contacts. Please try again.");
-        }
-        
+        // Check auth state - this will handle redirecting to login if needed
         checkAuthState(this, AuthActivity.class, MainActivity.class);
     }
     
@@ -398,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
         private final Context context;
+        private static final int NUM_PAGES = 2; // Messages and Contacts
 
         public SectionsPagerAdapter(FragmentManager fm, Context context) {
             super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
@@ -407,18 +403,32 @@ public class MainActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Fragment getItem(int position) {
-            return MessageListFragment.newInstance(position + 1);
+            switch (position) {
+                case 0:
+                    return MessageListFragment.newInstance(position + 1);
+                case 1:
+                    return new ContactsListFragment();
+                default:
+                    return MessageListFragment.newInstance(1);
+            }
         }
 
         @Override
         public int getCount() {
-            return 1; // Only one section for messages
+            return NUM_PAGES;
         }
 
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            return context.getString(R.string.title_messages);
+            switch (position) {
+                case 0:
+                    return context.getString(R.string.title_messages);
+                case 1:
+                    return context.getString(R.string.menu_contacts);
+                default:
+                    return null;
+            }
         }
     }
 }

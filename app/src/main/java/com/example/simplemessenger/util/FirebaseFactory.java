@@ -38,6 +38,10 @@ public class FirebaseFactory {
         // Initialize Firebase components
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance(databaseUrl);
+        
+        // Enable disk persistence and set cache size (10MB)
+        database.setPersistenceEnabled(true);
+        database.setPersistenceCacheSizeBytes(10 * 1024 * 1024); // 10MB
     }
 
     public static FirebaseAuth getAuth() {

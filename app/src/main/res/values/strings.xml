@@ -86,6 +86,8 @@
     <string name="confirm_logout">Are you sure you want to logout?</string>
     <string name="menu_settings">Settings</string>
     <string name="no_messages">No messages yet</string>
+    <string name="no_messages_inbox">No messages in your inbox</string>
+    <string name="no_messages_outbox">No sent messages</string>
     <string name="no_reminders">No reminders set</string>
     <string name="action_compose">Compose</string>
     <string name="action_send">Send</string>
@@ -107,6 +109,8 @@
     <string name="error_message_required">Message cannot be empty</string>
     <string name="message_sent">Message sent</string>
     <string name="message_deleted">Message deleted</string>
+    <string name="delete_message_title">Delete Message</string>
+    <string name="error_deleting_message">Failed to delete message</string>
     <string name="message_archived">Message archived</string>
     <string name="message_restored">Message restored</string>
     <string name="message_forwarded">Message forwarded</string>

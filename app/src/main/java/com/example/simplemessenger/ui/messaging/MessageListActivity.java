@@ -2,18 +2,25 @@ package com.example.simplemessenger.ui.messaging;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.data.ContactsManager;
@@ -28,19 +35,51 @@ import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
 import com.example.simplemessenger.ui.profile.ProfileActivity;
 import com.example.simplemessenger.ui.settings.SettingsActivity;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import android.util.SparseArray;
+
+class MessagesPagerAdapter extends FragmentStateAdapter {
+    private static final int NUM_PAGES = 2;
+    private final SparseArray<MessageListFragment> fragments = new SparseArray<>();
+
+    public MessagesPagerAdapter(FragmentActivity fa) {
+        super(fa);
+    }
+
+    @NonNull
+    @Override
+    public Fragment createFragment(int position) {
+        MessageListFragment fragment = MessageListFragment.newInstance(position);
+        fragments.put(position, fragment);
+        return fragment;
+    }
+
+    @Override
+    public int getItemCount() {
+        return NUM_PAGES;
+    }
+
+    @Nullable
+    public MessageListFragment getFragment(int position) {
+        return fragments.get(position);
+    }
+}
 
 public class MessageListActivity extends AppCompatActivity {
 
-    private ActivityMessageListBinding binding;
+    private com.example.simplemessenger.databinding.ActivityMessageListWithPagerBinding binding;
     private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
     private ActionMode actionMode;
@@ -52,6 +91,8 @@ public class MessageListActivity extends AppCompatActivity {
     private boolean isInbox = true;
     private String currentSortField = "timestamp";
     private ContactsManager contactsManager;
+    private MessagesPagerAdapter pagerAdapter;
+    private boolean messagesLoaded = false; // Track if messages have been loaded
 
     private final MessageAdapter adapter = new MessageAdapter(new MessageAdapter.OnMessageActionListener() {
         @Override
@@ -68,19 +109,39 @@ public class MessageListActivity extends AppCompatActivity {
                 actionMode = startSupportActionMode(actionModeCallback);
             }
         }
-    });
+    }, isInbox);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMessageListBinding.inflate(getLayoutInflater());
+        binding = com.example.simplemessenger.databinding.ActivityMessageListWithPagerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firebase instances
-        databaseHelper = DatabaseHelper.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-        contactsManager = ContactsManager.getInstance();
+        try {
+            // Initialize Firebase instances
+            databaseHelper = DatabaseHelper.getInstance();
+            mAuth = FirebaseAuth.getInstance();
+            
+            // Get current user
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            if (currentUser != null) {
+                currentUserId = currentUser.getUid();
+                Log.d("MessageListActivity", "Current user ID: " + currentUserId);
+                
+                // Initialize ContactsManager after we have a valid user
+                contactsManager = ContactsManager.getInstance();
+                Log.d("MessageListActivity", "ContactsManager initialized");
+                
+                // UI setup code will continue below
+            } else {
+                Log.e("MessageListActivity", "No authenticated user found");
+                finish(); // Close the activity if user is not authenticated
+            }
+        } catch (Exception e) {
+            Log.e("MessageListActivity", "Error during initialization", e);
+            showSnackbar("Error initializing app. Please try again.");
+            finish();
+        }
 
         // Set up toolbar
         Toolbar toolbar = binding.toolbar;
@@ -93,86 +154,151 @@ public class MessageListActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
         }
 
-        // Set up inbox/outbox toggle
-        binding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            isInbox = checkedId == R.id.radio_inbox;
-            updateTitle();
-            loadMessages();
+        // Set up ViewPager2 with TabLayout
+        pagerAdapter = new MessagesPagerAdapter(this);
+        binding.viewPager.setAdapter(pagerAdapter);
+        binding.viewPager.setOffscreenPageLimit(2); // Keep both pages in memory
+
+        // Find the TabLayout inside the Toolbar
+        TabLayout tabLayout = binding.toolbar.findViewById(R.id.tabLayout);
+        if (tabLayout == null) {
+            Log.e("MessageListActivity", "TabLayout not found in Toolbar");
+        }
+
+        // Connect TabLayout with ViewPager2
+        new TabLayoutMediator(tabLayout, binding.viewPager,
+                (tab, position) -> {
+                    tab.setText(position == 0 ? getString(R.string.label_inbox) : getString(R.string.label_outbox));
+                }).attach();
+
+        // Set up tab selection listener
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                isInbox = (tab.getPosition() == 0);
+                updateTitle();
+                // Update the current fragment with the correct messages
+                updateFragments();
+            }
+
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Set up header click listeners
-        binding.textDateHeader.setOnClickListener(v -> {
-            currentSortField = "timestamp";
-            isAscending = !isAscending;
-            updateTitle();
-            loadMessages();
-        });
-
-        binding.textSubjectHeader.setOnClickListener(v -> {
-            currentSortField = "subject";
-            isAscending = !isAscending;
-            updateTitle();
-            loadMessages();
-        });
-
-        // Set up RecyclerView
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerView.addItemDecoration(
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        // Set up FAB click listener
+        binding.fab.setOnClickListener(v -> startActivity(new Intent(this, ComposeMessageActivity.class)));
 
         // Set up swipe to refresh
-        binding.swipeRefreshLayout.setOnRefreshListener(this::loadMessages);
-
-        // Set up title text
-        updateTitle();
-
-        // Set up FAB
-        binding.fab.setOnClickListener(view -> {
-            startActivity(new Intent(this, ComposeMessageActivity.class));
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            // Force refresh messages from the database
+            loadMessages();
         });
 
-        // Set up adapter
-        binding.recyclerView.setAdapter(adapter);
+        // Set initial title
+        updateTitle();
+
+        // Set up page change callback
+        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                isInbox = (position == 0);
+                updateTitle();
+                // Update fragments with the current messages
+                updateFragments();
+            }
+        });
+        
+        // Select the initial tab (Inbox)
+        if (tabLayout != null) {
+            tabLayout.selectTab(tabLayout.getTabAt(0));
+        } else {
+            Log.e("MessageListActivity", "TabLayout is null, cannot set initial tab");
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         loadContactsAndMessages();
+        
+        // Post a message to the handler to ensure fragments are created
+//        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+//            // Load messages for the current tab
+//            loadMessages();
+//        }, 100);
     }
 
     private void loadContactsAndMessages() {
-        // First load contacts
-        contactsManager.initializeContacts();
-        contactsManager.setLoadListener(new ContactsManager.ContactsLoadListener() {
+        Log.d("MessageList", "Starting loadContactsAndMessages");
+        
+        if (contactsManager == null) {
+            Log.e("MessageList", "ContactsManager is null, cannot load contacts");
+            loadMessages(); // Try to load messages anyway
+            return;
+        }
+
+        // First, set up the listener
+        ContactsManager.ContactsLoadListener contactsListener = new ContactsManager.ContactsLoadListener() {
             @Override
             public void onContactsLoaded(List<Contact> contacts) {
-                if (contacts != null) {
-                Log.d("MessageList", "Contacts loaded: " + contacts.size() + " contacts");
-                } else {
-                Log.d("MessageList", "No contacts created yet");
-                }
+                Log.d("MessageList", "onContactsLoaded called with " + (contacts != null ? contacts.size() : 0) + " contacts");
+                messagesLoaded = true;
                 // Now load messages after contacts are loaded
                 loadMessages();
             }
-
+            
             @Override
             public void onContactAdded(Contact contact) {
-                Log.d("MessageList", "Contact added: " + contact.getEmailAddress());
+                Log.d("MessageList", "Contact added: " + (contact != null ? contact.getEmailAddress() : "null"));
             }
 
             @Override
             public void onContactRemoved(Contact contact) {
-                Log.d("MessageList", "Contact removed: " + contact.getEmailAddress());
+                Log.d("MessageList", "Contact removed: " + (contact != null ? contact.getEmailAddress() : "null"));
             }
 
             @Override
             public void onError(String error) {
-                Log.e("MessageList", "Error loading contacts: " + error);
+                Log.e("MessageList", "Error in contacts listener: " + error);
                 // Load messages even if contacts fail to load
                 loadMessages();
             }
-        });
+        };
+        
+        try {
+            // Ensure we have a valid user ID
+            if (currentUserId == null) {
+                Log.e("MessageList", "Current user ID is null, cannot load contacts");
+                loadMessages(); // Try to load messages anyway
+                return;
+            }
+            
+            // Set the listener first
+            Log.d("MessageList", "Setting contacts load listener");
+            contactsManager.setLoadListener(contactsListener);
+            
+            // Initialize contacts
+            Log.d("MessageList", "Initializing contacts");
+            contactsManager.initializeContacts();
+            
+            // Add a timeout to ensure messages load even if contacts don't respond
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (!messagesLoaded) {
+                    Log.w("MessageList", "Contacts load timeout, loading messages anyway");
+                    loadMessages();
+                }
+            }, 3000); // 3 second timeout
+            
+        } catch (Exception e) {
+            Log.e("MessageList", "Error in loadContactsAndMessages: " + e.getMessage(), e);
+            // If anything goes wrong, try to load messages anyway
+            loadMessages();
+        }
     }
 
     @Override
@@ -222,33 +348,54 @@ public class MessageListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadMessages() {
+    public void loadMessages() {
+        Log.d("MessageList", "Starting loadMessages");
+        messagesLoaded = false;
+        
         if (currentUserId == null) {
+            String error = "Current user ID is null. User not authenticated?";
+            Log.e("MessageList", error);
             binding.swipeRefreshLayout.setRefreshing(false);
+            showSnackbar(error);
             return;
         }
 
         // Show loading indicator
         binding.swipeRefreshLayout.setRefreshing(true);
-        Log.d("MessageListActivity", "Loading messages for user: " + currentUserId);
+        String logMessage = "Loading " + (isInbox ? "inbox" : "outbox") + " messages for user: " + currentUserId;
+        Log.d("MessageList", logMessage);
+        showSnackbar(logMessage);
 
         // Remove any existing listener to prevent duplicates
         if (messageListener != null && messagesQuery != null) {
             messagesQuery.removeEventListener(messageListener);
         }
 
-        // Clear existing messages
+        // Clear existing messages and update UI immediately
         messages.clear();
+        updateUI(messages);
 
-        // Determine which messages to load
+        // Determine which messages to load based on current tab
         String messageType = isInbox ? "received" : "sent";
         
         // Query messages
-        messagesQuery = databaseHelper.getDatabaseReference()
+        DatabaseReference userMessagesRef = databaseHelper.getDatabaseReference()
                 .child("user-messages")
                 .child(currentUserId)
-                .child(messageType)
-                .orderByChild(currentSortField);
+                .child(messageType);
+                
+        // Add a listener to check if the reference exists
+        userMessagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    Log.d("MessageListActivity", "No " + messageType + " messages found for user");
+                    updateUI(new ArrayList<>());
+                    return;
+                }
+                
+                // If reference exists, proceed with the query
+                messagesQuery = userMessagesRef.orderByChild(currentSortField);
 
         if (!isAscending) {
             messagesQuery = messagesQuery.limitToLast(100); // Only get last 100 messages
@@ -318,25 +465,82 @@ public class MessageListActivity extends AppCompatActivity {
             }
         };
 
-        // Add the listener to the query
-        messagesQuery.addValueEventListener(messageListener);
+                // Add the listener to the query
+                messagesQuery.addValueEventListener(messageListener);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("MessageListActivity", "Error checking messages reference: " + error.getMessage());
+                binding.swipeRefreshLayout.setRefreshing(false);
+                updateUI(new ArrayList<>());
+            }
+        });
     }
 
     // Update the UI with new messages
     private void updateUI(List<Message> messages) {
-        Log.d("MessageListActivity", "Updating UI with " + messages.size() + " messages");
+        Log.d("MessageListActivity", "Updating UI with " + (messages != null ? messages.size() : 0) + " messages");
         runOnUiThread(() -> {
-            binding.swipeRefreshLayout.setRefreshing(false);
-
-            if (messages == null || messages.isEmpty()) {
-                binding.textEmpty.setVisibility(View.VISIBLE);
-                binding.recyclerView.setVisibility(View.GONE);
-            } else {
-                binding.textEmpty.setVisibility(View.GONE);
-                binding.recyclerView.setVisibility(View.VISIBLE);
-                adapter.updateMessages(messages);
+            try {
+                binding.swipeRefreshLayout.setRefreshing(false);
+                this.messages.clear();
+                this.messages.addAll(messages != null ? messages : new ArrayList<>());
+                
+                // Mark messages as loaded
+                messagesLoaded = true;
+                Log.d("MessageListActivity", "Messages loaded: " + this.messages.size() + " messages");
+                
+                // Update all fragments with the new messages
+                updateFragments();
+            } catch (Exception e) {
+                Log.e("MessageListActivity", "Error updating UI", e);
+                messagesLoaded = false;
             }
         });
+    }
+    
+    // Helper method to filter messages for a specific tab
+    private List<Message> filterMessages(List<Message> messages, boolean isInbox) {
+        if (messages == null) {
+            return new ArrayList<>();
+        }
+        
+        List<Message> filtered = new ArrayList<>();
+        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "";
+        
+        for (Message message : messages) {
+            if (isInbox) {
+                // For inbox, show messages where current user is the recipient
+                if (message.getRecipientId() != null && message.getRecipientId().equals(currentUserId)) {
+                    filtered.add(message);
+                }
+            } else {
+                // For outbox, show messages where current user is the sender
+                if (message.getSenderId() != null && message.getSenderId().equals(currentUserId)) {
+                    filtered.add(message);
+                }
+            }
+        }
+        
+        return filtered;
+    }
+    
+    // Filter messages based on the current tab (inbox/outbox)
+    private List<Message> filterMessagesForCurrentTab(List<Message> allMessages) {
+        return filterMessages(allMessages, isInbox);
+    }
+    
+    // Method to be called when inbox/outbox is toggled in the UI
+    public void onInboxOutboxToggled(boolean isInbox) {
+        // Update the current tab and reload messages
+        int newTab = isInbox ? 0 : 1;
+        binding.viewPager.setCurrentItem(newTab, true);
+    }
+    
+    // Method to refresh messages (for pull-to-refresh)
+    public void refreshMessages() {
+        loadMessages();
     }
 
     private void updateTitle() {
@@ -345,8 +549,6 @@ public class MessageListActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        binding.recyclerView.setVisibility(View.VISIBLE);
-        binding.emptyView.setVisibility(View.GONE);
         binding.swipeRefreshLayout.setRefreshing(false);
         updateTitle();
     }
@@ -396,6 +598,22 @@ public class MessageListActivity extends AppCompatActivity {
 
     private void showSnackbar(String message) {
         Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+    }
+    
+    /**
+     * Updates all fragments with the current messages
+     */
+    private void updateFragments() {
+        if (pagerAdapter == null) return;
+        
+        for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
+            MessageListFragment fragment = pagerAdapter.getFragment(i);
+            if (fragment != null && fragment.isAdded()) {
+                boolean isInboxFragment = (i == 0);
+                List<Message> filteredMessages = filterMessages(messages, isInboxFragment);
+                fragment.updateMessages(filteredMessages);
+            }
+        }
     }
 
     @Override

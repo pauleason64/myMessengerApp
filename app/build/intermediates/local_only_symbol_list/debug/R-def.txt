@@ -53,11 +53,14 @@ drawable ic_share
 drawable ic_theme
 drawable splash_screen_background
 id action_archive
+id action_cancel
 id action_contacts
 id action_delete
 id action_firebase_settings
+id action_forward
 id action_logout
 id action_profile
+id action_reply
 id action_send
 id action_set_reminder
 id action_settings
@@ -124,6 +127,7 @@ id layout_recipient
 id layout_reminder
 id layout_subject
 id layout_theme
+id message_action_title
 id overlay
 id progressBar
 id progress_bar
@@ -137,10 +141,11 @@ id swipe_refresh_layout
 id switch_email_notifications
 id switch_push_notifications
 id switch_sound
+id tabLayout
+id tabs
 id text_date
 id text_date_header
 id text_empty
-id text_empty_view
 id text_forgot_password
 id text_from
 id text_input_api_key
@@ -169,6 +174,7 @@ id toolbar
 id tvEmail
 id tvName
 id tv_message
+id viewPager
 layout activity_auth
 layout activity_compose_message
 layout activity_firebase_config
@@ -176,8 +182,10 @@ layout activity_main
 layout activity_manage_contacts
 layout activity_message_detail
 layout activity_message_list
+layout activity_message_list_with_pager
 layout activity_profile
 layout activity_splash
+layout bottom_sheet_message_actions
 layout dialog_progress
 layout fragment_contacts
 layout fragment_contacts_list
@@ -264,6 +272,7 @@ string delete_draft_confirmation_multiple
 string delete_message
 string delete_message_confirmation
 string delete_message_confirmation_multiple
+string delete_message_title
 string disconnected
 string dismiss
 string edit
@@ -276,6 +285,7 @@ string error
 string error_accept_terms
 string error_authentication_required
 string error_creating_message
+string error_deleting_message
 string error_field_required
 string error_incorrect_password
 string error_invalid_credentials
@@ -358,6 +368,8 @@ string no_internet_connection
 string no_message
 string no_messages
 string no_messages_desc
+string no_messages_inbox
+string no_messages_outbox
 string no_recipients
 string no_reminders
 string no_search_results

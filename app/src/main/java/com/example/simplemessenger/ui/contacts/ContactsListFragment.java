@@ -16,7 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.data.model.User;
-import com.example.simplemessenger.databinding.FragmentContactsListBinding;
+import com.example.simplemessenger.R;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.simplemessenger.ui.adapters.ContactsAdapter;
 
 import java.util.ArrayList;
@@ -26,7 +30,10 @@ import java.util.List;
 public class ContactsListFragment extends Fragment implements ContactsManager.ContactsLoadListener {
     private static final String TAG = "ContactsListFragment";
 
-    private FragmentContactsListBinding binding;
+    private View rootView;
+    private RecyclerView recyclerView;
+    private TextView textNoContacts;
+    private ProgressBar progressBar;
     private ContactsManager contactsManager;
     private ContactsAdapter adapter;
     private final List<User> contacts = new ArrayList<>();
@@ -34,8 +41,11 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-        binding = FragmentContactsListBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        rootView = inflater.inflate(R.layout.fragment_contacts_list, container, false);
+        recyclerView = rootView.findViewById(R.id.recycler_view);
+        textNoContacts = rootView.findViewById(R.id.text_no_contacts);
+        progressBar = rootView.findViewById(R.id.progress_bar);
+        return rootView;
     }
 
     @Override
@@ -55,8 +65,8 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
             }
         });
         
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
     }
     
     @Override
@@ -64,8 +74,15 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
         super.onStart();
         // Register this fragment as a listener for contact updates
         contactsManager.setLoadListener(this);
-        // Refresh contacts from cache
-        updateContactsList(contactsManager.getCachedContacts());
+        
+        // Check if we have cached contacts first
+        List<Contact> cachedContacts = contactsManager.getCachedContacts();
+        if (cachedContacts != null && !cachedContacts.isEmpty()) {
+            updateContactsList(cachedContacts);
+        } else {
+            // If no cached contacts, try to initialize them
+            contactsManager.initializeContacts();
+        }
     }
     
     @Override
@@ -118,11 +135,11 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
             adapter.notifyDataSetChanged();
             
             if (contacts.isEmpty()) {
-                binding.textNoContacts.setVisibility(View.VISIBLE);
-                binding.recyclerView.setVisibility(View.GONE);
+                textNoContacts.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
             } else {
-                binding.textNoContacts.setVisibility(View.GONE);
-                binding.recyclerView.setVisibility(View.VISIBLE);
+                textNoContacts.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -130,6 +147,9 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        recyclerView = null;
+        textNoContacts = null;
+        progressBar = null;
+        rootView = null;
     }
 }

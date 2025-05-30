@@ -3338,12 +3338,14 @@ id action_bar_root
 id action_bar_spinner
 id action_bar_subtitle
 id action_bar_title
+id action_cancel
 id action_contacts
 id action_container
 id action_context_bar
 id action_delete
 id action_divider
 id action_firebase_settings
+id action_forward
 id action_image
 id action_logout
 id action_menu_divider
@@ -3352,6 +3354,7 @@ id action_mode_bar
 id action_mode_bar_stub
 id action_mode_close_button
 id action_profile
+id action_reply
 id action_send
 id action_set_reminder
 id action_settings
@@ -3630,6 +3633,7 @@ id material_timepicker_view
 id material_value_index
 id matrix
 id message
+id message_action_title
 id middle
 id mini
 id month_grid
@@ -3815,7 +3819,9 @@ id switchWidget
 id switch_email_notifications
 id switch_push_notifications
 id switch_sound
+id tabLayout
 id tabMode
+id tabs
 id tag_accessibility_actions
 id tag_accessibility_clickable_spans
 id tag_accessibility_heading
@@ -3839,7 +3845,6 @@ id textTop
 id text_date
 id text_date_header
 id text_empty
-id text_empty_view
 id text_forgot_password
 id text_from
 id text_input_api_key
@@ -3899,6 +3904,7 @@ id unlabeled
 id up
 id useLogo
 id vertical_only
+id viewPager
 id view_offset_helper
 id view_transition
 id view_tree_lifecycle_owner
@@ -4042,8 +4048,10 @@ layout activity_main
 layout activity_manage_contacts
 layout activity_message_detail
 layout activity_message_list
+layout activity_message_list_with_pager
 layout activity_profile
 layout activity_splash
+layout bottom_sheet_message_actions
 layout browser_actions_context_menu_page
 layout browser_actions_context_menu_row
 layout custom_dialog
@@ -4288,6 +4296,7 @@ string delete_draft_confirmation_multiple
 string delete_message
 string delete_message_confirmation
 string delete_message_confirmation_multiple
+string delete_message_title
 string dest_title
 string disconnected
 string dismiss
@@ -4302,6 +4311,7 @@ string error_a11y_label
 string error_accept_terms
 string error_authentication_required
 string error_creating_message
+string error_deleting_message
 string error_field_required
 string error_icon_content_description
 string error_incorrect_password
@@ -4498,6 +4508,8 @@ string no_internet_connection
 string no_message
 string no_messages
 string no_messages_desc
+string no_messages_inbox
+string no_messages_outbox
 string no_recipients
 string no_reminders
 string no_search_results

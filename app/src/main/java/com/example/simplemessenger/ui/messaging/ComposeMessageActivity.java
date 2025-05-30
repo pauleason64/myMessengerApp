@@ -38,6 +38,13 @@ import java.util.Map;
 
 public class ComposeMessageActivity extends AppCompatActivity {
 
+    // Intent extra keys
+    public static final String EXTRA_MESSAGE_ID = "message_id";
+    public static final String EXTRA_FORWARD_MESSAGE_ID = "forward_message_id";
+    public static final String EXTRA_SUBJECT = "subject";
+    public static final String EXTRA_MESSAGE = "message";
+    public static final String EXTRA_REPLY_TO = "reply_to";
+
     private ActivityComposeMessageBinding binding;
     private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;

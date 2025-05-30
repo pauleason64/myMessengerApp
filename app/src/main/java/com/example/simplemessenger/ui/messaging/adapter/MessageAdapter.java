@@ -1,5 +1,7 @@
 package com.example.simplemessenger.ui.messaging.adapter;
 
+import android.annotation.SuppressLint;
+import android.icu.text.SimpleDateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,21 +15,28 @@ import com.example.simplemessenger.data.model.Message;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import com.google.firebase.auth.FirebaseUser;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private List<Message> messages = new ArrayList<>();
     private final OnMessageActionListener actionListener;
+    private final boolean isInbox;
 
     public interface OnMessageActionListener {
         void onMessageSelected(Message message);
         void onMessageLongClicked(Message message);
     }
 
-    public MessageAdapter(OnMessageActionListener actionListener) {
+    public MessageAdapter(OnMessageActionListener actionListener, boolean isInbox) {
         this.actionListener = actionListener;
+        this.isInbox = isInbox;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void updateMessages(List<Message> newMessages) {
         this.messages.clear();
         if (newMessages != null) {
@@ -47,7 +56,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
-        holder.bind(message);
+        holder.bind(message, isInbox);
         
         // Set click listener for the item
         holder.itemView.setOnClickListener(v -> {
@@ -88,31 +97,42 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             imageReminder = itemView.findViewById(R.id.image_reminder);
         }
 
-        public void bind(Message message) {
-            // Determine if current user is the sender or recipient
-            boolean isSender = message.getSenderId() != null && 
-                    message.getSenderId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        public void bind(Message message, boolean isInbox) {
+            if (message == null) {
+                textSender.setText("");
+                textTime.setText("");
+                textSubject.setText("");
+                textPreview.setText("");
+                imageReminder.setVisibility(View.GONE);
+                return;
+            }
             
-            // Set sender/recipient text
-            textSender.setText(isSender ? message.getRecipientEmail() : message.getSenderEmail());
+            // Set the display name based on inbox/outbox
+            String displayName;
+            if (isInbox) {
+                // In inbox: show sender's email
+                displayName = message.getSenderEmail() != null ? message.getSenderEmail() : "Unknown Sender";
+            } else {
+                // In outbox: show recipient's email
+                displayName = message.getRecipientEmail() != null ? message.getRecipientEmail() : "Unknown Recipient";
+            }
+            textSender.setText(displayName);
             
             // Format and set time
             long timestamp = message.getTimestamp();
+            String timeText = "";
             if (timestamp > 0) {
-                String timeStr = android.text.format.DateFormat.getTimeFormat(itemView.getContext())
-                        .format(new java.util.Date(timestamp));
-                textTime.setText(timeStr);
-            } else {
-                textTime.setText("");
+                // Format the timestamp to a readable date/time
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, h:mm a", Locale.getDefault());
+                timeText = sdf.format(new Date(timestamp));
             }
+            textTime.setText(timeText);
             
-            // Set subject
-            textSubject.setText(message.getSubject());
+            // Set subject and preview
+            textSubject.setText(message.getSubject() != null ? message.getSubject() : "(No subject)");
+            textPreview.setText(message.getContent() != null ? message.getContent() : "");
             
-            // Set message preview
-            textPreview.setText(message.getContent());
-            
-            // Show reminder icon if message has a reminder
+            // Show reminder icon if there's a reminder set
             imageReminder.setVisibility(message.isHasReminder() ? View.VISIBLE : View.GONE);
         }
     }

@@ -13,6 +13,7 @@ import androidx.viewbinding.ViewBindings;
 import androidx.viewpager.widget.ViewPager;
 import com.example.simplemessenger.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -28,13 +29,17 @@ public final class ActivityMainBinding implements ViewBinding {
   public final FloatingActionButton fab;
 
   @NonNull
+  public final TabLayout tabs;
+
+  @NonNull
   public final Toolbar toolbar;
 
   private ActivityMainBinding(@NonNull CoordinatorLayout rootView, @NonNull ViewPager container,
-      @NonNull FloatingActionButton fab, @NonNull Toolbar toolbar) {
+      @NonNull FloatingActionButton fab, @NonNull TabLayout tabs, @NonNull Toolbar toolbar) {
     this.rootView = rootView;
     this.container = container;
     this.fab = fab;
+    this.tabs = tabs;
     this.toolbar = toolbar;
   }
 
@@ -77,13 +82,19 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tabs;
+      TabLayout tabs = ViewBindings.findChildViewById(rootView, id);
+      if (tabs == null) {
+        break missingId;
+      }
+
       id = R.id.toolbar;
       Toolbar toolbar = ViewBindings.findChildViewById(rootView, id);
       if (toolbar == null) {
         break missingId;
       }
 
-      return new ActivityMainBinding((CoordinatorLayout) rootView, container, fab, toolbar);
+      return new ActivityMainBinding((CoordinatorLayout) rootView, container, fab, tabs, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

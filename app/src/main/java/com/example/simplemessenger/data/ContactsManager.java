@@ -1,6 +1,7 @@
 package com.example.simplemessenger.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -11,6 +12,7 @@ import com.example.simplemessenger.util.LogWrapper;
 
 import com.example.simplemessenger.data.model.Contact;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -78,9 +80,19 @@ public class ContactsManager {
     }
 
     public void setLoadListener(ContactsLoadListener listener) {
+        Log.d(TAG, "setLoadListener called with listener: " + (listener != null ? listener.getClass().getSimpleName() : "null"));
+        
         // Store the previous listener before replacing it
         previousListener = loadListener;
         this.loadListener = listener;
+        
+        // If we have cached contacts and a new listener is set, notify the new listener
+        if (listener != null && !contactsCache.isEmpty()) {
+            Log.d(TAG, "Notifying new listener with " + contactsCache.size() + " cached contacts");
+            listener.onContactsLoaded(new ArrayList<>(contactsCache.values()));
+        } else if (listener != null) {
+            Log.d(TAG, "No cached contacts to notify new listener");
+        }
     }
 
     public void clearPreviousListener() {
@@ -92,18 +104,33 @@ public class ContactsManager {
     private ChildEventListener contactChildListener;
 
     public void initializeContacts() {
+        Log.d(TAG, "initializeContacts() called");
+        
+        if (loadListener == null) {
+            Log.w(TAG, "initializeContacts: No loadListener set, contacts loading will be delayed");
+            return; // The listener will be set later
+        } else {
+            Log.d(TAG, "initializeContacts: LoadListener is set");
+        }
+        
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {
+            String errorMsg = "User not authenticated in initializeContacts()";
+            Log.e(TAG, errorMsg);
             if (loadListener != null) {
-                loadListener.onError("User not authenticated");
+                loadListener.onError(errorMsg);
             }
             return;
+        } else {
+            Log.d(TAG, "initializeContacts: Current user ID: " + currentUserId);
         }
 
         // First load existing contacts
+        Log.d(TAG, "Setting up contact listener for user: " + currentUserId);
         contactListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange called with " + dataSnapshot.getChildrenCount() + " contacts");
                 contactsCache.clear();
                 for (DataSnapshot contactSnapshot : dataSnapshot.getChildren()) {
                     Contact contact = contactSnapshot.getValue(Contact.class);
@@ -334,7 +361,14 @@ public class ContactsManager {
     }
 
     private String getCurrentUserId() {
-        return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            Log.d(TAG, "Current user ID: " + user.getUid());
+            return user.getUid();
+        } else {
+            Log.e(TAG, "No authenticated user found in getCurrentUserId()");
+            return null;
+        }
     }
 
     public Map<String, Contact> getContactsCache() {
