@@ -29,6 +29,7 @@ import com.example.simplemessenger.ui.auth.AuthActivity;
 import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
 import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
+import com.example.simplemessenger.ui.messaging.MessageListFragment;
 import com.example.simplemessenger.ui.profile.ProfileActivity;
 import com.example.simplemessenger.ui.settings.SettingsActivity;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,23 +37,40 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import android.util.SparseArray;
 
 class MessagesPagerAdapter extends FragmentStateAdapter {
+    private static final String TAG = "MessagesPagerAdapter";
     private static final int NUM_PAGES = 2;
     private final SparseArray<MessageListFragment> fragments = new SparseArray<>();
 
     public MessagesPagerAdapter(FragmentActivity fa) {
         super(fa);
+        Log.d(TAG, "Creating MessagesPagerAdapter");
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        MessageListFragment fragment = MessageListFragment.newInstance(position);
+        Log.d(TAG, "Creating fragment for position: " + position);
+        
+        // Create a new instance of MessageListFragment
+        MessageListFragment fragment = new MessageListFragment();
+        
+        // Set up the fragment arguments
+        Bundle args = new Bundle();
+        args.putInt("position", position);
+        args.putBoolean("isInbox", position == 0);
+        fragment.setArguments(args);
+        
+        // Store the fragment reference
         fragments.put(position, fragment);
         return fragment;
     }
@@ -104,29 +122,48 @@ public class MessageListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Check if user is authenticated
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.e("MessageListActivity", "No authenticated user found, redirecting to login");
+            startActivity(new Intent(this, AuthActivity.class));
+            finish();
+            return;
+        }
+        
+        // Initialize the view binding
         binding = com.example.simplemessenger.databinding.ActivityMessageListWithPagerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         try {
-            // Initialize Firebase instances
-            databaseHelper = DatabaseHelper.getInstance();
-            mAuth = FirebaseAuth.getInstance();
+            Log.d("MessageListActivity", "Starting initialization in onCreate()");
             
-            // Get current user
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if (currentUser != null) {
-                currentUserId = currentUser.getUid();
-                Log.d("MessageListActivity", "Current user ID: " + currentUserId);
-                
-                // Initialize ContactsManager after we have a valid user
-                contactsManager = ContactsManager.getInstance();
-                Log.d("MessageListActivity", "ContactsManager initialized");
-                
-                // UI setup code will continue below
-            } else {
-                Log.e("MessageListActivity", "No authenticated user found");
-                finish(); // Close the activity if user is not authenticated
-            }
+            // Initialize Firebase instances
+            Log.d("MessageListActivity", "Initializing DatabaseHelper...");
+            databaseHelper = DatabaseHelper.getInstance();
+            Log.d("MessageListActivity", "DatabaseHelper initialized: " + (databaseHelper != null));
+            
+            mAuth = FirebaseAuth.getInstance();
+            currentUserId = currentUser.getUid();
+            
+            Log.d("MessageListActivity", "Current user ID: " + currentUserId);
+            
+            // Initialize ContactsManager after we have a valid user
+            Log.d("MessageListActivity", "Initializing ContactsManager...");
+            contactsManager = ContactsManager.getInstance();
+            Log.d("MessageListActivity", "ContactsManager initialized: " + (contactsManager != null));
+            
+            // Initialize UI components
+            Log.d("MessageListActivity", "Setting up UI...");
+            setupUI();
+            Log.d("MessageListActivity", "UI setup complete");
+            
+            // Initialize message loader
+            Log.d("MessageListActivity", "Initializing message loader...");
+            initializeMessageLoader();
+            Log.d("MessageListActivity", "Message loader initialization attempted");
+            
         } catch (Exception e) {
             Log.e("MessageListActivity", "Error during initialization", e);
             showSnackbar("Error initializing app. Please try again.");
@@ -149,10 +186,10 @@ public class MessageListActivity extends AppCompatActivity {
         binding.viewPager.setAdapter(pagerAdapter);
         binding.viewPager.setOffscreenPageLimit(2); // Keep both pages in memory
 
-        // Find the TabLayout inside the Toolbar
-        TabLayout tabLayout = binding.toolbar.findViewById(R.id.tabLayout);
+        // Get the TabLayout from the binding
+        TabLayout tabLayout = binding.tabLayout;
         if (tabLayout == null) {
-            Log.e("MessageListActivity", "TabLayout not found in Toolbar");
+            Log.e("MessageListActivity", "TabLayout not found in layout");
         }
 
         // Connect TabLayout with ViewPager2
@@ -165,12 +202,14 @@ public class MessageListActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                isInbox = (tab.getPosition() == 0);
-                updateTitle();
-                // Update the current fragment with the correct messages
-                updateFragments();
+                boolean newIsInbox = (tab.getPosition() == 0);
+                if (newIsInbox != isInbox) {
+                    isInbox = newIsInbox;
+                    updateTitle();
+                    // Reload messages for the selected tab
+                    loadMessages();
+                }
             }
-
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {}
@@ -196,10 +235,13 @@ public class MessageListActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                isInbox = (position == 0);
-                updateTitle();
-                // Update fragments with the current messages
-                updateFragments();
+                boolean newIsInbox = (position == 0);
+                if (newIsInbox != isInbox) {
+                    isInbox = newIsInbox;
+                    updateTitle();
+                    // Reload messages for the selected tab
+                    loadMessages();
+                }
             }
         });
         
@@ -209,12 +251,6 @@ public class MessageListActivity extends AppCompatActivity {
         } else {
             Log.e("MessageListActivity", "TabLayout is null, cannot set initial tab");
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        loadContactsAndMessages();
     }
 
     private void loadContactsAndMessages() {
@@ -333,80 +369,220 @@ public class MessageListActivity extends AppCompatActivity {
     }
 
     public void loadMessages() {
-        Log.d("MessageList", "Starting loadMessages");
-        messagesLoaded = false;
+        Log.d("MessageListActivity", "loadMessages() called - USING FORCE LOAD");
+        Log.d("MessageListActivity", "Thread: " + Thread.currentThread().getName());
+        
+        // Ensure we have the minimum required components
+        if (databaseHelper == null) {
+            Log.d("MessageListActivity", "Initializing databaseHelper in loadMessages");
+            databaseHelper = DatabaseHelper.getInstance();
+        }
         
         if (currentUserId == null) {
-            String error = "Current user ID is null. User not authenticated?";
-            Log.e("MessageList", error);
-            binding.swipeRefreshLayout.setRefreshing(false);
-            showSnackbar(error);
-            return;
+            Log.d("MessageListActivity", "Getting current user in loadMessages");
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            if (currentUser != null) {
+                currentUserId = currentUser.getUid();
+                Log.d("MessageListActivity", "Set currentUserId to: " + currentUserId);
+            } else {
+                String error = "Cannot load messages: No authenticated user";
+                Log.e("MessageListActivity", error);
+                runOnUiThread(() -> showSnackbar("Please sign in to view messages"));
+                return;
+            }
+        }
+        
+        // Log current state
+        Log.d("MessageListActivity", "loadMessages() - About to call forceLoadMessages()");
+        Log.d("MessageListActivity", "Current user ID: " + currentUserId);
+        Log.d("MessageListActivity", "Database helper initialized: " + (databaseHelper != null));
+        
+        // Use the direct loading method to bypass listener issues
+        Log.d("MessageListActivity", "Calling forceLoadMessages() from loadMessages()");
+        forceLoadMessages();
+    }
+    
+    /*
+    // Original listener-based implementation (commented out for now)
+    public void loadMessagesOriginal() {
+        Log.d("MessageListActivity", "loadMessages() called");
+        
+        if (!isInitialized()) {
+            String error = "MessageLoader not properly initialized";
+            Log.e("MessageListActivity", error);
+            
+            // Try to initialize the message loader again if it's null
+            if (messageLoader == null) {
+                Log.d("MessageListActivity", "Attempting to reinitialize message loader");
+                initializeMessageLoader();
+                
+                // Check again if initialization was successful
+                if (messageLoader == null) {
+                    Log.e("MessageListActivity", "Failed to initialize message loader");
+                    runOnUiThread(() -> {
+                        if (binding != null) {
+                            binding.swipeRefreshLayout.setRefreshing(false);
+                        }
+                        showSnackbar("Failed to initialize message loader. Please try again.");
+                    });
+                    return;
+                }
+            } else {
+                runOnUiThread(() -> {
+                    if (binding != null) {
+                        binding.swipeRefreshLayout.setRefreshing(false);
+                    }
+                    showSnackbar(error);
+                });
+                return;
+            }
         }
 
         // Show loading indicator
-        binding.swipeRefreshLayout.setRefreshing(true);
-        String logMessage = "Loading " + (isInbox ? "inbox" : "outbox") + " messages for user: " + currentUserId;
-        Log.d("MessageList", logMessage);
-        showSnackbar(logMessage);
+        runOnUiThread(() -> {
+            if (binding != null) {
+                binding.swipeRefreshLayout.setRefreshing(true);
+            }
+            Log.d("MessageListActivity", "Loading messages...");
+        });
 
-        // Clear existing messages and update UI immediately
-        messages.clear();
-        updateUI(messages);
-        
-        // Create or reuse message loader
-        if (messageLoader != null) {
-            messageLoader.cleanup();
-        }
-        
-        messageLoader = new MessageLoader(
-            databaseHelper,
-            contactsManager,
-            currentUserId,
-            isInbox,
-            currentSortField,
-            isAscending
-        );
-        
-        messageLoader.loadMessages(new MessageLoader.MessageLoadListener() {
-            @Override
-            public void onMessagesLoaded(List<Message> loadedMessages) {
+        try {
+            // Clear existing messages and update UI immediately
+            messages.clear();
+            updateUI(messages);
+            
+            // Update message loader with current settings
+            updateMessageLoaderForCurrentTab();
+            
+            Log.d("MessageListActivity", "Loading messages with params: " +
+                    "isInbox=" + isInbox + ", " +
+                    "sortField=" + currentSortField + ", " +
+                    "isAscending=" + isAscending);
+            
+            // Log the current message loader state
+            if (messageLoader == null) {
+                Log.e("MessageListActivity", "MessageLoader is null right before loading messages!");
                 runOnUiThread(() -> {
-                    binding.swipeRefreshLayout.setRefreshing(false);
-                    messagesLoaded = true;
-                    updateUI(loadedMessages);
+                    if (binding != null) {
+                        binding.swipeRefreshLayout.setRefreshing(false);
+                    }
+                    showSnackbar("Error: Message loader not available");
                 });
+                return;
             }
             
-            @Override
-            public void onError(String error) {
-                Log.e("MessageList", "Error loading messages: " + error);
-                runOnUiThread(() -> {
+            Log.d("MessageListActivity", "Calling messageLoader.loadMessages()");
+            messageLoader.loadMessages(new MessageLoader.MessageLoadListener() {
+                @Override
+                public void onMessagesLoaded(List<Message> loadedMessages) {
+                    Log.d("MessageListActivity", "onMessagesLoaded: " + 
+                            (loadedMessages != null ? loadedMessages.size() : 0) + " messages");
+                    
+                    runOnUiThread(() -> {
+                        try {
+                            if (binding != null) {
+                                binding.swipeRefreshLayout.setRefreshing(false);
+                            }
+                            messagesLoaded = true;
+                            
+                            if (loadedMessages != null && !loadedMessages.isEmpty()) {
+                                Log.d("MessageListActivity", "Updating UI with " + loadedMessages.size() + " messages");
+                                updateUI(loadedMessages);
+                                updateFragments();
+                            } else {
+                                Log.d("MessageListActivity", "No messages to display");
+                                updateUI(new ArrayList<>());
+                            }
+                        } catch (Exception e) {
+                            Log.e("MessageListActivity", "Error in onMessagesLoaded", e);
+                            showSnackbar("Error displaying messages");
+                        }
+                    });
+                }
+                
+                @Override
+                public void onError(String error) {
+                    Log.e("MessageListActivity", "Error loading messages: " + error);
+                    runOnUiThread(() -> {
+                        try {
+                            if (binding != null) {
+                                binding.swipeRefreshLayout.setRefreshing(false);
+                            }
+                            showSnackbar("Error loading messages: " + error);
+                            updateUI(new ArrayList<>());
+                        } catch (Exception e) {
+                            Log.e("MessageListActivity", "Error handling error state", e);
+                        }
+                    });
+                }
+            });
+            
+        } catch (Exception e) {
+            Log.e("MessageListActivity", "Error in loadMessages", e);
+            runOnUiThread(() -> {
+                if (binding != null) {
                     binding.swipeRefreshLayout.setRefreshing(false);
-                    showSnackbar("Error loading messages: " + error);
-                    updateUI(new ArrayList<>());
-                });
-            }
-        });
+                }
+                showSnackbar("Error loading messages: " + e.getMessage());
+                updateUI(new ArrayList<>());
+            });
+        }
     }
+    */
 
-    // Update the UI with new messages
+    /**
+     * Updates the UI with the provided messages
+     * @param messages The messages to display (can be null or empty)
+     */
     private void updateUI(List<Message> messages) {
-        Log.d("MessageListActivity", "Updating UI with " + (messages != null ? messages.size() : 0) + " messages");
+        if (isFinishing() || isDestroyed()) {
+            Log.w("MessageListActivity", "Activity is finishing or destroyed, skipping UI update");
+            return;
+        }
+        
+        final int messageCount = messages != null ? messages.size() : 0;
+        Log.d("MessageListActivity", "Updating UI with " + messageCount + " messages, isInbox=" + isInbox);
+        
         runOnUiThread(() -> {
             try {
-                binding.swipeRefreshLayout.setRefreshing(false);
+                // Stop refresh animation if it's active
+                if (binding != null) {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                }
+                
+                // Update messages list
                 this.messages.clear();
-                this.messages.addAll(messages != null ? messages : new ArrayList<>());
+                if (messages != null && !messages.isEmpty()) {
+                    this.messages.addAll(messages);
+                    
+                    // Log first few messages for debugging
+                    int maxMessagesToLog = Math.min(3, messages.size());
+                    for (int i = 0; i < maxMessagesToLog; i++) {
+                        Message msg = messages.get(i);
+                        Log.d("MessageListActivity", "Message " + (i+1) + ": " + 
+                                "id=" + msg.getId() + ", " +
+                                "subject=" + msg.getSubject() + ", " +
+                                "from=" + msg.getSenderId() + ", " +
+                                "to=" + msg.getRecipientId());
+                    }
+                } else {
+                    Log.d("MessageListActivity", "No messages to display");
+                }
                 
                 // Mark messages as loaded
                 messagesLoaded = true;
-                Log.d("MessageListActivity", "Messages loaded: " + this.messages.size() + " messages");
+                
+                // Update the title and UI state
+                updateTitle();
                 
                 // Update all fragments with the new messages
                 updateFragments();
+                
             } catch (Exception e) {
-                Log.e("MessageListActivity", "Error updating UI", e);
+                Log.e("MessageListActivity", "Error in UI update on UI thread", e);
+                if (binding != null) {
+                    binding.swipeRefreshLayout.setRefreshing(false);
+                }
                 messagesLoaded = false;
             }
         });
@@ -515,22 +691,406 @@ public class MessageListActivity extends AppCompatActivity {
     /**
      * Updates all fragments with the current messages
      */
-    private void updateFragments() {
-        if (pagerAdapter == null) return;
-        
-        for (int i = 0; i < pagerAdapter.getItemCount(); i++) {
-            MessageListFragment fragment = pagerAdapter.getFragment(i);
-            if (fragment != null && fragment.isAdded()) {
-                boolean isInboxFragment = (i == 0);
-                List<Message> filteredMessages = filterMessages(messages, isInboxFragment);
-                fragment.updateMessages(filteredMessages);
-            }
+    /**
+     * Directly loads messages from the database without using listeners
+     * This is a temporary solution for debugging UI issues
+     */
+    private void forceLoadMessages() {
+        final String TAG = "MessageListActivity";
+        Log.d(TAG, "forceLoadMessages() called - Starting message loading process");
+        Log.d(TAG, "Thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "Current state - isInbox: " + isInbox + 
+                  ", currentUserId: " + currentUserId + 
+                  ", databaseHelper: " + (databaseHelper != null));
+                  
+        if (databaseHelper == null) {
+            Log.e(TAG, "DatabaseHelper is null, cannot load messages");
+            runOnUiThread(() -> showSnackbar("Error: Database not available"));
+            return;
         }
+        
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "Current user ID is not set, cannot load messages");
+            runOnUiThread(() -> showSnackbar("Please sign in to view messages"));
+            return;
+        }
+        
+        if (!isInitialized()) {
+            Log.e(TAG, "MessageLoader not properly initialized");
+            return;
+        }
+        
+        // Show loading indicator
+        runOnUiThread(() -> {
+            if (binding != null) {
+                binding.swipeRefreshLayout.setRefreshing(true);
+            }
+        });
+        
+        // Clear existing messages
+        messages.clear();
+        
+        // Get database reference
+        DatabaseReference messagesRef = databaseHelper.getDatabaseReference()
+                .child("user-messages")
+                .child(currentUserId)
+                .child(isInbox ? "received" : "sent");
+        
+        Log.d(TAG, "Loading messages from path: " + messagesRef.toString());
+        
+        // Use a single value event listener for a one-time fetch
+        messagesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange: Found " + dataSnapshot.getChildrenCount() + " message references");
+                
+                if (!dataSnapshot.exists() || dataSnapshot.getChildrenCount() == 0) {
+                    Log.d(TAG, "No messages found for user");
+                    runOnUiThread(() -> {
+                        updateUI(new ArrayList<>());
+                        if (binding != null) {
+                            binding.swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
+                    return;
+                }
+                
+                // List to hold all loaded messages
+                List<Message> loadedMessages = new ArrayList<>();
+                final int[] pendingFetches = { (int) dataSnapshot.getChildrenCount() };
+                
+                // For each message reference, fetch the actual message
+                for (DataSnapshot messageRef : dataSnapshot.getChildren()) {
+                    String messageId = messageRef.getKey();
+                    if (messageId == null) continue;
+                    
+                    DatabaseReference messageRefFull = databaseHelper.getDatabaseReference()
+                            .child("messages")
+                            .child(messageId);
+                    
+                    messageRefFull.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot messageSnapshot) {
+                            if (messageSnapshot.exists()) {
+                                Message message = messageSnapshot.getValue(Message.class);
+                                if (message != null) {
+                                    message.setId(messageSnapshot.getKey());
+                                    synchronized (loadedMessages) {
+                                        loadedMessages.add(message);
+                                    }
+                                }
+                            }
+                            
+                            // Check if all fetches are complete
+                            synchronized (pendingFetches) {
+                                pendingFetches[0]--;
+                                if (pendingFetches[0] == 0) {
+                                    // All messages loaded, update UI
+                                    Log.d(TAG, "All messages loaded, count: " + loadedMessages.size());
+                                    runOnUiThread(() -> {
+                                        updateUI(loadedMessages);
+                                        if (binding != null) {
+                                            binding.swipeRefreshLayout.setRefreshing(false);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, "Error loading message: " + error.getMessage());
+                            synchronized (pendingFetches) {
+                                pendingFetches[0]--;
+                                if (pendingFetches[0] == 0) {
+                                    runOnUiThread(() -> {
+                                        updateUI(loadedMessages);
+                                        if (binding != null) {
+                                            binding.swipeRefreshLayout.setRefreshing(false);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error loading messages: " + error.getMessage());
+                runOnUiThread(() -> {
+                    showSnackbar("Error loading messages: " + error.getMessage());
+                    if (binding != null) {
+                        binding.swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+            }
+        });
+    }
+    
+    /**
+     * Updates all fragments with the current messages
+     */
+    private void updateFragments() {
+        final String TAG = "MessageListActivity";
+        Log.d(TAG, "updateFragments() called with " + messages.size() + " messages, isInbox=" + isInbox);
+        
+        try {
+            // Check if pagerAdapter is initialized
+            if (pagerAdapter == null) {
+                Log.e(TAG, "pagerAdapter is null in updateFragments");
+                return;
+            }
+            
+            // Check if activity is finishing or destroyed
+            if (isFinishing() || isDestroyed()) {
+                Log.w(TAG, "Activity is finishing or destroyed, skipping fragment updates");
+                return;
+            }
+            
+            // Check if binding and view pager are valid
+            if (binding == null || binding.viewPager == null) {
+                Log.e(TAG, "Binding or ViewPager is null, cannot update fragments");
+                return;
+            }
+            
+            int itemCount = pagerAdapter.getItemCount();
+            Log.d(TAG, "Updating " + itemCount + " fragments, total messages: " + messages.size() + 
+                    ", isInbox: " + isInbox);
+            
+            // Get current view pager position for reference
+            int currentPosition = binding.viewPager.getCurrentItem();
+            Log.d(TAG, "Current view pager position: " + currentPosition);
+            
+            // Update both fragments (inbox and outbox)
+            for (int i = 0; i < itemCount; i++) {
+                try {
+                    Log.d(TAG, "Processing fragment at position: " + i);
+                    
+                    // Get the fragment from pager adapter
+                    MessageListFragment fragment = pagerAdapter.getFragment(i);
+                    if (fragment == null) {
+                        Log.e(TAG, "Fragment at position " + i + " is null");
+                        continue;
+                    }
+                    
+                    // Check fragment state
+                    if (!fragment.isAdded()) {
+                        Log.w(TAG, "Fragment at position " + i + " is not added to activity");
+                        continue;
+                    }
+                    
+                    if (fragment.isDetached()) {
+                        Log.w(TAG, "Fragment at position " + i + " is detached from activity");
+                        continue;
+                    }
+                    
+                    if (fragment.isRemoving()) {
+                        Log.w(TAG, "Fragment at position " + i + " is being removed");
+                        continue;
+                    }
+                    
+                    // Filter messages for this fragment (inbox or outbox)
+                    boolean isInboxFragment = (i == 0);
+                    List<Message> filteredMessages = filterMessages(messages, isInboxFragment);
+                    
+                    Log.d(TAG, String.format("Updating fragment %d (isInbox: %b) with %d messages", 
+                            i, isInboxFragment, filteredMessages != null ? filteredMessages.size() : 0));
+                    
+                    // Log first few messages for debugging
+                    if (filteredMessages != null && !filteredMessages.isEmpty()) {
+                        int logCount = Math.min(3, filteredMessages.size());
+                        for (int j = 0; j < logCount; j++) {
+                            Message msg = filteredMessages.get(j);
+                            Log.d(TAG, String.format("Message %d: id=%s, from=%s, to=%s, subject=%s", 
+                                    j, msg.getId(), msg.getSenderId(), 
+                                    msg.getRecipientId(), msg.getSubject()));
+                        }
+                    }
+                    
+                    // Update the fragment with the filtered messages
+                    if (filteredMessages != null) {
+                        fragment.updateMessages(filteredMessages);
+                    } else {
+                        Log.e(TAG, "Filtered messages is null for fragment " + i);
+                        fragment.updateMessages(new ArrayList<>());
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error updating fragment " + i, e);
+                }
+            }
+            
+            Log.d(TAG, "Fragment update completed");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error in updateFragments", e);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("MessageListActivity", "onStart() called");
+        
+        // Check if user is still authenticated
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.e("MessageListActivity", "User logged out, finishing activity");
+            finish();
+            return;
+        }
+        
+        // Update current user ID if needed
+        if (currentUserId == null) {
+            currentUserId = currentUser.getUid();
+            Log.d("MessageListActivity", "Set currentUserId to: " + currentUserId);
+        }
+        
+        // Initialize components if needed
+        if (databaseHelper == null) {
+            databaseHelper = DatabaseHelper.getInstance();
+            Log.d("MessageListActivity", "Initialized databaseHelper");
+        }
+        
+        if (contactsManager == null) {
+            contactsManager = ContactsManager.getInstance();
+            Log.d("MessageListActivity", "Initialized contactsManager");
+        }
+        
+        // Log initialization state before trying to load messages
+        Log.d("MessageListActivity", "Checking initialization state...");
+        Log.d("MessageListActivity", "messageLoader: " + (messageLoader != null));
+        Log.d("MessageListActivity", "databaseHelper: " + (databaseHelper != null));
+        Log.d("MessageListActivity", "contactsManager: " + (contactsManager != null));
+        Log.d("MessageListActivity", "currentUserId: " + (currentUserId != null));
+        Log.d("MessageListActivity", "binding: " + (binding != null));
+        
+        // Initialize message loader if needed
+        if (messageLoader == null) {
+            Log.d("MessageListActivity", "Initializing messageLoader");
+            initializeMessageLoader();
+        } else {
+            Log.d("MessageListActivity", "messageLoader already initialized");
+        }
+        
+        // Log initialization state after potential messageLoader initialization
+        Log.d("MessageListActivity", "Initialization state before loadMessages():" +
+                "\n  databaseHelper: " + (databaseHelper != null) +
+                "\n  messageLoader: " + (messageLoader != null) +
+                "\n  currentUserId: " + currentUserId);
+        
+        // Call loadMessages() directly to ensure it's called
+        Log.d("MessageListActivity", "Calling loadMessages() from onStart");
+        loadMessages();
+        
+        // Also try loading contacts and messages
+        Log.d("MessageListActivity", "Calling loadContactsAndMessages() from onStart");
+        loadContactsAndMessages();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Clean up resources
+        if (messageLoader != null) {
+            messageLoader.cleanup();
+            messageLoader = null;
+        }
         binding = null;
+    }
+    
+    /**
+     * Initializes the message loader with current settings
+     */
+    private void setupUI() {
+        // Set up the toolbar
+        setSupportActionBar(binding.toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(isInbox ? R.string.label_inbox : R.string.label_outbox);
+        }
+        
+        // Set up ViewPager and TabLayout
+        pagerAdapter = new MessagesPagerAdapter(this);
+        binding.viewPager.setAdapter(pagerAdapter);
+        
+        new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> {
+            tab.setText(position == 0 ? getString(R.string.label_inbox) : getString(R.string.label_sent));
+        }).attach();
+        
+        // Set up pull-to-refresh
+        binding.swipeRefreshLayout.setOnRefreshListener(this::refreshMessages);
+    }
+    
+    private void initializeMessageLoader() {
+        Log.d("MessageListActivity", "initializeMessageLoader() called");
+        
+        if (databaseHelper == null) {
+            Log.e("MessageListActivity", "Cannot initialize message loader - databaseHelper is null");
+            return;
+        }
+        if (contactsManager == null) {
+            Log.e("MessageListActivity", "Cannot initialize message loader - contactsManager is null");
+            return;
+        }
+        if (currentUserId == null) {
+            Log.e("MessageListActivity", "Cannot initialize message loader - currentUserId is null");
+            return;
+        }
+        
+        // Don't reinitialize if already initialized
+        if (messageLoader != null) {
+            Log.d("MessageListActivity", "MessageLoader already initialized");
+            return;
+        }
+        
+        Log.d("MessageListActivity", "Creating new MessageLoader instance");
+        try {
+            messageLoader = new MessageLoader(
+                databaseHelper,
+                contactsManager,
+                currentUserId,
+                isInbox,
+                currentSortField,
+                isAscending
+            );
+            Log.d("MessageListActivity", "MessageLoader created successfully");
+        } catch (Exception e) {
+            Log.e("MessageListActivity", "Error creating MessageLoader", e);
+            messageLoader = null;
+        }
+    }
+    
+    /**
+     * Updates the message loader with the current tab and sort settings
+     */
+    private void updateMessageLoaderForCurrentTab() {
+        if (messageLoader != null) {
+            messageLoader.setInboxMode(isInbox);
+            messageLoader.setSortOrder(currentSortField, isAscending);
+        } else {
+            Log.e("MessageListActivity", "Cannot update message loader - not initialized");
+        }
+    }
+    
+    /**
+     * Checks if all required components are initialized
+     */
+    private boolean isInitialized() {
+        boolean initialized = messageLoader != null && 
+                           databaseHelper != null && 
+                           contactsManager != null && 
+                           currentUserId != null &&
+                           binding != null;
+        
+        Log.d("MessageListActivity", "isInitialized(): " + initialized + 
+                " (messageLoader: " + (messageLoader != null) + 
+                ", databaseHelper: " + (databaseHelper != null) + 
+                ", contactsManager: " + (contactsManager != null) + 
+                ", currentUserId: " + (currentUserId != null) + 
+                ", binding: " + (binding != null) + ")");
+                
+        return initialized;
     }
 }

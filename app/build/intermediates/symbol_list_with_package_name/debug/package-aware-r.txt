@@ -4318,6 +4318,7 @@ string error_incorrect_password
 string error_invalid_credentials
 string error_invalid_email
 string error_invalid_password
+string error_loading_messages
 string error_login_failed
 string error_message_required
 string error_network
@@ -4366,6 +4367,7 @@ string label_date
 string label_from
 string label_inbox
 string label_outbox
+string label_sent
 string label_subject
 string label_to
 string language

@@ -27,9 +27,9 @@ public class MessageLoader {
     private final DatabaseHelper databaseHelper;
     private final ContactsManager contactsManager;
     private final String currentUserId;
-    private final boolean isInbox;
-    private final String currentSortField;
-    private final boolean isAscending;
+    private boolean isInbox;
+    private String currentSortField;
+    private boolean isAscending;
     
     private ValueEventListener messageListener;
     private Query messagesQuery;
@@ -212,6 +212,32 @@ public class MessageLoader {
         if (messageListener != null && messagesQuery != null) {
             messagesQuery.removeEventListener(messageListener);
             messageListener = null;
+        }
+    }
+    
+    /**
+     * Updates the inbox/outbox mode of the loader
+     * @param isInbox true for inbox mode, false for outbox mode
+     */
+    public void setInboxMode(boolean isInbox) {
+        if (this.isInbox != isInbox) {
+            this.isInbox = isInbox;
+            Log.d(TAG, "MessageLoader mode changed to: " + (isInbox ? "Inbox" : "Outbox"));
+        }
+    }
+    
+    /**
+     * Updates the sort order of the messages
+     * @param sortField Field to sort by (e.g., "timestamp", "subject")
+     * @param isAscending true for ascending order, false for descending
+     */
+    public void setSortOrder(String sortField, boolean isAscending) {
+        boolean needsRefresh = !this.currentSortField.equals(sortField) || this.isAscending != isAscending;
+        this.currentSortField = sortField;
+        this.isAscending = isAscending;
+        
+        if (needsRefresh) {
+            Log.d(TAG, "Sort order updated - Field: " + sortField + ", Ascending: " + isAscending);
         }
     }
     

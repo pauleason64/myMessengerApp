@@ -145,6 +145,7 @@
     <string name="error_invalid_credentials">Invalid email or password</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short (minimum 6 characters)</string>
+    <string name="error_loading_messages">Failed to delete message</string>
     <string name="error_login_failed">Authentication failed. Please check your credentials.</string>
     <string name="error_message_required">Message cannot be empty</string>
     <string name="error_network">Network error. Please check your connection.</string>
@@ -182,6 +183,7 @@
     <string name="label_from">From: %s</string>
     <string name="label_inbox">Inbox</string>
     <string name="label_outbox">Outbox</string>
+    <string name="label_sent">Inbox</string>
     <string name="label_subject">Subject</string>
     <string name="label_to">To: %s</string>
     <string name="language">Language</string>
