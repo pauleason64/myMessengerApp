@@ -1,39 +1,16 @@
 {
   "rules": {
-    "users": {
-      ".read": "auth != null",
-      "$uid": {
-        ".write": "auth != null && auth.uid === $uid",
-        ".validate": "newData.hasChildren(['email', 'name'])",
-        "email": {
-          ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
-        },
-        "name": {
-          ".validate": "newData.isString() && newData.val().length > 0"
-        }
-      }
-    },
-    "user-contacts": {
-      "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid",
-        "$contactId": {
-          ".validate": "newData.hasChildren(['userId', 'contactId', 'userName', 'emailAddress']) && newData.child('userId').val() === $uid && newData.child('contactId').isString() && newData.child('userName').isString() && newData.child('emailAddress').isString() && newData.child('emailAddress').val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
-        }
-      }
-    },
     "messages": {
       "$messageId": {
-        ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid)",
+        ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid || (data.child('isNote').val() === true && data.child('senderId').val() === auth.uid))",
         ".write": "auth != null",
-        ".validate": "newData.hasChildren(['senderId', 'recipientId', 'message', 'timestamp', 'read', 'subject'])",
         "senderId": {
           ".validate": "newData.val() === auth.uid"
         },
         "recipientId": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || (newData.parent().child('isNote').val() === true && newData.val() === null)"
         },
-        "message": {
+        "content": {
           ".validate": "newData.isString() && newData.val().length > 0"
         },
         "timestamp": {
@@ -45,6 +22,9 @@
         "subject": {
           ".validate": "newData.isString()"
         },
+        "isNote": {
+          ".validate": "newData.isBoolean()"
+        },
         "$other": {
           ".validate": false
         }
@@ -52,19 +32,25 @@
     },
     "user-messages": {
       "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
         "sent": {
-          ".read": "auth != null && auth.uid === $uid",
           "$messageId": {
             ".write": "auth != null && auth.uid === $uid"
           }
         },
         "received": {
-          ".read": "auth != null && auth.uid === $uid",
           "$messageId": {
             ".write": "auth != null"
+          }
+        },
+        "notes": {
+          "$messageId": {
+            ".write": "auth != null &&
+            (!data.exists() || data.val() === true) &&
+            newData.val() === true",
+            ".validate": "newData.val() === true"
           }
         }
       }
     }
   }
-}

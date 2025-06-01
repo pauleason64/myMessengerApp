@@ -3035,6 +3035,7 @@ dimen preference_seekbar_value_minWidth
 dimen preferences_detail_width
 dimen preferences_header_width
 dimen sliding_pane_detail_pane_width
+dimen small_padding
 dimen tooltip_corner_radius
 dimen tooltip_horizontal_padding
 dimen tooltip_margin
@@ -3126,6 +3127,7 @@ drawable avd_hide_password
 drawable avd_show_password
 drawable bg_reminder
 drawable bg_rounded_dialog
+drawable bottom_nav_selector
 drawable btn_checkbox_checked_mtrl
 drawable btn_checkbox_checked_to_unchecked_mtrl_animation
 drawable btn_checkbox_unchecked_mtrl
@@ -3179,6 +3181,7 @@ drawable ic_empty_state
 drawable ic_firebase
 drawable ic_forward
 drawable ic_help
+drawable ic_inbox
 drawable ic_info
 drawable ic_keyboard_black_24dp
 drawable ic_language
@@ -3189,11 +3192,16 @@ drawable ic_logout
 drawable ic_m3_chip_check
 drawable ic_m3_chip_checked_circle
 drawable ic_m3_chip_close
+drawable ic_message
 drawable ic_mtrl_checked_circle
 drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
+drawable ic_note
+drawable ic_note_add
+drawable ic_note_small
 drawable ic_notifications
+drawable ic_outbox
 drawable ic_person
 drawable ic_person_add
 drawable ic_reply
@@ -3353,13 +3361,13 @@ id action_menu_presenter
 id action_mode_bar
 id action_mode_bar_stub
 id action_mode_close_button
-id action_profile
 id action_reply
 id action_send
 id action_set_reminder
 id action_settings
 id action_share
 id action_text
+id action_toggle_note
 id actions
 id activity_chooser_view_content
 id add
@@ -3389,6 +3397,7 @@ id beginning
 id bestChoice
 id blocking
 id bottom
+id bottom_navigation
 id bounce
 id bounceBoth
 id bounceEnd
@@ -3517,6 +3526,7 @@ id fab_compose
 id fab_delete
 id fab_forward
 id fab_reply
+id fab_send
 id fade
 id fill
 id fill_horizontal
@@ -3675,7 +3685,11 @@ id navigation_bar_item_icon_view
 id navigation_bar_item_labels_group
 id navigation_bar_item_large_label_view
 id navigation_bar_item_small_label_view
+id navigation_contacts
 id navigation_header_container
+id navigation_inbox
+id navigation_notes
+id navigation_outbox
 id never
 id neverCompleteToEnd
 id neverCompleteToStart
@@ -3821,7 +3835,6 @@ id switch_push_notifications
 id switch_sound
 id tabLayout
 id tabMode
-id tabs
 id tag_accessibility_actions
 id tag_accessibility_clickable_spans
 id tag_accessibility_heading
@@ -3906,6 +3919,7 @@ id useLogo
 id vertical_only
 id viewPager
 id view_offset_helper
+id view_pager
 id view_transition
 id view_tree_lifecycle_owner
 id view_tree_on_back_pressed_dispatcher_owner
@@ -4160,6 +4174,7 @@ layout select_dialog_multichoice_material
 layout select_dialog_singlechoice_material
 layout settings_activity
 layout support_simple_spinner_dropdown_item
+menu bottom_nav_menu
 menu menu_compose
 menu menu_main
 menu menu_message_actions
@@ -4220,6 +4235,7 @@ string action_register_submit
 string action_remind_me
 string action_remind_me_later
 string action_save
+string action_save_note
 string action_select_all
 string action_send
 string action_set_reminder
@@ -4313,6 +4329,7 @@ string error_authentication_required
 string error_creating_message
 string error_deleting_message
 string error_field_required
+string error_generic
 string error_icon_content_description
 string error_incorrect_password
 string error_invalid_credentials
@@ -4326,6 +4343,7 @@ string error_password_mismatch
 string error_recipient_required
 string error_registration_failed
 string error_reset_password_failed
+string error_saving_note
 string error_sending_message
 string error_sending_verification_email
 string error_setting_reminder
@@ -4354,6 +4372,8 @@ string hint_confirm_password
 string hint_email
 string hint_full_name
 string hint_message
+string hint_note_content
+string hint_note_title
 string hint_password
 string hint_recipient
 string hint_reminder_time
@@ -4366,6 +4386,8 @@ string just_now
 string label_date
 string label_from
 string label_inbox
+string label_note
+string label_notes
 string label_outbox
 string label_sent
 string label_subject
@@ -4421,6 +4443,8 @@ string message_copied
 string message_deleted
 string message_details
 string message_forwarded
+string message_mode
+string message_mode_enabled
 string message_options
 string message_preview
 string message_replied
@@ -4512,6 +4536,7 @@ string no_messages
 string no_messages_desc
 string no_messages_inbox
 string no_messages_outbox
+string no_notes
 string no_recipients
 string no_reminders
 string no_search_results
@@ -4519,6 +4544,9 @@ string no_search_results_desc
 string no_subject
 string not_available
 string not_set
+string note_mode
+string note_mode_enabled
+string note_saved
 string notifications_new_message_ringtone_default
 string notifications_new_message_vibrate
 string notifications_new_message_vibrate_default
@@ -4624,6 +4652,7 @@ string searchbar_scrolling_view_behavior
 string searchview_clear_text_content_description
 string searchview_navigation_content_description
 string select_text
+string send_message
 string sending
 string set_reminder
 string share
@@ -4638,6 +4667,8 @@ string sound
 string status_bar_notification_info_overflow
 string subject
 string summary_collapsed_preference_list
+string switch_to_message_mode
+string switch_to_note_mode
 string theme
 string theme_dark
 string theme_light
@@ -4650,6 +4681,7 @@ string title_activity_settings
 string title_appearance
 string title_change_password
 string title_compose_message
+string title_compose_note
 string title_edit_message
 string title_edit_profile
 string title_forward_message
@@ -5466,6 +5498,8 @@ style ThemeOverlay_MaterialComponents_TimePicker_Display_TextInputEditText
 style ThemeOverlay_MaterialComponents_Toolbar_Popup_Primary
 style ThemeOverlay_MaterialComponents_Toolbar_Primary
 style ThemeOverlay_MaterialComponents_Toolbar_Surface
+style Widget_App_BottomNavigationView
+style Widget_App_FloatingActionButton
 style Widget_AppCompat_ActionBar
 style Widget_AppCompat_ActionBar_Solid
 style Widget_AppCompat_ActionBar_TabBar

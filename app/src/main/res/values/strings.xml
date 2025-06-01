@@ -76,8 +76,9 @@
     <!-- Main Activity -->
     <string name="title_messages">Messages</string>
     <string name="label_inbox">Inbox</string>
-    <string name="label_sent">Inbox</string>
+    <string name="label_sent">Sent</string>
     <string name="label_outbox">Outbox</string>
+    <string name="label_notes">Notes</string>
     <string name="label_date">Date</string>
     <string name="label_subject">Subject</string>
     <string name="title_reminders">Reminders</string>
@@ -89,9 +90,19 @@
     <string name="no_messages">No messages yet</string>
     <string name="no_messages_inbox">No messages in your inbox</string>
     <string name="no_messages_outbox">No sent messages</string>
+    <string name="no_notes">No notes yet. Tap + to create your first note!</string>
+    <string name="label_note">Note</string>
+    <string name="message_mode">Message Mode</string>
+    <string name="note_mode_enabled">Note mode enabled</string>
+    <string name="message_mode_enabled">Message mode enabled</string>
+    <string name="hint_note_content">Type your note here</string>
+    <string name="switch_to_message_mode">Switch to message mode</string>
+    <string name="switch_to_note_mode">Switch to note mode</string>
     <string name="no_reminders">No reminders set</string>
     <string name="action_compose">Compose</string>
     <string name="action_send">Send</string>
+    <string name="send_message">Send</string>
+    <string name="action_save_note">Save Note</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
@@ -102,13 +113,16 @@
     <string name="action_mark_as_unread">Mark as Unread</string>
     <string name="action_select_all">Select All</string>
     <string name="action_clear_selection">Clear Selection</string>
+    <string name="note_mode">Switch to Note</string>
     <string name="hint_message">Type your message here</string>
     <string name="hint_recipient">Recipient email</string>
     <string name="hint_subject">Subject (optional)</string>
+    <string name="hint_note_title">Title (optional)</string>
     <string name="hint_reminder_time">Reminder time</string>
     <string name="error_recipient_required">Recipient email is required</string>
     <string name="error_message_required">Message cannot be empty</string>
     <string name="message_sent">Message sent</string>
+    <string name="note_saved">Note saved</string>
     <string name="message_deleted">Message deleted</string>
     <string name="delete_message_title">Delete Message</string>
     <string name="error_deleting_message">Failed to delete message</string>
@@ -120,6 +134,8 @@
     <string name="message_starred">Message starred</string>
     <string name="message_unstarred">Message unstarred</string>
     <string name="error_sending_message">Failed to send message</string>
+    <string name="error_generic">Unknown error occurred</string>
+    <string name="error_saving_note">Failed to save note</string>
     <string name="reminder_set">Reminder set</string>
     <string name="reminder_updated">Reminder updated</string>
     <string name="reminder_removed">Reminder removed</string>
@@ -137,6 +153,7 @@
     <string name="title_select_contact">Select Contact</string>
     <!-- Message Composition -->
     <string name="title_compose_message">Compose Message</string>
+    <string name="title_compose_note">New Note</string>
     <string name="title_edit_message">Edit Message</string>
     <string name="title_reply_message">Reply to Message</string>
     <string name="title_forward_message">Forward Message</string>

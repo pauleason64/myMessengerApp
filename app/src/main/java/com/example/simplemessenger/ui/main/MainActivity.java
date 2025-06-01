@@ -2,62 +2,311 @@ package com.example.simplemessenger.ui.main;
 
 import static com.example.simplemessenger.utils.AuthUtils.checkAuthState;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
-import com.example.simplemessenger.databinding.ActivityMessageListBinding;
-import com.example.simplemessenger.ui.auth.AuthActivity;
-import com.example.simplemessenger.ui.contacts.ContactsFragment;
 import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.ui.contacts.ContactsListFragment;
+import com.example.simplemessenger.ui.auth.AuthActivity;
+import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
+import com.example.simplemessenger.ui.contacts.ContactsFragment;
 import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.ComposeMessageActivity;
 import com.example.simplemessenger.ui.messaging.MessageListFragment;
 import com.example.simplemessenger.ui.profile.ProfileActivity;
+import com.example.simplemessenger.ui.profile.ProfileFragment;
 import com.example.simplemessenger.ui.settings.SettingsActivity;
-import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-
-import android.util.Log;
-import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-import androidx.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+    private ViewPager2 viewPager;
+    private BottomNavigationView bottomNavigationView;
+    private FirebaseAuth mAuth;
+    private SharedPreferences sharedPreferences;
+    private ViewPagerAdapter viewPagerAdapter;
+
+    // Fragments
+    private MessageListFragment inboxFragment;
+    private MessageListFragment outboxFragment;
+    private MessageListFragment notesFragment;
+    private ContactsFragment contactsFragment;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        try {
+            // Initialize Firebase Auth
+            mAuth = FirebaseAuth.getInstance();
+            
+            // Check if user is authenticated
+            if (mAuth.getCurrentUser() == null) {
+                startActivity(new Intent(this, AuthActivity.class));
+                finish();
+                return;
+            }
+            
+            // Initialize views
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            
+            // Initialize fragments
+            inboxFragment = MessageListFragment.newInstance(0); // Inbox
+            outboxFragment = MessageListFragment.newInstance(1); // Outbox
+            notesFragment = MessageListFragment.newInstance(2); // Notes
+            contactsFragment = new ContactsFragment();
+            
+            // Set up ViewPager2 with fragments
+            viewPager = findViewById(R.id.view_pager);
+            setupViewPager(viewPager);
+            
+            // Set up bottom navigation
+            bottomNavigationView = findViewById(R.id.bottom_navigation);
+            bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.navigation_inbox) {
+                    viewPager.setCurrentItem(0, false);
+                    return true;
+                } else if (itemId == R.id.navigation_outbox) {
+                    viewPager.setCurrentItem(1, false);
+                    return true;
+                } else if (itemId == R.id.navigation_notes) {
+                    viewPager.setCurrentItem(2, false);
+                    return true;
+                } else if (itemId == R.id.navigation_contacts) {
+                    viewPager.setCurrentItem(3, false);
+                    return true;
+                }
+                return false;
+            });
+            
+            // Disable ViewPager swiping
+            viewPager.setUserInputEnabled(false);
+            
+            // Sync ViewPager with BottomNavigationView
+            viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    switch (position) {
+                        case 0:
+                            bottomNavigationView.setSelectedItemId(R.id.navigation_inbox);
+                            if (getSupportActionBar() != null) {
+                                getSupportActionBar().setTitle(R.string.label_inbox);
+                            }
+                            updateFabVisibility(true);
+                            updateFabIcon(0);
+                            break;
+                        case 1:
+                            bottomNavigationView.setSelectedItemId(R.id.navigation_outbox);
+                            if (getSupportActionBar() != null) {
+                                getSupportActionBar().setTitle(R.string.label_outbox);
+                            }
+                            updateFabVisibility(true);
+                            updateFabIcon(1);
+                            break;
+                        case 2:
+                            bottomNavigationView.setSelectedItemId(R.id.navigation_notes);
+                            if (getSupportActionBar() != null) {
+                                getSupportActionBar().setTitle(R.string.label_notes);
+                            }
+                            updateFabVisibility(true);
+                            updateFabIcon(2);
+                            break;
+                        case 3:
+                            bottomNavigationView.setSelectedItemId(R.id.navigation_contacts);
+                            if (getSupportActionBar() != null) {
+                                getSupportActionBar().setTitle(R.string.menu_contacts);
+                            }
+                            updateFabVisibility(false);
+                            break;
+                    }
+                }
+            });
+            
+            // Set initial title and FAB state
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(R.string.label_inbox);
+            }
+            updateFabIcon(0);
+            updateFabVisibility(true);
+            
+            // Initialize SharedPreferences
+            sharedPreferences = getSharedPreferences(
+                    SimpleMessengerApp.SHARED_PREFS_NAME,
+                    MODE_PRIVATE
+            );
+            
+            // Initialize the UI
+            initializeUI();
+            
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error during initialization", e);
+            showErrorAndFinish("Error initializing app. Please restart.");
+        }
+    }
+    
+    private void setupViewPager(ViewPager2 viewPager) {
+        viewPagerAdapter = new ViewPagerAdapter(this);
+        viewPagerAdapter.addFragment(inboxFragment, getString(R.string.label_inbox));
+        viewPagerAdapter.addFragment(outboxFragment, getString(R.string.label_outbox));
+        viewPagerAdapter.addFragment(notesFragment, getString(R.string.label_notes));
+        viewPagerAdapter.addFragment(contactsFragment, getString(R.string.menu_contacts));
+        viewPager.setAdapter(viewPagerAdapter);
+    }
+    
+    private void updateFabVisibility(boolean show) {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        if (fab != null) {
+            if (show) {
+                fab.show();
+            } else {
+                fab.hide();
+            }
+        }
+    }
+    
+    private void updateFabIcon(int position) {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        if (fab != null) {
+            if (position == 2) { // Notes tab
+                fab.setImageResource(R.drawable.ic_note_add);
+            } else {
+                fab.setImageResource(R.drawable.ic_add);
+            }
+        }
+    }
+    
+    private void initializeUI() {
+        try {
+            // Set up FAB for compose message/note
+            FloatingActionButton fab = findViewById(R.id.fab);
+            if (fab != null) {
+                fab.setOnClickListener(view -> {
+                    try {
+                        // Get the current tab position
+                        int currentTab = viewPager.getCurrentItem();
+                        Intent composeIntent = new Intent(MainActivity.this, ComposeMessageActivity.class);
+                        
+                        // Set common extras for all compose actions
+                        composeIntent.putExtra(ComposeMessageActivity.EXTRA_COMPOSE_NEW, true);
+                        
+                        // Set mode-specific extras
+                        if (currentTab == 2) { 
+                            // Notes tab - compose new note
+                            composeIntent.putExtra(ComposeMessageActivity.EXTRA_IS_NOTE, true)
+                                        .putExtra(ComposeMessageActivity.EXTRA_NOTE_MODE, true);
+                            
+                            Log.d(TAG, "Launching ComposeMessageActivity in NOTE mode");
+                        } else { 
+                            // Inbox or Outbox tab - compose new message
+                            composeIntent.putExtra(ComposeMessageActivity.EXTRA_IS_NOTE, false)
+                                        .putExtra(ComposeMessageActivity.EXTRA_NOTE_MODE, false);
+                            
+                            Log.d(TAG, "Launching ComposeMessageActivity in MESSAGE mode");
+                        }
+                        
+                        // Start the activity
+                        startActivity(composeIntent);
+                        
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error handling FAB click", e);
+                        showError("Cannot perform this action. Please try again.");
+                    }
+                });
+            }
+            
+            // Set initial FAB state based on the current tab
+            int currentItem = viewPager.getCurrentItem();
+            updateFabVisibility(currentItem != 3); // Hide FAB on Contacts tab
+            updateFabIcon(currentItem);
+
+            // Check auth state
+            checkAuthState(this, AuthActivity.class, MainActivity.class);
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error in initializeUI", e);
+            showErrorAndFinish("Error initializing UI. Please restart the app.");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Check authentication state when activity resumes
+        if (mAuth.getCurrentUser() == null) {
+            finish();
+            return;
+        }
+        
+        // Check auth state - this will handle redirecting to login if needed
+        checkAuthState(this, AuthActivity.class, MainActivity.class);
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        // Clean up contacts manager when app goes to background
+        try {
+            ContactsManager contactsManager = ContactsManager.getInstance();
+            contactsManager.cleanup();
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error cleaning up ContactsManager in onPause", e);
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        
+        // Clean up any references to prevent memory leaks
+        viewPager = null;
+        viewPagerAdapter = null;
+        
+        // Clean up contacts manager
+        try {
+            ContactsManager contactsManager = ContactsManager.getInstance();
+            contactsManager.cleanup();
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error cleaning up ContactsManager in onDestroy", e);
+        }
+        
+        mAuth = null;
+        sharedPreferences = null;
+    }
+    
     private void showError(String message) {
         runOnUiThread(() -> {
             try {
-                Log.e("MainActivity", "Showing error: " + message);
+                Log.e(TAG, "Showing error: " + message);
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
             } catch (Exception e) {
-                Log.e("MainActivity", "Error showing error toast", e);
+                Log.e(TAG, "Error showing error toast", e);
             }
         });
     }
@@ -85,170 +334,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-    private SharedPreferences sharedPreferences;
-    private FirebaseAuth mAuth;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        
-        try {
-            // Initialize Firebase Auth
-            mAuth = FirebaseAuth.getInstance();
-            Log.d("MainActivity", "Firebase Auth initialized");
-            
-            // Initialize SharedPreferences
-            sharedPreferences = getSharedPreferences(
-                    SimpleMessengerApp.SHARED_PREFS_NAME,
-                    MODE_PRIVATE
-            );
-            Log.d("MainActivity", "SharedPreferences initialized");
-            
-            // Initialize and set up the Toolbar
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            
-            // Set the Toolbar title and disable the home button (since this is the main activity)
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowTitleEnabled(true);
-                getSupportActionBar().setTitle(R.string.app_name);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                getSupportActionBar().setHomeButtonEnabled(false);
-            }
-            
-            // Initialize the UI
-            initializeUI();
-            
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error during initialization", e);
-            showErrorAndFinish("Error initializing app. Please restart.");
-        }
-    }
     
-    private void initializeUI() {
-        try {
-            Log.d("MainActivity", "Initializing UI");
-
-            // Set up ViewPager and TabLayout
-            try {
-                // Create the adapter that will return the fragments
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
-                Log.d("MainActivity", "SectionsPagerAdapter created");
-
-                // Set up the ViewPager with the sections adapter
-                mViewPager = findViewById(R.id.container);
-                if (mViewPager == null) {
-                    throw new IllegalStateException("ViewPager not found in layout");
-                }
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                Log.d("MainActivity", "ViewPager adapter set");
-                
-                // Set up the TabLayout with the ViewPager
-                TabLayout tabLayout = findViewById(R.id.tabs);
-                if (tabLayout != null) {
-                    tabLayout.setupWithViewPager(mViewPager);
-                    Log.d("MainActivity", "TabLayout set up with ViewPager");
-                } else {
-                    Log.w("MainActivity", "TabLayout not found in layout");
-                }
-                
-            } catch (Exception e) {
-                Log.e("MainActivity", "Error setting up ViewPager/TabLayout", e);
-                showErrorAndFinish("Error initializing app interface. Please restart the app.");
-                return;
-            }
-
-            // Set up FAB
-            FloatingActionButton fab = findViewById(R.id.fab);
-            if (fab != null) {
-                fab.setOnClickListener(view -> {
-                    try {
-                        // Handle FAB click based on the current tab
-                        int currentTab = mViewPager.getCurrentItem();
-                        if (currentTab == 0) { // Messages tab
-                            startActivity(new Intent(MainActivity.this, ComposeMessageActivity.class));
-                        } else if (currentTab == 1) { // Contacts tab
-                            startActivity(new Intent(MainActivity.this, ManageContactsActivity.class));
-                        }
-                    } catch (Exception e) {
-                        Log.e("MainActivity", "Error handling FAB click", e);
-                        showError("Cannot perform this action. Please try again.");
-                    }
-                });
-                Log.d("MainActivity", "FAB set up");
-            } else {
-                Log.w("MainActivity", "FAB not found in layout");
-            }
-
-            // Check auth state
-            checkAuthState(this, AuthActivity.class, MainActivity.class);
-            Log.d("MainActivity", "UI initialization completed successfully");
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error in initializeUI", e);
-            showErrorAndFinish("Error initializing UI. Please restart the app.");
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("MainActivity", "onResume");
-        
-        // Check authentication state when activity resumes
-        if (mAuth.getCurrentUser() == null) {
-            Log.d("MainActivity", "User not authenticated, finishing activity");
-            finish();
-            return;
-        }
-        
-        // Check auth state - this will handle redirecting to login if needed
-        checkAuthState(this, AuthActivity.class, MainActivity.class);
-    }
-    
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d("MainActivity", "onPause");
-        
-        // Clean up contacts manager when app goes to background
-        try {
-            ContactsManager contactsManager = ContactsManager.getInstance();
-            contactsManager.cleanup();
-            Log.d("MainActivity", "ContactsManager cleaned up in onPause");
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error cleaning up ContactsManager in onPause", e);
-        }
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d("MainActivity", "onDestroy");
-        
-        // Clean up any references to prevent memory leaks
-        mViewPager = null;
-        mSectionsPagerAdapter = null;
-        
-        // Clean up contacts manager
-        try {
-            ContactsManager contactsManager = ContactsManager.getInstance();
-            contactsManager.cleanup();
-            Log.d("MainActivity", "ContactsManager cleaned up in onDestroy");
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error cleaning up ContactsManager in onDestroy", e);
-        }
-        
-        mAuth = null;
-        sharedPreferences = null;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -259,72 +347,27 @@ public class MainActivity extends AppCompatActivity {
 
         // Handle home/up button press
         if (id == android.R.id.home) {
-            // If there are fragments in the back stack, pop the top one
             if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                 getSupportFragmentManager().popBackStack();
                 return true;
             }
-            // If no fragments in back stack, let the system handle it
             onBackPressed();
             return true;
         } else if (id == R.id.action_settings) {
-            navigateToSettings();
-            return true;
-        } else if (id == R.id.action_profile) {
-            navigateToProfile();
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_contacts) {
-            navigateToContacts();
+            startActivity(new Intent(this, ManageContactsActivity.class));
             return true;
         } else if (id == R.id.action_logout) {
             confirmLogout();
             return true;
         } else if (id == R.id.action_firebase_settings) {
-            navigateToFirebaseSettings();
+            startActivity(new Intent(this, FirebaseConfigActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-    
-    // Navigation methods
-    public void navigateToMessageList() {
-        MessageListFragment fragment = MessageListFragment.newInstance(0); // 0 is the default section number
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, fragment)
-                .commit();
-        
-        // Update toolbar title
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.title_messages);
-        }
-    }
-    
-    private void navigateToSettings() {
-        startActivity(new Intent(this, SettingsActivity.class));
-    }
-    
-    private void navigateToProfile() {
-        startActivity(new Intent(this, ProfileActivity.class));
-    }
-    
-    private void navigateToContacts() {
-        ContactsFragment contactsFragment = ContactsFragment.newInstance();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, contactsFragment)
-                .addToBackStack("contacts")
-                .commit();
-                
-        // Update toolbar
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.menu_contacts);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-    }
-    
-    private void navigateToFirebaseSettings() {
-        startActivity(new Intent(this, FirebaseConfigActivity.class));
     }
     
     @Override
@@ -347,13 +390,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     
-    // Helper method to update the toolbar title
-    public void updateToolbarTitle(String title) {
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(title);
-        }
-    }
-
     private void confirmLogout() {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.action_logout)
@@ -386,49 +422,36 @@ public class MainActivity extends AppCompatActivity {
             showError("Error during logout. Please try again.");
         }
     }
-
+    
     /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
+     * ViewPager2 Adapter that manages fragments for bottom navigation
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-        private final Context context;
-        private static final int NUM_PAGES = 2; // Messages and Contacts
+    private static class ViewPagerAdapter extends FragmentStateAdapter {
+        private final List<Fragment> fragments = new ArrayList<>();
+        private final List<String> fragmentTitles = new ArrayList<>();
 
-        public SectionsPagerAdapter(FragmentManager fm, Context context) {
-            super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-            this.context = context;
+        public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
+        }
+
+        void addFragment(Fragment fragment, String title) {
+            fragments.add(fragment);
+            fragmentTitles.add(title);
         }
 
         @NonNull
         @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return MessageListFragment.newInstance(position + 1);
-                case 1:
-                    return new ContactsListFragment();
-                default:
-                    return MessageListFragment.newInstance(1);
-            }
+        public Fragment createFragment(int position) {
+            return fragments.get(position);
         }
 
         @Override
-        public int getCount() {
-            return NUM_PAGES;
+        public int getItemCount() {
+            return fragments.size();
         }
-
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return context.getString(R.string.title_messages);
-                case 1:
-                    return context.getString(R.string.menu_contacts);
-                default:
-                    return null;
-            }
+        
+        CharSequence getPageTitle(int position) {
+            return fragmentTitles.get(position);
         }
     }
 }

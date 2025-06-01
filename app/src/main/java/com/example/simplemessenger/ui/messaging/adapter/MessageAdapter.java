@@ -107,9 +107,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 return;
             }
             
-            // Set the display name based on inbox/outbox
+            // Set the display name based on message type
             String displayName;
-            if (isInbox) {
+            if (message.getIsNote()) {
+                // For notes, show "Note" as the sender
+                displayName = itemView.getContext().getString(R.string.label_note);
+            } else if (isInbox) {
                 // In inbox: show sender's email
                 displayName = message.getSenderEmail() != null ? message.getSenderEmail() : "Unknown Sender";
             } else {
@@ -117,6 +120,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 displayName = message.getRecipientEmail() != null ? message.getRecipientEmail() : "Unknown Recipient";
             }
             textSender.setText(displayName);
+            
+            // Style the sender text for notes
+            if (message.getIsNote()) {
+                textSender.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_note_small, 0, 0, 0);
+                textSender.setCompoundDrawablePadding(itemView.getContext().getResources()
+                        .getDimensionPixelSize(R.dimen.small_padding));
+            } else {
+                textSender.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
+            }
             
             // Format and set time
             long timestamp = message.getTimestamp();

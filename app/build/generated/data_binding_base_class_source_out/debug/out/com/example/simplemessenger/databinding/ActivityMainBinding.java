@@ -10,10 +10,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 import com.example.simplemessenger.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -23,24 +23,25 @@ public final class ActivityMainBinding implements ViewBinding {
   private final CoordinatorLayout rootView;
 
   @NonNull
-  public final ViewPager container;
+  public final BottomNavigationView bottomNavigation;
 
   @NonNull
   public final FloatingActionButton fab;
 
   @NonNull
-  public final TabLayout tabs;
-
-  @NonNull
   public final Toolbar toolbar;
 
-  private ActivityMainBinding(@NonNull CoordinatorLayout rootView, @NonNull ViewPager container,
-      @NonNull FloatingActionButton fab, @NonNull TabLayout tabs, @NonNull Toolbar toolbar) {
+  @NonNull
+  public final ViewPager2 viewPager;
+
+  private ActivityMainBinding(@NonNull CoordinatorLayout rootView,
+      @NonNull BottomNavigationView bottomNavigation, @NonNull FloatingActionButton fab,
+      @NonNull Toolbar toolbar, @NonNull ViewPager2 viewPager) {
     this.rootView = rootView;
-    this.container = container;
+    this.bottomNavigation = bottomNavigation;
     this.fab = fab;
-    this.tabs = tabs;
     this.toolbar = toolbar;
+    this.viewPager = viewPager;
   }
 
   @Override
@@ -70,9 +71,9 @@ public final class ActivityMainBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.container;
-      ViewPager container = ViewBindings.findChildViewById(rootView, id);
-      if (container == null) {
+      id = R.id.bottom_navigation;
+      BottomNavigationView bottomNavigation = ViewBindings.findChildViewById(rootView, id);
+      if (bottomNavigation == null) {
         break missingId;
       }
 
@@ -82,19 +83,20 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tabs;
-      TabLayout tabs = ViewBindings.findChildViewById(rootView, id);
-      if (tabs == null) {
-        break missingId;
-      }
-
       id = R.id.toolbar;
       Toolbar toolbar = ViewBindings.findChildViewById(rootView, id);
       if (toolbar == null) {
         break missingId;
       }
 
-      return new ActivityMainBinding((CoordinatorLayout) rootView, container, fab, tabs, toolbar);
+      id = R.id.view_pager;
+      ViewPager2 viewPager = ViewBindings.findChildViewById(rootView, id);
+      if (viewPager == null) {
+        break missingId;
+      }
+
+      return new ActivityMainBinding((CoordinatorLayout) rootView, bottomNavigation, fab, toolbar,
+          viewPager);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

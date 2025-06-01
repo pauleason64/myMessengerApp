@@ -46,6 +46,7 @@ public class MessageListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Message> messages = new ArrayList<>();
     private boolean isInbox = true;
+    private boolean isNotes = false;
     private int position = 0;
     private FragmentMessageListBinding binding;
     private MessageAdapter adapter;
@@ -69,10 +70,16 @@ public class MessageListFragment extends Fragment {
         // Initialize DatabaseHelper
         databaseHelper = DatabaseHelper.getInstance();
         
-        // Set isInbox based on the position from arguments
+        // Set isInbox and isNotes based on the position from arguments
         if (getArguments() != null) {
             position = getArguments().getInt(ARG_POSITION, 0);
-            isInbox = (position == 0); // 0 for inbox, 1 for outbox
+            isInbox = (position == 0); // 0 for inbox, 1 for outbox, 2 for notes
+            isNotes = (position == 2);
+            
+            // If it's notes tab, we're not in inbox or outbox
+            if (isNotes) {
+                isInbox = false;
+            }
         }
     }
 
@@ -87,39 +94,71 @@ public class MessageListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
+        // Ensure we have the latest arguments
+        if (getArguments() != null) {
+            position = getArguments().getInt(ARG_POSITION, 0);
+            isInbox = (position == 0); // 0 for inbox, 1 for outbox, 2 for notes
+            isNotes = (position == 2);
+            
+            // If it's notes tab, we're not in inbox or outbox
+            if (isNotes) {
+                isInbox = false;
+            }
+        }
+        
+        Log.d("MessageListFragment", "onViewCreated - position: " + position + ", isInbox: " + isInbox + ", isNotes: " + isNotes);
+        
         // Initialize views
         recyclerView = binding.recyclerView;
         setupRecyclerView();
         
-        // Hide the radio group as we're using ViewPager for tab switching
-        binding.radioGroup.setVisibility(View.GONE);
+        // Hide the radio group as we're using bottom navigation for tab switching
+        if (binding.radioGroup != null) {
+            binding.radioGroup.setVisibility(View.GONE);
+        }
         
-        // Set up FAB
-        binding.fabCompose.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), ComposeMessageActivity.class));
-        });
+        // Set up FAB with appropriate icon and click listener
+        if (binding.fabCompose != null) {
+            binding.fabCompose.setImageResource(isNotes ? R.drawable.ic_note_add : R.drawable.ic_add);
+            binding.fabCompose.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), ComposeMessageActivity.class);
+                if (isNotes) {
+                    // For notes tab, set both note flags
+                    intent.putExtra(ComposeMessageActivity.EXTRA_IS_NOTE, true)
+                           .putExtra(ComposeMessageActivity.EXTRA_NOTE_MODE, true);
+                } else {
+                    // For inbox/outbox, just mark as new message
+                    intent.putExtra(ComposeMessageActivity.EXTRA_IS_NOTE, false)
+                           .putExtra(ComposeMessageActivity.EXTRA_COMPOSE_NEW, true);
+                }
+                startActivity(intent);
+            });
+        }
         
         // Set up swipe to refresh with pull-to-refresh
-        binding.swipeRefreshLayout.setColorSchemeResources(
-            android.R.color.holo_blue_bright,
-            android.R.color.holo_green_light,
-            android.R.color.holo_orange_light,
-            android.R.color.holo_red_light
-        );
-        
-        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
-            Log.d("MessageListFragment", "Pull to refresh triggered");
-            loadMessagesDirectly();
-        });
+        if (binding.swipeRefreshLayout != null) {
+            binding.swipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light
+            );
+            
+            binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+                Log.d("MessageListFragment", "Pull to refresh triggered");
+                loadMessagesDirectly();
+            });
+        }
         
         // Show loading indicator initially
         showLoadingIndicator(true);
         
         // Load messages directly
-        Log.d("MessageListFragment", "Loading messages directly");
+        Log.d("MessageListFragment", "Loading messages for tab: " + (isNotes ? "Notes" : (isInbox ? "Inbox" : "Outbox")));
         loadMessagesDirectly();
         
-        updateToolbarTitle();
+        // Update UI based on current tab
+        updateUIForCurrentTab();
     }
     
     private void loadMessagesDirectly() {
@@ -132,23 +171,42 @@ public class MessageListFragment extends Fragment {
         }
         
         String currentUserId = currentUser.getUid();
-        Log.d("MessageListFragment", "Loading messages for user: " + currentUserId);
+        Log.d("MessageListFragment", "Loading messages for user: " + currentUserId + ", isNotes: " + isNotes + ", isInbox: " + isInbox);
+        
+        // Clear previous messages
+        messages.clear();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
         
         DatabaseReference userMessagesRef = FirebaseDatabase.getInstance()
                 .getReference("user-messages")
                 .child(currentUserId);
                 
-        // Load both sent and received messages
-        DatabaseReference sentRef = userMessagesRef.child("sent");
-        DatabaseReference receivedRef = userMessagesRef.child("received");
+        // Load messages based on the current tab
         DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("messages");
+        DatabaseReference tabRef;
         
-        // Use a counter to track both queries
+        if (isNotes) {
+            // For notes tab, load from /user-messages/{userId}/notes
+            tabRef = userMessagesRef.child("notes");
+            Log.d("MessageListFragment", "Loading notes");
+        } else if (isInbox) {
+            // For inbox, load received messages
+            tabRef = userMessagesRef.child("received");
+            Log.d("MessageListFragment", "Loading received messages");
+        } else {
+            // For outbox, load sent messages
+            tabRef = userMessagesRef.child("sent");
+            Log.d("MessageListFragment", "Loading sent messages");
+        }
+        
+        // Use a counter to track the query
         final int[] queriesCompleted = {0};
         final List<Message> allMessages = new ArrayList<>();
         
-        // Load sent messages
-        sentRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Load messages for the current tab
+        tabRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -173,8 +231,21 @@ public class MessageListFragment extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot messageSnapshot) {
                             Message message = messageSnapshot.getValue(Message.class);
                             if (message != null) {
-                                message.setSenderId(currentUserId);
+                                // Always set the message ID
+                                message.setId(messageId);
+                                
+                                if (isNotes) {
+                                    // For notes, we don't need to set sender/recipient
+                                    message.setIsNote(true);
+                                } else if (isInbox) {
+                                    // For inbox, set recipient ID
+                                    message.setRecipientId(currentUserId);
+                                } else {
+                                    // For sent, set sender ID
+                                    message.setSenderId(currentUserId);
+                                }
                                 allMessages.add(message);
+                                Log.d("MessageListFragment", "Added message with ID: " + messageId);
                             }
                             
                             // Check if we've loaded all messages
@@ -201,73 +272,20 @@ public class MessageListFragment extends Fragment {
             }
         });
         
-        // Load received messages
-        receivedRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                if (currentUser == null) return;
-                
-                String currentUserId = currentUser.getUid();
-                final int totalMessages = (int) dataSnapshot.getChildrenCount();
-                
-                if (totalMessages == 0) {
-                    checkAllQueriesCompleted(++queriesCompleted[0], allMessages);
-                    return;
-                }
-                
-                final int[] loadedCount = {0};
-                
-                for (DataSnapshot messageRef : dataSnapshot.getChildren()) {
-                    String messageId = messageRef.getKey();
-                    if (messageId == null) continue;
-                    
-                    messagesRef.child(messageId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot messageSnapshot) {
-                            Message message = messageSnapshot.getValue(Message.class);
-                            if (message != null) {
-                                message.setRecipientId(currentUserId);
-                                allMessages.add(message);
-                            }
-                            
-                            // Check if we've loaded all messages
-                            if (++loadedCount[0] >= totalMessages) {
-                                checkAllQueriesCompleted(++queriesCompleted[0], allMessages);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Log.e("MessageListFragment", "Error loading received message: " + messageId, databaseError.toException());
-                            if (++loadedCount[0] >= totalMessages) {
-                                checkAllQueriesCompleted(++queriesCompleted[0], allMessages);
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("MessageListFragment", "Error loading received messages refs: ", databaseError.toException());
-                checkAllQueriesCompleted(++queriesCompleted[0], allMessages);
-            }
-        });
+        // For notes or regular messages, we only need to load from one place
+        // The tabRef is already set up at the beginning of the method
+        // No need for separate receivedRef handling
     }
     
     private void checkAllQueriesCompleted(int completedQueries, List<Message> messages) {
-        // We're waiting for 2 queries (sent and received)
-        if (completedQueries == 2) {
-            Log.d("MessageListFragment", "Loaded " + messages.size() + " total messages");
+        // For notes or regular messages, we only have one query to wait for
+        if (completedQueries == 1) {
+            Log.d("MessageListFragment", "Loaded " + messages.size() + " messages for " + 
+                (isNotes ? "notes" : (isInbox ? "inbox" : "outbox")));
             updateMessages(messages);
             binding.swipeRefreshLayout.setRefreshing(false);
             showLoadingIndicator(false);
         }
-    }
-
-    private void updateToolbarTitle() {
-        // Title is now managed by the parent activity
     }
 
 
@@ -310,12 +328,48 @@ public class MessageListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("MessageListFragment", "onResume() called, isInbox: " + isInbox);
+        Log.d("MessageListFragment", "onResume() called, isInbox: " + isInbox + ", isNotes: " + isNotes);
         
-        // Always try to load messages when fragment becomes visible
-        if (getActivity() instanceof MessageListActivity) {
-            Log.d("MessageListFragment", "Requesting message load from parent activity");
-            ((MessageListActivity) getActivity()).loadMessages();
+        // Update toolbar title
+        updateToolbarTitle();
+        
+        // Refresh messages when fragment becomes visible
+        if (isAdded() && getUserVisibleHint()) {
+            Log.d("MessageListFragment", "Fragment is visible, refreshing messages");
+            loadMessagesDirectly();
+        }
+    }
+    
+    /**
+     * Updates the UI based on the current tab (inbox/outbox/notes)
+     */
+    private void updateUIForCurrentTab() {
+        if (getActivity() == null || binding == null) return;
+        
+        // Update FAB icon based on tab
+        if (binding.fabCompose != null) {
+            binding.fabCompose.setImageResource(isNotes ? R.drawable.ic_note_add : R.drawable.ic_add);
+        }
+        
+        // Update empty state message based on tab
+        updateUIForEmptyState();
+        
+        // Update toolbar title
+        updateToolbarTitle();
+    }
+    
+    /**
+     * Updates the toolbar title based on the current tab
+     */
+    private void updateToolbarTitle() {
+        if (getActivity() != null && getActivity() instanceof AppCompatActivity) {
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            if (activity.getSupportActionBar() != null) {
+                int titleResId = isNotes ? R.string.label_notes : 
+                                     isInbox ? R.string.label_inbox : 
+                                     R.string.label_sent;
+                activity.getSupportActionBar().setTitle(titleResId);
+            }
         }
     }
 
@@ -473,7 +527,8 @@ public class MessageListFragment extends Fragment {
             return;
         }
         
-        Log.d("MessageListFragment", "Showing empty state for " + (isInbox ? "inbox" : "outbox"));
+        String tabName = isNotes ? "notes" : (isInbox ? "inbox" : "outbox");
+        Log.d("MessageListFragment", "Showing empty state for " + tabName);
         
         try {
             // Update visibility
@@ -482,7 +537,12 @@ public class MessageListFragment extends Fragment {
             binding.textEmpty.setVisibility(View.VISIBLE);
             
             // Set appropriate empty state message
-            int messageResId = isInbox ? R.string.no_messages_inbox : R.string.no_messages_outbox;
+            int messageResId;
+            if (isNotes) {
+                messageResId = R.string.no_notes;
+            } else {
+                messageResId = isInbox ? R.string.no_messages_inbox : R.string.no_messages_outbox;
+            }
             String message = getString(messageResId);
             
             if (binding.textEmpty != null) {
@@ -630,10 +690,17 @@ public class MessageListFragment extends Fragment {
         if (currentUser == null) return;
         
         String userId = currentUser.getUid();
+        String messageType;
+        if (isNotes) {
+            messageType = "notes";
+        } else {
+            messageType = isInbox ? "received" : "sent";
+        }
+        
         DatabaseReference messageRef = databaseHelper.getDatabaseReference()
                 .child("user-messages")
                 .child(userId)
-                .child(isInbox ? "received" : "sent")
+                .child(messageType)
                 .child(message.getId());
                 
         messageRef.removeValue()
@@ -652,4 +719,43 @@ public class MessageListFragment extends Fragment {
                     }
                 });
     }
+    
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && isResumed()) {
+            // Update the tab state based on the current position
+            if (getArguments() != null) {
+                int newPosition = getArguments().getInt(ARG_POSITION, 0);
+                boolean newIsInbox = (newPosition == 0);
+                boolean newIsNotes = (newPosition == 2);
+                
+                // Only refresh if the tab has changed
+                if (newIsNotes != isNotes || newIsInbox != isInbox) {
+                    position = newPosition;
+                    isInbox = newIsInbox;
+                    isNotes = newIsNotes;
+                    
+                    // Clear the current messages
+                    messages.clear();
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
+                    
+                    // Show loading indicator
+                    showLoadingIndicator(true);
+                    
+                    // Load messages for the new tab
+                    Log.d("MessageListFragment", "Tab changed - Loading messages for tab: " + 
+                            (isNotes ? "Notes" : (isInbox ? "Inbox" : "Outbox")));
+                    loadMessagesDirectly();
+                }
+            }
+            
+            // Always update the toolbar title
+            updateToolbarTitle();
+        }
+    }
+    
+
 }

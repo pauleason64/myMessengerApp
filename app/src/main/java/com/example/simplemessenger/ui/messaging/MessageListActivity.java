@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +49,7 @@ import android.util.SparseArray;
 
 class MessagesPagerAdapter extends FragmentStateAdapter {
     private static final String TAG = "MessagesPagerAdapter";
-    private static final int NUM_PAGES = 2;
+    private static final int NUM_PAGES = 3; // Inbox, Outbox, Notes
     private final SparseArray<MessageListFragment> fragments = new SparseArray<>();
 
     public MessagesPagerAdapter(FragmentActivity fa) {
@@ -67,7 +68,8 @@ class MessagesPagerAdapter extends FragmentStateAdapter {
         // Set up the fragment arguments
         Bundle args = new Bundle();
         args.putInt("position", position);
-        args.putBoolean("isInbox", position == 0);
+        args.putBoolean("isInbox", position == 0); // 0=Inbox, 1=Outbox, 2=Notes
+        args.putBoolean("isNotes", position == 2); // Flag for notes tab
         fragment.setArguments(args);
         
         // Store the fragment reference
@@ -185,6 +187,35 @@ public class MessageListActivity extends AppCompatActivity {
         pagerAdapter = new MessagesPagerAdapter(this);
         binding.viewPager.setAdapter(pagerAdapter);
         binding.viewPager.setOffscreenPageLimit(2); // Keep both pages in memory
+        
+        // Set default to Inbox tab
+        binding.viewPager.setCurrentItem(0, false);
+        
+        // Set up bottom navigation
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_inbox) {
+                // Already on messages screen (inbox)
+                binding.viewPager.setCurrentItem(0, false);
+                return true;
+            } else if (itemId == R.id.navigation_outbox) {
+                // Switch to outbox
+                binding.viewPager.setCurrentItem(1, false);
+                return true;
+            } else if (itemId == R.id.navigation_notes) {
+                // Switch to notes
+                binding.viewPager.setCurrentItem(2, false);
+                return true;
+            } else if (itemId == R.id.navigation_contacts) {
+                startActivity(new Intent(this, ManageContactsActivity.class));
+                return true;
+            }
+            return false;
+        });
+        
+        // Set inbox as selected by default
+        bottomNav.setSelectedItemId(R.id.navigation_inbox);
 
         // Get the TabLayout from the binding
         TabLayout tabLayout = binding.tabLayout;
@@ -195,7 +226,12 @@ public class MessageListActivity extends AppCompatActivity {
         // Connect TabLayout with ViewPager2
         new TabLayoutMediator(tabLayout, binding.viewPager,
                 (tab, position) -> {
-                    tab.setText(position == 0 ? getString(R.string.label_inbox) : getString(R.string.label_outbox));
+                    String[] tabTitles = {
+                        getString(R.string.label_inbox),
+                        getString(R.string.label_outbox),
+                        getString(R.string.label_notes)
+                    };
+                    tab.setText(tabTitles[position]);
                 }).attach();
 
         // Set up tab selection listener
@@ -347,9 +383,6 @@ public class MessageListActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        } else if (id == R.id.action_profile) {
-            startActivity(new Intent(this, ProfileActivity.class));
             return true;
         } else if (id == R.id.action_contacts) {
             startActivity(new Intent(this, ManageContactsActivity.class));

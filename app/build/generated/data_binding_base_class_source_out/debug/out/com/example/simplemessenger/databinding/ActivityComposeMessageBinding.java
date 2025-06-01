@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,6 +16,7 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.simplemessenger.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.lang.NullPointerException;
@@ -30,6 +32,9 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
 
   @NonNull
   public final CheckBox checkboxSetReminder;
+
+  @NonNull
+  public final FloatingActionButton fabSend;
 
   @NonNull
   public final TextInputEditText inputMessage;
@@ -50,6 +55,9 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
   public final TextInputLayout layoutSubject;
 
   @NonNull
+  public final ProgressBar progressBar;
+
+  @NonNull
   public final TextView textReminderTime;
 
   @NonNull
@@ -57,19 +65,22 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
 
   private ActivityComposeMessageBinding(@NonNull CoordinatorLayout rootView,
       @NonNull MaterialButton buttonSetReminder, @NonNull CheckBox checkboxSetReminder,
-      @NonNull TextInputEditText inputMessage, @NonNull AutoCompleteTextView inputRecipient,
-      @NonNull TextInputEditText inputSubject, @NonNull TextInputLayout layoutMessage,
-      @NonNull TextInputLayout layoutRecipient, @NonNull TextInputLayout layoutSubject,
+      @NonNull FloatingActionButton fabSend, @NonNull TextInputEditText inputMessage,
+      @NonNull AutoCompleteTextView inputRecipient, @NonNull TextInputEditText inputSubject,
+      @NonNull TextInputLayout layoutMessage, @NonNull TextInputLayout layoutRecipient,
+      @NonNull TextInputLayout layoutSubject, @NonNull ProgressBar progressBar,
       @NonNull TextView textReminderTime, @NonNull Toolbar toolbar) {
     this.rootView = rootView;
     this.buttonSetReminder = buttonSetReminder;
     this.checkboxSetReminder = checkboxSetReminder;
+    this.fabSend = fabSend;
     this.inputMessage = inputMessage;
     this.inputRecipient = inputRecipient;
     this.inputSubject = inputSubject;
     this.layoutMessage = layoutMessage;
     this.layoutRecipient = layoutRecipient;
     this.layoutSubject = layoutSubject;
+    this.progressBar = progressBar;
     this.textReminderTime = textReminderTime;
     this.toolbar = toolbar;
   }
@@ -113,6 +124,12 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.fab_send;
+      FloatingActionButton fabSend = ViewBindings.findChildViewById(rootView, id);
+      if (fabSend == null) {
+        break missingId;
+      }
+
       id = R.id.input_message;
       TextInputEditText inputMessage = ViewBindings.findChildViewById(rootView, id);
       if (inputMessage == null) {
@@ -149,6 +166,12 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.progress_bar;
+      ProgressBar progressBar = ViewBindings.findChildViewById(rootView, id);
+      if (progressBar == null) {
+        break missingId;
+      }
+
       id = R.id.text_reminder_time;
       TextView textReminderTime = ViewBindings.findChildViewById(rootView, id);
       if (textReminderTime == null) {
@@ -162,8 +185,8 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
       }
 
       return new ActivityComposeMessageBinding((CoordinatorLayout) rootView, buttonSetReminder,
-          checkboxSetReminder, inputMessage, inputRecipient, inputSubject, layoutMessage,
-          layoutRecipient, layoutSubject, textReminderTime, toolbar);
+          checkboxSetReminder, fabSend, inputMessage, inputRecipient, inputSubject, layoutMessage,
+          layoutRecipient, layoutSubject, progressBar, textReminderTime, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

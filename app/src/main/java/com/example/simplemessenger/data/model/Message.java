@@ -24,6 +24,7 @@ public class Message {
     private boolean hasReminder = false;
     private long reminderTime = 0;
     private boolean archived = false;
+    private boolean isNote = false;
 
     // Required empty constructor for Firebase
     public Message() {
@@ -32,6 +33,11 @@ public class Message {
 
     public Message(String senderId, String senderEmail, String recipientId, String recipientEmail, 
                   String subject, String content) {
+        this(senderId, senderEmail, recipientId, recipientEmail, subject, content, false);
+    }
+
+    public Message(String senderId, String senderEmail, String recipientId, String recipientEmail, 
+                  String subject, String content, boolean isNote) {
         this.senderId = senderId;
         this.senderEmail = senderEmail;
         this.recipientId = recipientId;
@@ -41,6 +47,7 @@ public class Message {
         this.read = false;
         this.hasReminder = false;
         this.archived = false;
+        this.isNote = isNote;
     }
 
     // Getters and Setters
@@ -164,6 +171,16 @@ public class Message {
         this.reminderTime = reminderTime;
         this.hasReminder = true;
     }
+    
+    @com.google.firebase.database.Exclude
+    public void setIsNote(boolean isNote) {
+        this.isNote = isNote;
+    }
+    
+    @com.google.firebase.database.Exclude
+    public boolean getIsNote() {
+        return isNote;
+    }
 
     public boolean isArchived() {
         return archived;
@@ -190,9 +207,18 @@ public class Message {
             map.put("reminderTime", reminderTime > 0 ? reminderTime : ServerValue.TIMESTAMP);
         }
         map.put("archived", archived);
+//        map.put("isNote", isNote);
         return map;
     }
 
+    public boolean isNote() {
+        return isNote;
+    }
+
+    public void setNote(boolean note) {
+        isNote = note;
+    }
+    
     public void setContents(String messageText) {
     }
 }

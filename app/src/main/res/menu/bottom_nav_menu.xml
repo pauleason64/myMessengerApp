@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_inbox"
+        android:icon="@drawable/ic_inbox"
+        android:title="@string/label_inbox"
+        android:enabled="true" />
+    <item
+        android:id="@+id/navigation_outbox"
+        android:icon="@drawable/ic_outbox"
+        android:title="@string/label_outbox"
+        android:enabled="true" />
+    <item
+        android:id="@+id/navigation_notes"
+        android:icon="@drawable/ic_note"
+        android:title="@string/label_notes"
+        android:enabled="true" />
+    <item
+        android:id="@+id/navigation_contacts"
+        android:icon="@drawable/ic_contacts"
+        android:title="@string/menu_contacts"
+        android:enabled="true" />
+</menu>

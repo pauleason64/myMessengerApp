@@ -23,29 +23,31 @@
         android:theme="@style/Theme.SimpleMessenger"
         tools:targetApi="31">
 
-        <!-- Firebase Config Activity -->
+        <!-- Splash Screen Activity (Launcher) -->
         <activity
-            android:name=".ui.config.FirebaseConfigActivity"
+            android:name=".ui.splash.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/Theme.SimpleMessenger.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Splash Screen Activity -->
+        <!-- Firebase Config Activity -->
         <activity
-            android:name=".ui.splash.SplashActivity"
-            android:exported="true" />
+            android:name=".ui.config.FirebaseConfigActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Authentication Activity -->
         <activity
             android:name=".ui.auth.AuthActivity"
             android:exported="false"
             android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:noHistory="true" />
 
         <!-- Main Activity - Single Activity Architecture -->
         <activity
@@ -53,10 +55,12 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Theme.SimpleMessenger"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
 
@@ -65,14 +69,24 @@
             android:name=".ui.messaging.MessageDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
 
         <!-- Compose Message Activity -->
         <activity
             android:name=".ui.messaging.ComposeMessageActivity"
             android:exported="false"
             android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
 
         <!-- Settings Activity -->
         <activity
@@ -84,7 +98,7 @@
             android:parentActivityName=".ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.simplemessenger.ui.main.MainActivity" />
+                android:value=".ui.main.MainActivity" />
         </activity>
 
         <!-- Manage Contacts Activity -->
@@ -97,7 +111,20 @@
             android:parentActivityName=".ui.main.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.simplemessenger.ui.main.MainActivity" />
+                android:value=".ui.main.MainActivity" />
+        </activity>
+
+        <!-- Message List Activity (Kept for compatibility, but not used in new navigation) -->
+        <activity
+            android:name=".ui.messaging.MessageListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".ui.main.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
         </activity>
 
         <!-- Firebase Services -->

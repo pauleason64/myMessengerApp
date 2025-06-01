@@ -39,6 +39,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="small_padding">4dp</dimen>
     <plurals name="days_ago">
         <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
@@ -82,6 +83,7 @@
     <string name="action_remind_me">Remind Me</string>
     <string name="action_remind_me_later">Remind Me Later</string>
     <string name="action_save">Save</string>
+    <string name="action_save_note">Save Note</string>
     <string name="action_select_all">Select All</string>
     <string name="action_send">Send</string>
     <string name="action_set_reminder">Set Reminder</string>
@@ -141,6 +143,7 @@
     <string name="error_creating_message">Failed to create message</string>
     <string name="error_deleting_message">Failed to delete message</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_generic">Unknown error occurred</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_invalid_credentials">Invalid email or password</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -153,6 +156,7 @@
     <string name="error_recipient_required">Recipient email is required</string>
     <string name="error_registration_failed">Registration failed. Please try again.</string>
     <string name="error_reset_password_failed">Failed to send reset email</string>
+    <string name="error_saving_note">Failed to save note</string>
     <string name="error_sending_message">Failed to send message</string>
     <string name="error_sending_verification_email">Failed to send verification email. Please try again.</string>
     <string name="error_setting_reminder">Failed to set reminder</string>
@@ -172,6 +176,8 @@
     <string name="hint_email">Email</string>
     <string name="hint_full_name">Full Name</string>
     <string name="hint_message">Type your message here</string>
+    <string name="hint_note_content">Type your note here</string>
+    <string name="hint_note_title">Title (optional)</string>
     <string name="hint_password">Password</string>
     <string name="hint_recipient">Recipient email</string>
     <string name="hint_reminder_time">Reminder time</string>
@@ -182,8 +188,10 @@
     <string name="label_date">Date</string>
     <string name="label_from">From: %s</string>
     <string name="label_inbox">Inbox</string>
+    <string name="label_note">Note</string>
+    <string name="label_notes">Notes</string>
     <string name="label_outbox">Outbox</string>
-    <string name="label_sent">Inbox</string>
+    <string name="label_sent">Sent</string>
     <string name="label_subject">Subject</string>
     <string name="label_to">To: %s</string>
     <string name="language">Language</string>
@@ -199,6 +207,8 @@
     <string name="message_deleted">Message deleted</string>
     <string name="message_details">Message Details</string>
     <string name="message_forwarded">Message forwarded</string>
+    <string name="message_mode">Message Mode</string>
+    <string name="message_mode_enabled">Message mode enabled</string>
     <string name="message_options">Message Options</string>
     <string name="message_preview">%1$s: %2$s</string>
     <string name="message_replied">Message replied</string>
@@ -226,12 +236,16 @@
     <string name="no_messages_desc">Your inbox is empty. Tap the compose button to send your first message!</string>
     <string name="no_messages_inbox">No messages in your inbox</string>
     <string name="no_messages_outbox">No sent messages</string>
+    <string name="no_notes">No notes yet. Tap + to create your first note!</string>
     <string name="no_recipients">No recipients</string>
     <string name="no_reminders">No reminders set</string>
     <string name="no_search_results">No results found</string>
     <string name="no_search_results_desc">Try different keywords or remove some filters</string>
     <string name="no_subject">(No subject)</string>
     <string name="not_available">Not Available</string>
+    <string name="note_mode">Switch to Note</string>
+    <string name="note_mode_enabled">Note mode enabled</string>
+    <string name="note_saved">Note saved</string>
     <string name="notifications_new_message_ringtone_default">Default</string>
     <string name="notifications_new_message_vibrate">Vibrate</string>
     <string name="notifications_new_message_vibrate_default">true</string>
@@ -327,6 +341,7 @@
     <string name="saving_draft">Saving draft…</string>
     <string name="search_in_message">Search in message</string>
     <string name="select_text">Select Text</string>
+    <string name="send_message">Send</string>
     <string name="sending">Sending…</string>
     <string name="set_reminder">Set Reminder</string>
     <string name="share">Share</string>
@@ -337,6 +352,8 @@
     <string name="something_went_wrong">Something went wrong</string>
     <string name="sound">Sound</string>
     <string name="subject">Subject</string>
+    <string name="switch_to_message_mode">Switch to message mode</string>
+    <string name="switch_to_note_mode">Switch to note mode</string>
     <string name="theme">Theme</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
@@ -349,6 +366,7 @@
     <string name="title_appearance">Appearance</string>
     <string name="title_change_password">Change Password</string>
     <string name="title_compose_message">Compose Message</string>
+    <string name="title_compose_note">New Note</string>
     <string name="title_edit_message">Edit Message</string>
     <string name="title_edit_profile">Edit Profile</string>
     <string name="title_forward_message">Forward Message</string>
@@ -421,6 +439,21 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemIconTint">@drawable/bottom_nav_selector</item>
+        <item name="itemTextColor">@drawable/bottom_nav_selector</item>
+        <item name="itemRippleColor">@android:color/transparent</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="android:background">?android:attr/windowBackground</item>
+        <item name="elevation">8dp</item>
+    </style>
+    <style name="Widget.App.FloatingActionButton" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="tint">@android:color/white</item>
+        <item name="fabSize">normal</item>
+        <item name="elevation">6dp</item>
+        <item name="pressedTranslationZ">12dp</item>
     </style>
     <style name="Widget.MaterialComponents.TextView.ListItem" parent="Widget.MaterialComponents.TextView">
         <item name="android:paddingStart">16dp</item>
