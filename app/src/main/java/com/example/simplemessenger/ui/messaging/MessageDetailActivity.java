@@ -72,7 +72,7 @@ public class MessageDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("");
+            getSupportActionBar().setTitle("Loading...");
         }
 
         // Set up FAB for reply
@@ -256,16 +256,19 @@ public class MessageDetailActivity extends AppCompatActivity {
 
     private void updateUI() {
         if (message == null || binding == null) {
+            Log.e("MessageDetail", "Message or binding is null in updateUI");
             return;
         }
 
-        // Update toolbar title
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(message.getSubject());
-        }
-
-        // Update message details
         runOnUiThread(() -> {
+            // Hide progress bar and show content
+            binding.progressBar.setVisibility(View.GONE);
+            binding.nestedScrollView.setVisibility(View.VISIBLE);
+
+            // Update toolbar title
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(message.getSubject());
+            }
             if (binding != null) {
                 // Add From: and To: labels
                 binding.textFrom.setText(getString(R.string.label_from, message.getSenderEmail()));

@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.example.simplemessenger.ui.main.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -385,7 +387,11 @@ public class MessageListActivity extends AppCompatActivity {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_contacts) {
-            startActivity(new Intent(this, ManageContactsActivity.class));
+            // Navigate to MainActivity which will handle the contacts tab
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("navigate_to_contacts", true);
+            startActivity(intent);
+            finish();
             return true;
         } else if (id == R.id.action_logout) {
             // Handle logout

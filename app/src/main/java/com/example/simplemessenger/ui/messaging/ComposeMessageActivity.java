@@ -501,6 +501,11 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
         Log.d(TAG, "Saving " + (isNote ? "note" : "message") + " with data: " + updates);
 
+        // Debug log the updates map
+        for (Map.Entry<String, Object> entry : updates.entrySet()) {
+            Log.d("FirebaseUpdate", "Path: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
+
         // Execute updates
         databaseHelper.getDatabaseReference().updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
@@ -512,7 +517,31 @@ public class ComposeMessageActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     showLoading(false);
-                    Log.e(TAG, "Error saving " + (isNote ? "note" : "message"), e);
+                    
+                    // Log basic error info
+                    Log.e("FirebaseError", "Error saving " + (isNote ? "note" : "message") + ": " + e.toString());
+                    Log.e("FirebaseError", "Error class: " + e.getClass().getName());
+                    
+                    // Log the full stack trace
+                    Log.e("FirebaseError", "Stack trace:");
+                    for (StackTraceElement element : e.getStackTrace()) {
+                        Log.e("FirebaseError", "    at " + element.toString());
+                    }
+                    
+                    // Log cause if available
+                    if (e.getCause() != null) {
+                        Log.e("FirebaseError", "Caused by: " + e.getCause().toString());
+                        for (StackTraceElement element : e.getCause().getStackTrace()) {
+                            Log.e("FirebaseError", "    at " + element.toString());
+                        }
+                    }
+                    
+                    // Log the updates map that caused the error
+                    Log.e("FirebaseError", "Attempted updates:");
+                    for (Map.Entry<String, Object> entry : updates.entrySet()) {
+                        Log.e("FirebaseError", "  " + entry.getKey() + " = " + entry.getValue());
+                    }
+                    
                     Toast.makeText(this,
                             isNote ? R.string.error_saving_note : R.string.error_sending_message,
                             Toast.LENGTH_SHORT).show();
@@ -604,48 +633,48 @@ public class ComposeMessageActivity extends AppCompatActivity {
         DatabaseReference usersRef = databaseHelper.getDatabaseReference().child("users");
         Log.d("SendMessage", "Querying users at: " + usersRef.toString());
         
-        usersRef.orderByChild("email")
-                .equalTo(recipientEmail)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Log.d("SendMessage", "onDataChange, exists: " + dataSnapshot.exists());
-                        if (!dataSnapshot.exists()) {
-                            // No user found with that email
-                            showLoading(false);
-                            binding.inputRecipient.setError("No user found with this email");
-                            Log.d("SendMessage", "No user found with email: " + recipientEmail);
-                            return;
-                        }
-
-                        // Get the first matching user (should be only one)
-                        DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
-                        String recipientId = userSnapshot.getKey();
-                        
-                        if (recipientId == null) {
-                            handleError("Invalid recipient");
-                            return;
-                        }
-
-                        // Use the unified save method for messages
-                        saveToFirebase(finalSubject, messageText, recipientId, false);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        handleError("Error: " + databaseError.getMessage());
-                    }
-                    
-                    private void handleError(String error) {
-                        runOnUiThread(() -> {
-                            showLoading(false);
-                            Toast.makeText(ComposeMessageActivity.this,
-                                    error,
-                                    Toast.LENGTH_LONG).show();
-                        });
-                        Log.e("ComposeMessage", error);
-                    }
-                });
+//        usersRef.orderByChild("email")
+//                .equalTo(recipientEmail)
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                        Log.d("SendMessage", "onDataChange, exists: " + dataSnapshot.exists());
+//                        if (!dataSnapshot.exists()) {
+//                            // No user found with that email
+//                            showLoading(false);
+//                            binding.inputRecipient.setError("No user found with this email");
+//                            Log.d("SendMessage", "No user found with email: " + recipientEmail);
+//                            return;
+//                        }
+//
+//                        // Get the first matching user (should be only one)
+//                        DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
+//                        String recipientId = userSnapshot.getKey();
+//
+//                        if (recipientId == null) {
+//                            handleError("Invalid recipient");
+//                            return;
+//                        }
+//
+//                        // Use the unified save method for messages
+//                        saveToFirebase(finalSubject, messageText, recipientId, false);
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError databaseError) {
+//                        handleError("Error: " + databaseError.getMessage());
+//                    }
+//
+//                    private void handleError(String error) {
+//                        runOnUiThread(() -> {
+//                            showLoading(false);
+//                            Toast.makeText(ComposeMessageActivity.this,
+//                                    error,
+//                                    Toast.LENGTH_LONG).show();
+//                        });
+//                        Log.e("ComposeMessage", error);
+//                    }
+//                });
     }
     
     private void showLoading(boolean isLoading) {

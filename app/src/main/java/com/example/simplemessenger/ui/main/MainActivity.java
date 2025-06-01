@@ -84,6 +84,12 @@ public class MainActivity extends AppCompatActivity {
             viewPager = findViewById(R.id.view_pager);
             setupViewPager(viewPager);
             
+            // Check if we need to navigate to contacts tab
+            if (getIntent() != null && getIntent().getBooleanExtra("navigate_to_contacts", false)) {
+                viewPager.setCurrentItem(3, false);
+                bottomNavigationView.setSelectedItemId(R.id.navigation_contacts);
+            }
+            
             // Set up bottom navigation
             bottomNavigationView = findViewById(R.id.bottom_navigation);
             bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
@@ -357,7 +363,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_contacts) {
-            startActivity(new Intent(this, ManageContactsActivity.class));
+            // Navigate to the contacts tab
+            viewPager.setCurrentItem(3, true);
+            bottomNavigationView.setSelectedItemId(R.id.navigation_contacts);
             return true;
         } else if (id == R.id.action_logout) {
             confirmLogout();

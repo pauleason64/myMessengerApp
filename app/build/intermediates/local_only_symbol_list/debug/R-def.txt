@@ -142,6 +142,7 @@ id navigation_contacts
 id navigation_inbox
 id navigation_notes
 id navigation_outbox
+id nestedScrollView
 id overlay
 id progressBar
 id progress_bar

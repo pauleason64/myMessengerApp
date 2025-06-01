@@ -3689,6 +3689,7 @@ int id navigation_header_container 0x7f090190
 int id navigation_inbox 0x7f09028a
 int id navigation_notes 0x7f09028b
 int id navigation_outbox 0x7f09028c
+int id nestedScrollView 0x7f09028d
 int id never 0x7f090193
 int id neverCompleteToEnd 0x7f090194
 int id neverCompleteToStart 0x7f090195

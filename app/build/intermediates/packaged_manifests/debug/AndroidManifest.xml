@@ -124,19 +124,6 @@
                 android:value=".ui.main.MainActivity" />
         </activity>
 
-        <!-- Manage Contacts Activity -->
-        <activity
-            android:name="com.example.simplemessenger.ui.contacts.ManageContactsActivity"
-            android:exported="false"
-            android:label="@string/title_manage_contacts"
-            android:parentActivityName="com.example.simplemessenger.ui.main.MainActivity"
-            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-            android:windowSoftInputMode="adjustResize" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.main.MainActivity" />
-        </activity>
-
         <!-- Message List Activity (Kept for compatibility, but not used in new navigation) -->
         <activity
             android:name="com.example.simplemessenger.ui.messaging.MessageListActivity"

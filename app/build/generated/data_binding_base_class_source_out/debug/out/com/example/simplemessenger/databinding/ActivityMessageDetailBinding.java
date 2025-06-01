@@ -5,11 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.simplemessenger.R;
@@ -35,6 +37,12 @@ public final class ActivityMessageDetailBinding implements ViewBinding {
   public final LinearLayout layoutReminder;
 
   @NonNull
+  public final NestedScrollView nestedScrollView;
+
+  @NonNull
+  public final ProgressBar progressBar;
+
+  @NonNull
   public final TextView textDate;
 
   @NonNull
@@ -58,6 +66,7 @@ public final class ActivityMessageDetailBinding implements ViewBinding {
   private ActivityMessageDetailBinding(@NonNull CoordinatorLayout rootView,
       @NonNull FloatingActionButton fabDelete, @NonNull FloatingActionButton fabForward,
       @NonNull FloatingActionButton fabReply, @NonNull LinearLayout layoutReminder,
+      @NonNull NestedScrollView nestedScrollView, @NonNull ProgressBar progressBar,
       @NonNull TextView textDate, @NonNull TextView textFrom, @NonNull TextView textMessage,
       @NonNull TextView textReminderTime, @NonNull TextView textSubject, @NonNull TextView textTo,
       @NonNull Toolbar toolbar) {
@@ -66,6 +75,8 @@ public final class ActivityMessageDetailBinding implements ViewBinding {
     this.fabForward = fabForward;
     this.fabReply = fabReply;
     this.layoutReminder = layoutReminder;
+    this.nestedScrollView = nestedScrollView;
+    this.progressBar = progressBar;
     this.textDate = textDate;
     this.textFrom = textFrom;
     this.textMessage = textMessage;
@@ -126,6 +137,18 @@ public final class ActivityMessageDetailBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.nestedScrollView;
+      NestedScrollView nestedScrollView = ViewBindings.findChildViewById(rootView, id);
+      if (nestedScrollView == null) {
+        break missingId;
+      }
+
+      id = R.id.progressBar;
+      ProgressBar progressBar = ViewBindings.findChildViewById(rootView, id);
+      if (progressBar == null) {
+        break missingId;
+      }
+
       id = R.id.text_date;
       TextView textDate = ViewBindings.findChildViewById(rootView, id);
       if (textDate == null) {
@@ -169,8 +192,8 @@ public final class ActivityMessageDetailBinding implements ViewBinding {
       }
 
       return new ActivityMessageDetailBinding((CoordinatorLayout) rootView, fabDelete, fabForward,
-          fabReply, layoutReminder, textDate, textFrom, textMessage, textReminderTime, textSubject,
-          textTo, toolbar);
+          fabReply, layoutReminder, nestedScrollView, progressBar, textDate, textFrom, textMessage,
+          textReminderTime, textSubject, textTo, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
