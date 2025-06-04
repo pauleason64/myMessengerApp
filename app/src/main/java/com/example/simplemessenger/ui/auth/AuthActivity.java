@@ -22,8 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.SimpleMessengerApp;
-import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.ContactsManager;
+import com.example.simplemessenger.data.UserProfileManager;
+import com.example.simplemessenger.data.model.User;
 import com.example.simplemessenger.ui.main.MainActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -249,21 +250,52 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void saveUserToDatabase(String userId, String name, String email, boolean isEmailVerified) {
-        // Create a user map
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", name);
-        user.put("email", email);
-        user.put("emailVerified", isEmailVerified);
-        user.put("createdAt", ServerValue.TIMESTAMP);
-        user.put("lastLogin", ServerValue.TIMESTAMP);
-        user.put("profileImageUrl", "");
+        // First, ensure we have a valid FirebaseAuth instance
+        if (mAuth == null) {
+            mAuth = FirebaseAuth.getInstance();
+            if (mAuth == null) {
+                Log.e("AuthActivity", "FirebaseAuth instance is null");
+                return;
+            }
+        }
 
-        // Save to Realtime Database using DatabaseHelper
-        DatabaseHelper databaseHelper = DatabaseHelper.getInstance();
-        databaseHelper.getDatabaseReference().child("users").child(userId)
-                .setValue(user)
-                .addOnSuccessListener(aVoid -> Log.d("AuthActivity", "User data saved successfully"))
-                .addOnFailureListener(e -> Log.e("AuthActivity", "Error saving user data", e));
+        // Update Firebase user profile first
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            // Update the user's profile with their name
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(name)
+                    .build();
+            
+            firebaseUser.updateProfile(profileUpdates)
+                .addOnCompleteListener(updateTask -> {
+                    if (!updateTask.isSuccessful()) {
+                        Log.e("AuthActivity", "Error updating user profile", updateTask.getException());
+                    }
+                    
+                    // Now save to database regardless of profile update success
+                    saveProfileToDatabase(userId, name, email);
+                });
+        } else {
+            // If no current user, just save to database
+            saveProfileToDatabase(userId, name, email);
+        }
+    }
+    
+    private void saveProfileToDatabase(String userId, String name, String email) {
+        UserProfileManager profileManager = UserProfileManager.getInstance();
+        profileManager.createOrUpdateProfile(userId, email, name, new UserProfileManager.ProfileUpdateListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("AuthActivity", "User profile saved successfully");
+                // Continue with any post-save logic
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("AuthActivity", "Error saving user profile: " + error);
+            }
+        });
     }
 
     private void attemptLogin() {

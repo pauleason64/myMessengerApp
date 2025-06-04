@@ -24,6 +24,7 @@ import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityComposeMessageBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -555,21 +556,21 @@ public class ComposeMessageActivity extends AppCompatActivity {
             return;
         }
         
-        // For regular messages, proceed with sending
-        Log.d("SendMessage", "Starting sendMessage");
-        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-        
-        if (currentUserId == null) {
+        // Get current user
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
             Toast.makeText(this, R.string.error_authentication_required, Toast.LENGTH_SHORT).show();
             return;
         }
+        String currentUserId = currentUser.getUid();
+        final String currentUserEmail = currentUser.getEmail() != null ? currentUser.getEmail() : "Unknown";
 
         // Get input values
-        String recipientEmail = binding.inputRecipient.getText().toString().trim();
+        final String recipientEmail = binding.inputRecipient.getText().toString().trim().toLowerCase();
         String subject = binding.inputSubject.getText().toString().trim();
-        String messageText = binding.inputMessage.getText().toString().trim();
+        final String messageText = binding.inputMessage.getText().toString().trim();
         
-        // Validate input
+        // Validate inputs
         if (TextUtils.isEmpty(recipientEmail)) {
             binding.inputRecipient.setError(getString(R.string.error_field_required));
             binding.inputRecipient.requestFocus();
@@ -586,95 +587,122 @@ public class ComposeMessageActivity extends AppCompatActivity {
         if (subject == null) {
             subject = "";
         }
+        final String finalSubject = subject;
         
-        // For regular messages, validate recipient
-        if (TextUtils.isEmpty(recipientEmail)) {
-            binding.inputRecipient.setError("Recipient is required");
-            binding.inputRecipient.requestFocus();
-            return;
-        }
+        // Show loading state
+        showLoading(true);
         
-        // Check if recipient exists in contacts
-        Contact recipientContact = contactsManager.getContactByEmail(recipientEmail);
-        if (recipientContact == null) {
-            // Create new contact
-            contactsManager.addContact(recipientEmail, recipientEmail, recipientEmail);
-        }
-
-        // Validate inputs
-        if (TextUtils.isEmpty(recipientEmail)) {
-            binding.inputRecipient.setError(getString(R.string.error_field_required));
-            binding.inputRecipient.requestFocus();
+        // First, check if recipient is in our contacts
+        Contact existingContact = contactsManager.getContactByEmail(recipientEmail);
+        if (existingContact != null) {
+            // If contact exists, send the message directly
+            sendMessageToRecipient(recipientEmail, finalSubject, messageText, existingContact.getContactId());
             return;
         }
-
-        if (TextUtils.isEmpty(messageText)) {
-            binding.inputMessage.setError(getString(R.string.error_field_required));
-            binding.inputMessage.requestFocus();
-            return;
-        }
-
-        // Get current user email
-        String currentUserEmail = mAuth.getCurrentUser() != null ? 
-                mAuth.getCurrentUser().getEmail() : "Unknown";
-
-        if (currentUserId == null) {
-            Toast.makeText(this, R.string.error_authentication_required, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Process subject before the database query
-        final String finalSubject = subject != null ? subject : "";
         
         // Show loading state
         showLoading(true);
 
-        // First, look up the recipient's UID by email
+        // Look up the recipient's UID by email in Firebase
+        Log.d(TAG, "Looking up user by email: " + recipientEmail);
         DatabaseReference usersRef = databaseHelper.getDatabaseReference().child("users");
-        Log.d("SendMessage", "Querying users at: " + usersRef.toString());
         
-//        usersRef.orderByChild("email")
-//                .equalTo(recipientEmail)
-//                .addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                        Log.d("SendMessage", "onDataChange, exists: " + dataSnapshot.exists());
-//                        if (!dataSnapshot.exists()) {
-//                            // No user found with that email
-//                            showLoading(false);
-//                            binding.inputRecipient.setError("No user found with this email");
-//                            Log.d("SendMessage", "No user found with email: " + recipientEmail);
-//                            return;
-//                        }
-//
-//                        // Get the first matching user (should be only one)
-//                        DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
-//                        String recipientId = userSnapshot.getKey();
-//
-//                        if (recipientId == null) {
-//                            handleError("Invalid recipient");
-//                            return;
-//                        }
-//
-//                        // Use the unified save method for messages
-//                        saveToFirebase(finalSubject, messageText, recipientId, false);
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError databaseError) {
-//                        handleError("Error: " + databaseError.getMessage());
-//                    }
-//
-//                    private void handleError(String error) {
-//                        runOnUiThread(() -> {
-//                            showLoading(false);
-//                            Toast.makeText(ComposeMessageActivity.this,
-//                                    error,
-//                                    Toast.LENGTH_LONG).show();
-//                        });
-//                        Log.e("ComposeMessage", error);
-//                    }
-//                });
+        usersRef.orderByChild("email")
+                .equalTo(recipientEmail)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            // No user found with that email
+                            runOnUiThread(() -> {
+                                showLoading(false);
+                                binding.inputRecipient.setError("No user found with this email");
+                                Log.d(TAG, "No user found with email: " + recipientEmail);
+                            });
+                            return;
+                        }
+                        
+                        // Get the first matching user (should be only one)
+                        DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
+                        String recipientId = userSnapshot.getKey();
+                        String recipientName = userSnapshot.child("name").getValue(String.class);
+                        
+                        if (recipientId == null) {
+                            handleError("Invalid recipient ID");
+                            return;
+                        }
+                        
+                        // Check if contact already exists before adding
+                        Contact existingContact = contactsManager.getContactById(recipientId);
+                        if (existingContact == null) {
+                            // Add the user to contacts if they don't exist
+                            contactsManager.addContact(recipientId, 
+                                    recipientName != null ? recipientName : recipientEmail, 
+                                    recipientEmail);
+                        }
+                        
+                        // Now send the message
+                        saveToFirebase(finalSubject, messageText, recipientId, false);
+                    }
+                    
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        handleError("Error looking up user: " + databaseError.getMessage());
+                    }
+                    
+                    private void handleError(String error) {
+                        runOnUiThread(() -> {
+                            showLoading(false);
+                            Toast.makeText(ComposeMessageActivity.this, 
+                                error, 
+                                Toast.LENGTH_LONG).show();
+                        });
+                        Log.e(TAG, error);
+                    }
+                });
+    }
+    
+    /**
+     * Helper method to send a message to a recipient after all validations
+     */
+    private void sendMessageToRecipient(String recipientEmail, String subject, String message, String recipientId) {
+        // First, ensure the contact exists in our local cache
+        Contact contact = contactsManager.getContactByEmail(recipientEmail);
+        if (contact == null) {
+            // If contact doesn't exist in cache, add it
+            // Get current user ID
+            String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+            if (currentUserId == null) {
+                Toast.makeText(this, R.string.error_authentication_required, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Create contact with all required parameters
+            contact = new Contact(currentUserId, recipientId, recipientEmail, recipientEmail);
+            
+            // Save contact to Firebase
+            DatabaseReference contactsRef = databaseHelper.getDatabaseReference()
+                .child("user-contacts")
+                .child(currentUserId)
+                .child(recipientId);
+                
+            contactsRef.setValue(contact)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Contact saved to Firebase: " + recipientEmail);
+                    // Add to local cache
+                    contactsManager.addContact(recipientId, recipientEmail, recipientEmail);
+                    // Now save the message to Firebase
+                    saveToFirebase(subject, message, recipientId, false);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error saving contact to Firebase: " + e.getMessage());
+                    // Still try to send the message even if contact save fails
+                    saveToFirebase(subject, message, recipientId, false);
+                });
+        } else {
+            // Contact already exists, just save the message
+            saveToFirebase(subject, message, recipientId, false);
+        }
     }
     
     private void showLoading(boolean isLoading) {

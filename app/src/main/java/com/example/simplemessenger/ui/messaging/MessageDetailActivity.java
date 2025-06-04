@@ -270,9 +270,17 @@ public class MessageDetailActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle(message.getSubject());
             }
             if (binding != null) {
-                // Add From: and To: labels
-                binding.textFrom.setText(getString(R.string.label_from, message.getSenderEmail()));
-                binding.textTo.setText(getString(R.string.label_to, message.getRecipientEmail()));
+                // Add From: and To: labels with fallback to user ID if email is not available
+                String senderDisplay = message.getSenderEmail() != null ? 
+                    message.getSenderEmail() : 
+                    (message.getSenderId() != null ? "User " + message.getSenderId().substring(0, Math.min(6, message.getSenderId().length())) : "Unknown Sender");
+                
+                String recipientDisplay = message.getRecipientEmail() != null ? 
+                    message.getRecipientEmail() : 
+                    (message.getRecipientId() != null ? "User " + message.getRecipientId().substring(0, Math.min(6, message.getRecipientId().length())) : "Unknown Recipient");
+                
+                binding.textFrom.setText(getString(R.string.label_from, senderDisplay));
+                binding.textTo.setText(getString(R.string.label_to, recipientDisplay));
                 binding.textSubject.setText(message.getSubject());
                 binding.textMessage.setText(message.getContent());
                 

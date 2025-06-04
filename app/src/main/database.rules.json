@@ -1,5 +1,40 @@
 {
   "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "user-contacts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$contactId": {
+          ".validate": "newData.hasChildren(['emailAddress', 'userName'])",
+          "emailAddress": {
+            ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
+          },
+          "userName": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "displayName": {
+            ".validate": "newData.isString()"
+          },
+          "userId": {
+            ".validate": "newData.isString()"
+          },
+          "contactId": {
+            ".validate": "newData.isString()"
+          },
+          "timestamp": {
+            ".validate": "newData.isNumber()"
+          },
+          "customName": {
+            ".validate": "newData.isBoolean()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",

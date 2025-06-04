@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.example.simplemessenger.ui.main.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,9 +30,7 @@ import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.ui.auth.AuthActivity;
 import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
 import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
-import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
-import com.example.simplemessenger.ui.messaging.MessageListFragment;
-import com.example.simplemessenger.ui.profile.ProfileActivity;
+import com.example.simplemessenger.ui.adapters.MessageAdapter;
 import com.example.simplemessenger.ui.settings.SettingsActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;

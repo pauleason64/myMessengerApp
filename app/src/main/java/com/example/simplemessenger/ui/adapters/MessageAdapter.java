@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.messaging.adapter;
+package com.example.simplemessenger.ui.adapters;
 
 import android.annotation.SuppressLint;
 import android.icu.text.SimpleDateFormat;
@@ -12,14 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.data.model.Message;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import com.google.firebase.auth.FirebaseUser;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private List<Message> messages = new ArrayList<>();
@@ -107,17 +104,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 return;
             }
             
-            // Set the display name based on message type
+            // Set the display name based on message type and view type
             String displayName;
             if (message.getIsNote()) {
                 // For notes, show "Note" as the sender
                 displayName = itemView.getContext().getString(R.string.label_note);
             } else if (isInbox) {
                 // In inbox: show sender's email
-                displayName = message.getSenderEmail() != null ? message.getSenderEmail() : "Unknown Sender";
+                displayName = message.getSenderEmail() != null ? 
+                    message.getSenderEmail() : 
+                    (message.getSenderId() != null ? "User " + message.getSenderId().substring(0, Math.min(6, message.getSenderId().length())) : "Unknown Sender");
             } else {
-                // In outbox: show recipient's email
-                displayName = message.getRecipientEmail() != null ? message.getRecipientEmail() : "Unknown Recipient";
+                // In outbox: show recipient's email or ID if email is not available
+                displayName = message.getRecipientEmail() != null ? 
+                    message.getRecipientEmail() : 
+                    (message.getRecipientId() != null ? "User " + message.getRecipientId().substring(0, Math.min(6, message.getRecipientId().length())) : "Unknown Recipient");
             }
             textSender.setText(displayName);
             

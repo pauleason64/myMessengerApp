@@ -322,9 +322,6 @@ public class FirebaseUtils {
                 userData.put("id", user.getUid());
                 userData.put("email", user.getEmail());
                 userData.put("name", user.getDisplayName());
-                if (user.getPhotoUrl() != null) {
-                    userData.put("photoUrl", user.getPhotoUrl().toString());
-                }
                 userData.put("createdAt", System.currentTimeMillis());
                 userData.put("updatedAt", System.currentTimeMillis());
                 

@@ -3506,7 +3506,6 @@ id edit_database_url
 id edit_email
 id edit_messaging_sender_id
 id edit_name
-id edit_phone
 id edit_project_id
 id edit_query
 id edit_storage_bucket
@@ -3600,7 +3599,6 @@ id layout_language
 id layout_message
 id layout_name
 id layout_password
-id layout_phone
 id layout_recipient
 id layout_reminder
 id layout_subject

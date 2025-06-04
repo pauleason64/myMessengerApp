@@ -285,19 +285,148 @@ public class ContactsManager {
     }
 
 
-    public void addContact(String contactId, String userName, String email) {
+    public void addContact(String email) {
+        addContact(null, email);
+    }
+    
+    /**
+     * Updates a contact's display name
+     * @param contactId The ID of the contact to update
+     * @param newName The new display name
+     * @param isCustomName Whether this is a custom name set by the user
+     */
+    public void updateContactName(String contactId, String newName, boolean isCustomName) {
+        String currentUserId = getCurrentUserId();
+        if (currentUserId == null || contactId == null || newName == null || newName.trim().isEmpty()) {
+            return;
+        }
+        
+        DatabaseReference contactRef = databaseReference
+                .child(CONTACTS_NODE)
+                .child(currentUserId)
+                .child(contactId);
+                
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("displayName", newName.trim());
+        updates.put("customName", isCustomName);
+        
+        contactRef.updateChildren(updates)
+            .addOnSuccessListener(aVoid -> log.d(TAG, "Contact name updated successfully"))
+            .addOnFailureListener(e -> log.e(TAG, "Failed to update contact name: " + e.getMessage()));
+    }
+    
+    /**
+     * Adds a new contact with the specified contact ID, display name, and email.
+     * @param contactId The ID of the contact (can be null to auto-generate)
+     * @param displayName The display name of the contact (can be null to use user's profile name)
+     * @param email The email address of the contact
+     */
+    public void addContact(String contactId, String displayName, String email) {
+        // If contactId is not provided, treat this as a regular add by email
+        if (contactId == null || contactId.isEmpty()) {
+            addContact(email);
+            return;
+        }
+        
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {
+            String error = "User not authenticated";
+            log.e(TAG, error);
             if (loadListener != null) {
-                loadListener.onError("User not authenticated");
+                loadListener.onError(error);
+            }
+            return;
+        }
+        
+        // Validate email
+        if (email == null || email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            String error = "Invalid email address: " + email;
+            log.e(TAG, error);
+            if (loadListener != null) {
+                loadListener.onError(error);
+            }
+            return;
+        }
+        
+        // Create a new contact with the provided details
+        Contact newContact = new Contact();
+        newContact.setContactId(contactId);
+        newContact.setEmailAddress(email);
+        newContact.setTimestamp(System.currentTimeMillis());
+        
+        // If displayName is provided, use it as the contact name
+        // Otherwise, we'll use the user's profile name or email as fallback
+        if (displayName != null && !displayName.trim().isEmpty()) {
+            newContact.setDisplayName(displayName);
+            newContact.setCustomName(true); // Mark that this is a custom name
+        } else {
+            // Default to email for now, will be updated after user lookup
+            newContact.setDisplayName(email);
+            newContact.setCustomName(false);
+        }
+        
+        // First, try to get the user's profile information
+        databaseReference.child("users").child(contactId)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                    if (userSnapshot.exists()) {
+                        // Get the user's display name from their profile
+                        String userDisplayName = userSnapshot.child("displayName").getValue(String.class);
+                        
+                        // Only update the display name if it's not a custom name
+                        if (!newContact.isCustomName() && userDisplayName != null && !userDisplayName.isEmpty()) {
+                            newContact.setDisplayName(userDisplayName);
+                        }
+                    }
+                    
+                    // Save the contact with the updated information
+                    saveContactToDatabase(newContact);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    log.e(TAG, "Error looking up user profile: " + databaseError.getMessage());
+                    // Save with the information we have
+                    saveContactToDatabase(newContact);
+                }
+            });
+    }
+
+/**
+     * Adds a new contact with the specified contact ID and email.
+     * @param contactId The ID of the contact (can be null to auto-generate)
+     * @param email The email address of the contact (also used as display name if not provided)
+     */
+    public void addContact(String contactId, String email) {
+        String currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            String error = "User not authenticated";
+            log.e(TAG, error);
+            if (loadListener != null) {
+                loadListener.onError(error);
             }
             return;
         }
 
-        // Check if contact already exists
+        // Validate email
+        if (email == null || email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            String error = "Invalid email address";
+            log.e(TAG, error);
+            if (loadListener != null) {
+                loadListener.onError(error);
+            }
+            return;
+        }
+
+        // Generate a contact ID if not provided (for new contacts)
+        final String finalContactId = (contactId != null && !contactId.isEmpty()) ? contactId : 
+            FirebaseDatabase.getInstance().getReference(CONTACTS_NODE).child(currentUserId).push().getKey();
+
+        // Check if contact already exists in cache by email
         for (Contact contact : contactsCache.values()) {
-            if (contact.getContactId().equals(contactId) || contact.getEmailAddress().equalsIgnoreCase(email)) {
-                log.d(TAG, "Contact already exists");
+            if (email.equalsIgnoreCase(contact.getEmailAddress())) {
+                log.d(TAG, "Contact already exists in cache: " + email);
                 if (loadListener != null) {
                     loadListener.onContactAdded(contact);
                 }
@@ -305,43 +434,73 @@ public class ContactsManager {
             }
         }
 
-        // Create a new contact with the current user as the owner
-        Contact newContact = new Contact();
+        // Create a new contact with minimal information
+        final Contact newContact = new Contact();
         newContact.setUserId(currentUserId);
-        newContact.setContactId(contactId);
-        newContact.setUserName(userName);
+        newContact.setContactId(finalContactId);
         newContact.setEmailAddress(email);
-        
-        // Generate a unique key for the contact entry
-        String contactKey = databaseReference.child(CONTACTS_NODE).child(currentUserId).push().getKey();
-        
-        if (contactKey == null) {
-            if (loadListener != null) {
-                loadListener.onError("Failed to create contact");
-            }
+        newContact.setUserName(email.split("@")[0]); // Default to first part of email
+        newContact.setTimestamp(System.currentTimeMillis());
+
+        // Try to look up user details from /users node
+        databaseReference.child("users").orderByChild("email").equalTo(email.toLowerCase())
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // User found, update contact with their details
+                        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                            String displayName = userSnapshot.child("displayName").getValue(String.class);
+                            if (displayName != null && !displayName.isEmpty()) {
+                                newContact.setDisplayName(displayName);
+                                newContact.setUserName(displayName);
+                            }
+                            // Update contactId to match the actual user's UID if this was a new contact
+                            if (contactId == null || contactId.isEmpty()) {
+                                newContact.setContactId(userSnapshot.getKey());
+                            }
+                            break; // Just use the first matching user
+                        }
+                    }
+                    saveContactToDatabase(newContact);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // If user lookup fails, just save with the minimal info we have
+                    log.e(TAG, "Error looking up user: " + databaseError.getMessage());
+                    saveContactToDatabase(newContact);
+                }
+            });
+    }
+
+    private void saveContactToDatabase(Contact contact) {
+        String currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            log.e(TAG, "Cannot save contact - user not authenticated",null);
             return;
         }
 
-        // Save the contact to Firebase
-        databaseReference.child(CONTACTS_NODE).child(currentUserId).child(contactKey)
-                .setValue(newContact)
-                .addOnSuccessListener(aVoid -> {
-                    // Update the local cache
-                    newContact.setId(contactKey);
-                    contactsCache.put(contactId, newContact);
-                    log.d(TAG, "Contact added successfully: " + email);
+        databaseReference.child(CONTACTS_NODE).child(currentUserId).child(contact.getContactId())
+            .setValue(contact)
+            .addOnSuccessListener(aVoid -> {
+                if (!contactsCache.containsKey(contact.getContactId())) {
+                    contact.setId(contact.getContactId());
+                    contactsCache.put(contact.getContactId(), contact);
+                    log.d(TAG, "Contact added/updated: " + contact.getEmailAddress());
                     
-                    // Notify listeners
                     if (loadListener != null) {
-                        loadListener.onContactAdded(newContact);
+                        loadListener.onContactAdded(contact);
                     }
-                })
-                .addOnFailureListener(e -> {
-                    log.e(TAG, "Error adding contact: " + e.getMessage(), e);
-                    if (loadListener != null) {
-                        loadListener.onError(e.getMessage());
-                    }
-                });
+                }
+            })
+            .addOnFailureListener(e -> {
+                String errorMsg = "Failed to save contact: " + e.getMessage();
+                log.e(TAG, errorMsg, e);
+                if (loadListener != null) {
+                    loadListener.onError(errorMsg);
+                }
+            });
     }
 
     public Contact getContactByEmail(String email) {

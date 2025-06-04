@@ -1,63 +1,9 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
-    
-    "users": {
-      ".indexOn": ["email"],
-      "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || query.orderByChild === 'email')",
-        ".write": "auth != null && auth.uid === $uid",
-        "name": {
-          ".validate": "newData.isString() && newData.val().length > 0"
-        },
-        "email": {
-          ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
-        },
-        "emailVerified": {
-          ".validate": "newData.isBoolean()"
-        },
-        "createdAt": {
-          ".validate": "newData.isNumber() || newData.val() === null"
-        },
-        "lastLogin": {
-          ".validate": "newData.isNumber() || newData.val() === null"
-        },
-        "profileImageUrl": {
-          ".validate": "newData.isString()"
-        },
-        "$other": {
-          ".validate": false
-        }
-      }
-    },
-    "user-contacts": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid",
-        "$contactId": {
-          ".validate": "newData.hasChildren(['email', 'displayName'])",
-          "email": {
-            ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$/i)"
-          },
-          "displayName": {
-            ".validate": "newData.isString() && newData.val().length > 0"
-          },
-          "$other": {
-            ".validate": false
-          }
-        }
-      }
-    },
     "messages": {
       "$messageId": {
-        ".read": "auth != null && (
-          data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid || (data.child('isNote').val() === true && data.child('senderId').val() === auth.uid)
-        )",
-        ".write": "auth != null && (
-          !data.exists() || 
-          (data.child('senderId').val() === auth.uid && newData.child('senderId').val() === auth.uid) ||(data.child('recipientId').val() === auth.uid && newData.child('recipientId').val() === auth.uid) ||(data.child('isNote').val() === true && data.child('senderId').val() === auth.uid)
-        )",
+        ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid || (data.child('isNote').val() === true && data.child('senderId').val() === auth.uid))",
+        ".write": "auth != null && (!data.exists() || (data.child('senderId').val() === auth.uid && newData.child('senderId').val() === auth.uid) || (data.child('recipientId').val() === auth.uid && newData.child('recipientId').val() === auth.uid) || (data.child('isNote').val() === true && data.child('senderId').val() === auth.uid))",
         "senderId": {
           ".validate": "newData.val() === auth.uid"
         },
@@ -78,6 +24,9 @@
         },
         "isNote": {
           ".validate": "newData.isBoolean()"
+        },
+        "id": {
+          ".validate": "newData.val() === $messageId"
         },
         "$other": {
           ".validate": false

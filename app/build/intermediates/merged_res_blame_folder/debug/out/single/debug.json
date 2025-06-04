@@ -28,10 +28,6 @@
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\drawable\\ic_outbox.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-merged_res-60:/layout_activity_message_detail.xml.flat",
-        "source": "com.example.simplemessenger.app-main-62:/layout/activity_message_detail.xml"
-    },
-    {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-merged_res-60:\\drawable_ic_note_add.xml.flat",
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\drawable\\ic_note_add.xml"
     },
@@ -66,6 +62,10 @@
     {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-merged_res-60:\\layout_fragment_settings.xml.flat",
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_settings.xml"
+    },
+    {
+        "merged": "com.example.simplemessenger.app-merged_res-60:/layout_fragment_profile.xml.flat",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_profile.xml"
     },
     {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-merged_res-60:\\drawable_ic_reply.xml.flat",

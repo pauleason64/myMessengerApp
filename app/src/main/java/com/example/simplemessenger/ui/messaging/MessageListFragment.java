@@ -1,21 +1,18 @@
 package com.example.simplemessenger.ui.messaging;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -26,7 +23,7 @@ import com.example.simplemessenger.R;
 import com.example.simplemessenger.databinding.FragmentMessageListBinding;
 import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
-import com.example.simplemessenger.ui.messaging.adapter.MessageAdapter;
+import com.example.simplemessenger.ui.adapters.MessageAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;

@@ -16,10 +16,6 @@
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_message_list_with_pager.xml"
     },
     {
-        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_message_detail.xml",
-        "source": "com.example.simplemessenger.app-main-62:/layout/activity_message_detail.xml"
-    },
-    {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_compose_message.xml",
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_compose_message.xml"
     },
@@ -40,12 +36,12 @@
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_contacts.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_message_detail.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_message_detail.xml"
-    },
-    {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_messages.xml",
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_messages.xml"
+    },
+    {
+        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_message_detail.xml",
+        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_message_detail.xml"
     },
     {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_message_list.xml",
@@ -74,6 +70,10 @@
     {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\dialog_progress.xml",
         "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\dialog_progress.xml"
+    },
+    {
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_profile.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_profile.xml"
     },
     {
         "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_profile.xml",
