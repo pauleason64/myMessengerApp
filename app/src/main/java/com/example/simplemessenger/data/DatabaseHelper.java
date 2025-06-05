@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseHelper {
-    private static final String TAG = "DatabaseHelsetPersistenceEnabledper";
+    private static final String TAG = "DatabaseHelperPersistenceEnabled";
     private static DatabaseHelper instance;
     private final DatabaseReference databaseReference;
     private final FirebaseAuth mAuth;

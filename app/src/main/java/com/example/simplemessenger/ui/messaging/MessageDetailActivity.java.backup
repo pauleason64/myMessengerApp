@@ -1,0 +1,675 @@
+package com.example.simplemessenger.ui.messaging;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.example.simplemessenger.R;
+import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.simplemessenger.data.DatabaseHelper;
+import com.example.simplemessenger.data.model.Message;
+import com.example.simplemessenger.databinding.ActivityMessageDetailBinding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import com.example.simplemessenger.data.ContactsManager;
+import com.example.simplemessenger.data.model.Contact;
+
+import java.util.List;
+
+public class MessageDetailActivity extends AppCompatActivity {
+
+    private ActivityMessageDetailBinding binding;
+    private DatabaseHelper databaseHelper;
+    private FirebaseAuth mAuth;
+    private String messageId;
+    private Message message;
+    private ContactsManager contactsManager;
+    private ContactsManager.ContactsLoadListener contactListener;
+    private MessageDetailUiHelper uiHelper;
+    private ValueEventListener messageValueEventListener;
+    private String currentUserId;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMessageDetailBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Get message ID from intent
+        messageId = getIntent().getStringExtra("message_id");
+        if (messageId == null) {
+            finish();
+            return;
+        }
+
+        // Initialize Firebase instances and helpers
+        databaseHelper = DatabaseHelper.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        
+        // Get current user ID
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+        }
+        
+        contactsManager = ContactsManager.getInstance();
+        uiHelper = new MessageDetailUiHelper(this, binding);
+
+        // Start contact updates
+        contactsManager.initializeContacts();
+
+        // Set up the toolbar
+        Toolbar toolbar = binding.toolbar;
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Loading...");
+        }
+
+        // Set up FAB for reply
+        binding.fabReply.setOnClickListener(v -> replyToMessage());
+        binding.fabForward.setOnClickListener(v -> forwardMessage());
+        binding.fabDelete.setOnClickListener(v -> showDeleteConfirmation());
+
+        // Load message details
+        loadMessageDetails();
+    }
+
+
+    private void loadMessageDetails() {
+        if (messageId == null) {
+            return;
+        }
+
+        DatabaseReference messageRef = databaseHelper.getDatabaseReference().child("messages").child(messageId);
+        
+        // Remove any existing listener to prevent memory leaks
+        if (messageValueEventListener != null) {
+            messageRef.removeEventListener(messageValueEventListener);
+        }
+        
+        messageValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Log the raw data from Firebase
+                    Log.d("MessageDetail", "Raw message data: " + dataSnapshot.getValue());
+
+                    // Get the message data and ensure the ID is set
+                    message = dataSnapshot.getValue(Message.class);
+                    if (message != null) {
+                        message.setId(dataSnapshot.getKey());
+
+                        // Ensure the note status is set correctly from the database
+                        Boolean isNote = dataSnapshot.child("isNote").getValue(Boolean.class);
+                        if (isNote != null) {
+                            message.setNote(isNote);
+                        }
+
+                        Log.d("MessageDetail", "Message loaded - isNote: " + message.isNote() +
+                              ", Subject: " + message.getSubject());
+
+                        // Debug log the entire message data
+                        Log.d("MessageDetail", "Message data: " + dataSnapshot.getValue());
+
+                        // Get message details
+                        final String currentMessageId = messageId;
+                        final String messageSenderId = !message.isNote() ? 
+                            dataSnapshot.child("senderId").getValue(String.class) : null;
+                        final String messageRecipientId = !message.isNote() ? 
+                            dataSnapshot.child("recipientId").getValue(String.class) : null;
+
+                        Log.d("MessageDetail", "Loading " + (message.isNote() ? "note" : "message") +
+                            " Sender ID: " + messageSenderId + ", Recipient ID: " + messageRecipientId);
+
+                        // Initialize contact listener if not already created
+                        if (contactListener == null) {
+                            contactListener = new ContactsManager.ContactsLoadListener() {
+                                @Override
+                                public void onContactsLoaded(List<Contact> contacts) {
+                                    Log.d("MessageDetail", "Contacts loaded: " + contacts.size() + " contacts");
+                                    // Only process if this is still the current message
+                                    if (!messageId.equals(currentMessageId)) {
+                                        Log.d("MessageDetail", "Skipping contacts load - message changed");
+                                        return;
+                                    }
+                                    
+                                    // Update UI with any existing contacts
+                                    for (Contact contact : contacts) {
+                                        String contactId = contact.getUserId();
+                                        if (contactId != null) {
+                                            if (contactId.equals(messageSenderId)) {
+                                                message.setSenderEmail(contact.getEmailAddress());
+                                                runOnUiThread(() -> updateUI());
+                                            } else if (contactId.equals(messageRecipientId)) {
+                                                message.setRecipientEmail(contact.getEmailAddress());
+                                                runOnUiThread(() -> updateUI());
+                                            }
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onContactAdded(Contact contact) {
+                                    Log.d("MessageDetail", "Contact added: " + contact.getEmailAddress());
+                                    // Only process if this is still the current message
+                                    if (!messageId.equals(currentMessageId)) {
+                                        Log.d("MessageDetail", "Skipping contact added - message changed");
+                                        return;
+                                    }
+                                    
+                                    String contactId = contact.getUserId();
+                                    if (contactId != null) {
+                                        if (contactId.equals(messageSenderId)) {
+                                            message.setSenderEmail(contact.getEmailAddress());
+                                            runOnUiThread(() -> updateUI());
+                                        } else if (contactId.equals(messageRecipientId)) {
+                                            message.setRecipientEmail(contact.getEmailAddress());
+                                            runOnUiThread(() -> updateUI());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onContactRemoved(Contact contact) {
+                                    Log.d("MessageDetail", "Contact removed: " + contact.getEmailAddress());
+                                    // Not needed here
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    Log.e("MessageDetail", "Error loading contact: " + error);
+                                }
+                            };
+                        }
+
+                        // Set the listener and clear previous one
+                        contactsManager.setLoadListener(contactListener);
+                        contactsManager.clearPreviousListener();
+
+                        // For notes, we don't need to load contacts
+                        if (message.isNote()) {
+                            updateUI();
+                            return;
+                        }
+
+                        // For sent items, we know the sender is the current user
+                        if (currentUserId != null && currentUserId.equals(messageSenderId)) {
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            if (currentUser != null && currentUser.getEmail() != null) {
+                                message.setSenderEmail(currentUser.getEmail());
+                            }
+                        }
+                        
+                        // For received items, we know the recipient is the current user
+                        if (currentUserId != null && currentUserId.equals(messageRecipientId)) {
+                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                            if (currentUser != null && currentUser.getEmail() != null) {
+                                message.setRecipientEmail(currentUser.getEmail());
+                            }
+                        }
+
+                        // Initialize contacts manager if not already done
+                        if (contactsManager != null) {
+                            contactsManager.initializeContacts();
+                        }
+
+                        // Set up a single contact listener
+                        if (contactListener == null) {
+                            contactListener = new ContactsManager.ContactsLoadListener() {
+                                @Override
+                                public void onContactsLoaded(List<Contact> contacts) {
+                                    checkAndUpdateContacts(contacts, currentMessageId, messageSenderId, messageRecipientId);
+                                    
+                                    // Fetch any missing emails
+                                    if (messageSenderId != null && !messageSenderId.isEmpty() && 
+                                        (message.getSenderEmail() == null || message.getSenderEmail().isEmpty()) &&
+                                        (currentUserId == null || !messageSenderId.equals(currentUserId))) {
+                                        contactsManager.fetchAndCreateContact(messageSenderId, contactListener);
+                                    }
+                                    
+                                    if (messageRecipientId != null && !messageRecipientId.isEmpty() &&
+                                        (message.getRecipientEmail() == null || message.getRecipientEmail().isEmpty()) &&
+                                        (currentUserId == null || !messageRecipientId.equals(currentUserId))) {
+                                        contactsManager.fetchAndCreateContact(messageRecipientId, contactListener);
+                                    }
+                                }
+
+                                @Override
+                                public void onContactAdded(Contact contact) {
+                                    if (contact == null || contact.getUserId() == null || 
+                                        !messageId.equals(currentMessageId)) {
+                                        return;
+                                    }
+                                    
+                                    boolean updated = false;
+                                    if (contact.getUserId().equals(messageSenderId)) {
+                                        message.setSenderEmail(contact.getEmailAddress());
+                                        updated = true;
+                                    } else if (contact.getUserId().equals(messageRecipientId)) {
+                                        message.setRecipientEmail(contact.getEmailAddress());
+                                        updated = true;
+                                    }
+                                    
+                                    if (updated) {
+                                        runOnUiThread(() -> updateUI());
+                                    }
+                                    }
+                                }
+
+                                @Override
+                                public void onContactRemoved(Contact contact) {
+                                    // Not handling contact removal in this view
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    Log.e("MessageDetail", "Contacts error: " + error);
+                                    runOnUiThread(() -> showError("Error loading contacts"));
+                                }
+                            };
+
+                            // Set the listener
+                            contactsManager.setLoadListener(contactListener);
+                            contactsManager.clearPreviousListener();
+                        }
+
+                        // Initial UI update
+                        updateUI();
+
+                        // The contact listener will handle fetching missing emails
+
+                        // Mark as read if not already read
+                        if (!message.isRead()) {
+                            markAsRead();
+                        }
+                        
+                    } else {
+                        showError("Message not found");
+                        finish();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                showError("Failed to load message: " + databaseError.getMessage());
+                finish();
+            }
+        };
+        
+        messageRef.addListenerForSingleValueEvent(messageValueEventListener);
+    }
+
+    private void updateUI() {
+        if (uiHelper != null) {
+            // Ensure we have the current user's email for sent items
+            if (currentUserId != null) {
+                if (currentUserId.equals(message.getSenderId()) && message.getSenderEmail() == null) {
+                    // This is a sent message, use current user's email
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null && user.getEmail() != null) {
+                        message.setSenderEmail(user.getEmail());
+                    }
+                } else if (currentUserId.equals(message.getRecipientId()) && message.getRecipientEmail() == null) {
+                    // This is a received message, use current user's email
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null && user.getEmail() != null) {
+                        message.setRecipientEmail(user.getEmail());
+                    }
+                }
+            }
+            uiHelper.updateUI(message);
+        }
+    }
+    
+    /**
+     * Updates contact information when a contact is added or loaded
+     * @param contact The contact that was added or loaded
+     */
+    private void updateContactInfo(Contact contact) {
+        if (contact == null || contact.getUserId() == null) {
+            Log.d("MessageDetail", "Skipping updateContactInfo - null contact or userId");
+            return;
+        }
+        
+        boolean updated = false;
+        if (contact.getUserId().equals(message.getSenderId())) {
+            message.setSenderEmail(contact.getEmailAddress());
+            updated = true;
+            Log.d("MessageDetail", "Updated sender email: " + contact.getEmailAddress());
+        } else if (contact.getUserId().equals(message.getRecipientId())) {
+            message.setRecipientEmail(contact.getEmailAddress());
+            updated = true;
+            Log.d("MessageDetail", "Updated recipient email: " + contact.getEmailAddress());
+        }
+        
+        if (updated) {
+            runOnUiThread(this::updateUI);
+        }
+    }
+    
+    /**
+     * Fetches any missing email addresses from the server
+     * @param currentMessageId ID of the current message being processed
+     * @param messageSenderId Sender ID for the current message
+     * @param messageRecipientId Recipient ID for the current message
+     */
+    private void fetchMissingEmails(String currentMessageId, String messageSenderId, String messageRecipientId) {
+        // Only proceed if this is still the current message
+        if (!messageId.equals(currentMessageId)) {
+            Log.d("MessageDetail", "Skipping fetchMissingEmails - message changed");
+            return;
+        }
+        
+        // Fetch sender email if needed
+        if (messageSenderId != null && !messageSenderId.isEmpty() && 
+            (message.getSenderEmail() == null || message.getSenderEmail().isEmpty()) &&
+            (currentUserId == null || !messageSenderId.equals(currentUserId))) {
+            contactsManager.fetchAndCreateContact(messageSenderId, contactListener);
+        }
+        
+        // Fetch recipient email if needed
+        if (messageRecipientId != null && !messageRecipientId.isEmpty() &&
+            (message.getRecipientEmail() == null || message.getRecipientEmail().isEmpty()) &&
+            (currentUserId == null || !messageRecipientId.equals(currentUserId))) {
+            contactsManager.fetchAndCreateContact(messageRecipientId, contactListener);
+        }
+    }
+    
+    /**
+     * Checks existing contacts and updates message with contact info if found
+     * @param contacts List of contacts to check
+     * @param currentMessageId ID of the current message being processed
+     * @param messageSenderId Sender ID for the current message
+     * @param messageRecipientId Recipient ID for the current message
+     */
+    private void checkAndUpdateContacts(List<Contact> contacts, String currentMessageId, 
+            String messageSenderId, String messageRecipientId) {
+        // Only proceed if this is still the current message
+        if (contacts == null || messageId == null || !messageId.equals(currentMessageId)) {
+            Log.d("MessageDetail", "Skipping checkAndUpdateContacts - message changed or null contacts");
+            return;
+        }
+        
+        Log.d("MessageDetail", "Checking " + contacts.size() + " contacts for message " + currentMessageId);
+        boolean updated = false;
+        
+        for (Contact contact : contacts) {
+            if (contact == null || contact.getUserId() == null) {
+                Log.d("MessageDetail", "Skipping null contact or contact with null userId");
+                continue;
+            }
+            
+            if (messageSenderId != null && contact.getUserId().equals(messageSenderId)) {
+                message.setSenderEmail(contact.getEmailAddress());
+                updated = true;
+                Log.d("MessageDetail", "Found sender contact: " + contact.getEmailAddress());
+            } else if (messageRecipientId != null && contact.getUserId().equals(messageRecipientId)) {
+                message.setRecipientEmail(contact.getEmailAddress());
+                updated = true;
+                Log.d("MessageDetail", "Found recipient contact: " + contact.getEmailAddress());
+            }
+        }
+        
+        if (updated) {
+            Log.d("MessageDetail", "Contacts updated, refreshing UI");
+            runOnUiThread(this::updateUI);
+        } else {
+            Log.d("MessageDetail", "No matching contacts found for message");
+        }
+    }
+
+    private void markAsRead() {
+        if (messageId == null) {
+            return;
+        }
+
+        databaseHelper.getDatabaseReference().child("messages").child(messageId).child("read")
+                .setValue(true)
+                .addOnSuccessListener(aVoid -> {
+                    if (message != null) {
+                        message.setRead(true);
+                    }
+                });
+    }
+
+    private void replyToMessage() {
+        if (message == null) {
+            return;
+        }
+
+        Intent intent = new Intent(this, ComposeMessageActivity.class);
+        intent.putExtra("reply_to", message.getSenderEmail());
+        intent.putExtra("subject", getString(R.string.reply_prefix) + message.getSubject());
+        startActivity(intent);
+    }
+
+    private void forwardMessage() {
+        if (message == null) {
+            return;
+        }
+
+        Intent intent = new Intent(this, ComposeMessageActivity.class);
+        intent.putExtra("subject", getString(R.string.forward_prefix) + message.getSubject());
+        intent.putExtra("message", message.getContent());
+        startActivity(intent);
+    }
+
+    private void showDeleteConfirmation() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.delete_message)
+                .setMessage(R.string.delete_message_confirmation)
+                .setPositiveButton(R.string.delete, (dialog, which) -> deleteMessage())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void deleteMessage() {
+        if (messageId == null) {
+            return;
+        }
+
+        // In a real app, you might want to move to trash instead of deleting permanently
+        databaseHelper.getDatabaseReference().child("messages").child(messageId).child("archived")
+                .setValue(true)
+                .addOnSuccessListener(aVoid -> {
+                    // Also update in user-messages
+                    if (mAuth.getCurrentUser() != null) {
+                        databaseHelper.getDatabaseReference().child("user-messages")
+                                .child(mAuth.getCurrentUser().getUid())
+                                .child(messageId)
+                                .child("archived")
+                                .setValue(true);
+                    }
+                    Toast.makeText(this, R.string.message_deleted, Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    showError("Failed to delete message: " + e.getMessage());
+                });
+    }
+
+    private void fetchUserEmail(String userId, boolean isSender) {
+        if (userId == null || userId.isEmpty()) {
+            Log.e("MessageDetail", "fetchUserEmail: Invalid user ID provided");
+            showError("Invalid user ID");
+            return;
+        }
+
+        // First check if this is the current user
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && userId.equals(currentUser.getUid())) {
+            // This is the current user, use their email
+            String email = currentUser.getEmail();
+            if (email != null) {
+                if (isSender) {
+                    message.setSenderEmail(email);
+                } else {
+                    message.setRecipientEmail(email);
+                }
+                updateUI();
+                return;
+            }
+        }
+
+        // Check if user is already in contacts
+        Contact existingContact = contactsManager.getContactById(userId);
+        if (existingContact != null) {
+            if (isSender) {
+                message.setSenderEmail(existingContact.getEmailAddress());
+            } else {
+                message.setRecipientEmail(existingContact.getEmailAddress());
+            }
+            updateUI();
+            return;
+        }
+
+        // Look up user in database
+        DatabaseReference userRef = databaseHelper.getDatabaseReference()
+                .child("users")
+                .child(userId);
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    Log.e("MessageDetail", "User not found in database: " + userId);
+                    showError("User not found");
+                    return;
+                }
+
+                String email = dataSnapshot.child("email").getValue(String.class);
+                String displayName = dataSnapshot.child("displayName").getValue(String.class);
+
+                if (email == null || email.isEmpty()) {
+                    Log.e("MessageDetail", "No email found for user: " + userId);
+                    showError("No email available for user");
+                    return;
+                }
+
+                // Update message with email
+                if (isSender) {
+                    message.setSenderEmail(email);
+                    Log.d("MessageDetail", "Set sender email: " + email);
+                } else {
+                    message.setRecipientEmail(email);
+                    Log.d("MessageDetail", "Set recipient email: " + email);
+                }
+
+                // Add to contacts if display name is missing
+                if (displayName == null || displayName.trim().isEmpty()) {
+                    displayName = email.split("@")[0];
+                }
+                
+                // Add to contacts if not already present
+                if (contactsManager.getContactById(userId) == null) {
+                    contactsManager.addContact(userId, displayName, email);
+                    Log.d("MessageDetail", "Added new contact: " + displayName + " <" + email + ">");
+                }
+                
+                updateUI();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                String error = "Error fetching user data: " + databaseError.getMessage();
+                Log.e("MessageDetail", error);
+                showError("Failed to load user info");
+            }
+        });
+    }
+
+    private void showError(String message) {
+        if (uiHelper != null) {
+            uiHelper.showError(message);
+        } else {
+            runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    Toast.makeText(MessageDetailActivity.this, message, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_message_detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else if (id == R.id.action_archive) {
+            // TODO: Implement archive action
+            Toast.makeText(this, "Archive message", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_set_reminder) {
+            // TODO: Implement set reminder action
+            Toast.makeText(this, "Set reminder", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_share) {
+            // TODO: Implement share action
+            shareMessage();
+            return true;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void shareMessage() {
+        if (message == null) {
+            return;
+        }
+
+        String shareText = message.getSubject() + "\n\n" + message.getContent();
+        
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, message.getSubject());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_message)));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (contactsManager != null) {
+            contactsManager.clearPreviousListener();
+        }
+        
+        // Clean up the ValueEventListener
+        if (messageId != null && databaseHelper != null && messageValueEventListener != null) {
+            DatabaseReference messageRef = databaseHelper.getDatabaseReference()
+                .child("messages")
+                .child(messageId);
+            messageRef.removeEventListener(messageValueEventListener);
+        }
+        
+        binding = null;
+        uiHelper = null;
+    }
+}
