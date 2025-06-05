@@ -59,7 +59,7 @@ public class MessageDetailActivity extends AppCompatActivity {
         }
 
         // Get message ID from intent
-        messageId = getIntent().getStringExtra("MESSAGE_ID");
+        messageId = getIntent().getStringExtra("message_id");
         if (messageId == null || messageId.isEmpty()) {
             showError("No message ID provided");
             finish();

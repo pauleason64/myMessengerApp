@@ -322,8 +322,17 @@ public class AuthActivity extends AppCompatActivity {
 
         showProgress(true);
         
-        // Authenticate with Firebase
-        mAuth.signInWithEmailAndPassword(email, password)
+        // Clear any existing authentication state
+        if (mAuth.getCurrentUser() != null) {
+            mAuth.signOut();
+        }
+        
+        // Force refresh the Firebase Auth instance
+        try {
+            mAuth = FirebaseAuth.getInstance();
+            
+            // Try to sign in with email and password
+            mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
@@ -332,22 +341,42 @@ public class AuthActivity extends AppCompatActivity {
                                 // Email is verified, proceed with login
                                 handleSuccessfulLogin(user, email);
                             } else {
+                                showProgress(false);
                                 // Email not verified, show verification dialog
                                 showEmailNotVerifiedDialog(user);
                             }
+                        } else {
+                            showProgress(false);
+                            showError("Authentication failed: User is null");
                         }
                     } else {
                         showProgress(false);
-                        // If sign in fails, display a message to the user.
-                        Toast.makeText(
-                                AuthActivity.this,
-                                task.getException() != null ? 
-                                    task.getException().getMessage() : 
-                                    getString(R.string.error_login_failed),
-                                Toast.LENGTH_LONG
-                        ).show();
+                        // Handle specific authentication errors
+                        String errorMessage = getString(R.string.error_login_failed);
+                        if (task.getException() != null) {
+                            String error = task.getException().getMessage();
+                            if (error != null) {
+                                if (error.contains("no user record")) {
+                                    errorMessage = "No account found with this email address.";
+                                } else if (error.contains("password is invalid")) {
+                                    errorMessage = "Invalid password. Please try again.";
+                                } else if (error.contains("too many attempts")) {
+                                    errorMessage = "Too many failed login attempts. Please try again later.";
+                                } else if (error.contains("network error")) {
+                                    errorMessage = "Network error. Please check your connection.";
+                                } else {
+                                    errorMessage = error;
+                                }
+                            }
+                        }
+                        showError(errorMessage);
                     }
                 });
+        } catch (Exception e) {
+            showProgress(false);
+            Log.e("AuthActivity", "Login error", e);
+            showError("An error occurred during login. Please try again.");
+        }
     }
     
     private void handleSuccessfulLogin(FirebaseUser user, String email) {

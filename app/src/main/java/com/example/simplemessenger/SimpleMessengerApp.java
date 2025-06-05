@@ -12,6 +12,9 @@ import androidx.work.WorkManager;
 
 import com.example.simplemessenger.util.FirebaseFactory;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthSettings;
 
 public class SimpleMessengerApp extends Application implements Configuration.Provider {
     
@@ -34,7 +37,20 @@ public class SimpleMessengerApp extends Application implements Configuration.Pro
             // First initialize FirebaseApp
             FirebaseApp.initializeApp(this);
             
-            // Then initialize our custom Firebase configuration
+            // Configure Firebase Auth to disable app verification for testing
+            try {
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                FirebaseAuthSettings firebaseAuthSettings = auth.getFirebaseAuthSettings();
+                
+                // Disable app verification for testing (only for development!)
+                firebaseAuthSettings.setAppVerificationDisabledForTesting(true);
+                
+                Log.d("SimpleMessengerApp", "Firebase Auth configured with app verification disabled");
+            } catch (Exception e) {
+                Log.e("SimpleMessengerApp", "Error configuring Firebase Auth", e);
+            }
+            
+            // Initialize our custom Firebase configuration
             FirebaseFactory.initialize(this);
             FirebaseFactory.getDatabase().setPersistenceEnabled(true);
             Log.d("SimpleMessengerApp", "Firebase Database persistence enabled");
