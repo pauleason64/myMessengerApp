@@ -3450,6 +3450,7 @@ id confirm_button
 id constraint
 id contactEmail
 id contactName
+id contacts_recycler_view
 id container
 id content
 id contentPanel
@@ -4292,8 +4293,10 @@ string common_open_on_phone
 string common_signin_button_text
 string common_signin_button_text_long
 string compose_message
+string confirm_delete_contact
 string confirm_logout
 string confirm_password
+string contact_deleted
 string contact_requests
 string copied_to_clipboard
 string copy
@@ -4306,6 +4309,7 @@ string date_time_format
 string days_ago
 string decline
 string delete
+string delete_contact
 string delete_draft_confirmation
 string delete_draft_confirmation_multiple
 string delete_message
@@ -4353,6 +4357,7 @@ string expand_button_title
 string exposed_dropdown_menu_content_description
 string fab_transformation_scrim_behavior
 string fab_transformation_sheet_behavior
+string failed_to_delete_contact
 string fallback_menu_item_copy_link
 string fallback_menu_item_open_in_browser
 string fallback_menu_item_share_link

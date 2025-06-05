@@ -243,6 +243,7 @@
     <string name="title_profile">Profile</string>
     <string name="title_manage_contacts">Manage Contacts</string>
     <string name="menu_contacts">Contacts</string>
+    <string name="add_contact">Add Contact</string>
     <string name="coming_soon">Coming Soon</string>
     <string name="manage_contacts_coming_soon">The contacts management feature will be available in the next update.\n\nYou\'ll be able to manage your contacts, view contact details, and more.</string>
     <string name="edit_profile">Edit Profile</string>
@@ -282,7 +283,7 @@
     <string name="mobile_data">Mobile data</string>
     <string name="ethernet">Ethernet</string>
     <string name="vpn">VPN</string>
-    
+
     <!-- Error Messages -->
     <string name="error_user_not_found">User not found</string>
     <string name="error_invalid_credentials">Invalid email or password</string>
@@ -310,10 +311,13 @@
     <string name="pref_key_clear_cache">clear_cache</string>
     
     <!-- Contacts -->
+    <string name="delete_contact">Delete Contact</string>
+    <string name="confirm_delete_contact">Are you sure you want to delete %1$s from your contacts?</string>
+    <string name="contact_deleted">%1$s has been removed from your contacts</string>
+    <string name="failed_to_delete_contact">Failed to delete contact: %1$s</string>
     <string name="no_contacts_found">No contacts found</string>
     <string name="no_contact_requests">No contact requests</string>
     <string name="no_blocked_users">No blocked users</string>
-    <string name="add_contact">Add contact</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="unblock">Unblock</string>

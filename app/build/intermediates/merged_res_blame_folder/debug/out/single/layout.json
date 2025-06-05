@@ -1,94 +1,90 @@
 [
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\settings_activity.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\settings_activity.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_firebase_config.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_firebase_config.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\item_contact.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\item_contact.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_messages.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_messages.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_main.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_main.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_auth.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_auth.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_message_list_with_pager.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_message_list_with_pager.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_message_detail.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_message_detail.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_compose_message.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_compose_message.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/item_message.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/item_message.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_profile.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_profile.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_message_list.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_message_list.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\bottom_sheet_message_actions.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\bottom_sheet_message_actions.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/dialog_progress.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/dialog_progress.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_settings.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_settings.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_message_list.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_message_list.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_contacts.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_contacts.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/bottom_sheet_message_actions.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/bottom_sheet_message_actions.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_messages.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_messages.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_contacts_list.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_contacts_list.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_message_detail.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_message_detail.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_profile.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_profile.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_message_list.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_message_list.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_contacts.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_contacts.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_firebase_config.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_firebase_config.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_message_list_with_pager.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_message_list_with_pager.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_auth.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_auth.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/item_contact.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/item_contact.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_splash.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_splash.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_settings.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_settings.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\item_message.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\item_message.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_compose_message.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_compose_message.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_manage_contacts.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_manage_contacts.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/settings_activity.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/settings_activity.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\dialog_progress.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\dialog_progress.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_main.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/fragment_main.xml"
+    },
+    {
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_manage_contacts.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_manage_contacts.xml"
     },
     {
         "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/fragment_profile.xml",
         "source": "com.example.simplemessenger.app-main-62:/layout/fragment_profile.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_profile.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_profile.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_main.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_main.xml"
     },
     {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_main.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_main.xml"
-    },
-    {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\activity_message_list.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\activity_message_list.xml"
-    },
-    {
-        "merged": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-mergeDebugResources-59:\\layout\\fragment_contacts_list.xml",
-        "source": "C:\\Users\\peaso\\.gradle\\daemon\\8.9\\com.example.simplemessenger.app-main-62:\\layout\\fragment_contacts_list.xml"
+        "merged": "com.example.simplemessenger.app-mergeDebugResources-59:/layout/activity_splash.xml",
+        "source": "com.example.simplemessenger.app-main-62:/layout/activity_splash.xml"
     }
 ]

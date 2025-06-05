@@ -35,7 +35,7 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
     private TextView textNoContacts;
     private ProgressBar progressBar;
     private ContactsManager contactsManager;
-    private ContactsAdapter adapter;
+    private com.example.simplemessenger.ui.contacts.ContactsAdapter adapter;
     private final List<User> contacts = new ArrayList<>();
 
     @Override
@@ -56,10 +56,45 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
         contactsManager = ContactsManager.getInstance();
         
         // Set up RecyclerView
-        adapter = new ContactsAdapter(contacts, user -> {
-            // Handle contact click
-            if (getActivity() != null) {
-                Toast.makeText(getContext(), "Open chat with " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+        adapter = new com.example.simplemessenger.ui.contacts.ContactsAdapter(contacts, new com.example.simplemessenger.ui.contacts.ContactsAdapter.OnContactActionListener() {
+            @Override
+            public void onContactClick(User user) {
+                if (getActivity() != null) {
+                    Toast.makeText(getContext(), "Open chat with " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onDeleteClick(User user) {
+                if (getActivity() == null) return;
+                
+                // Show confirmation dialog
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.delete_contact)
+                    .setMessage(getString(R.string.confirm_delete_contact, user.getDisplayName()))
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        // User confirmed deletion
+                        contactsManager.removeContact(user.getUid())
+                            .addOnSuccessListener(aVoid -> {
+                                // Contact removed successfully
+                                if (getActivity() != null) {
+                                    Toast.makeText(getContext(), 
+                                        getString(R.string.contact_deleted, user.getDisplayName()), 
+                                        Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                // Failed to remove contact
+                                if (getActivity() != null) {
+                                    Toast.makeText(getContext(), 
+                                        getString(R.string.failed_to_delete_contact, e.getMessage()),
+                                        Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
             }
         });
         
@@ -97,7 +132,32 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
     
     @Override
     public void onContactsLoaded(List<Contact> contacts) {
-        updateContactsList(contacts);
+        if (getActivity() == null) return;
+        
+        getActivity().runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+            
+            // Convert Contact objects to User objects
+            List<User> userList = new ArrayList<>();
+            for (Contact contact : contacts) {
+                if (contact != null) {
+                    User user = new User(contact.getContactId(), contact.getEmailAddress(), contact.getUserName());
+                    userList.add(user);
+                }
+            }
+            
+            this.contacts.clear();
+            this.contacts.addAll(userList);
+            adapter.notifyDataSetChanged();
+            
+            if (this.contacts.isEmpty()) {
+                textNoContacts.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                textNoContacts.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
@@ -136,7 +196,7 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
                 for (Contact contact : contactsList) {
                     if (contact != null && contact.getContactId() != null) {
                         User user = new User(contact.getContactId(), 
-                                          contact.getEmailAddress(), 
+                                          contact.getEmailAddress(),
                                           contact.getUserName());
                         contacts.add(user);
                     }

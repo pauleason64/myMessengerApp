@@ -39,7 +39,6 @@ public class ContactsFragment extends Fragment {
         // Set up FAB
         binding.fabAddContact.setOnClickListener(v -> showAddContactDialog());
     }
-
     
     private void showAddContactDialog() {
         // Implement add contact dialog
@@ -51,6 +50,4 @@ public class ContactsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-
 }

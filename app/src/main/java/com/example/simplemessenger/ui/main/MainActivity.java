@@ -26,7 +26,6 @@ import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.ui.auth.AuthActivity;
 import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
 import com.example.simplemessenger.ui.contacts.ContactsFragment;
-import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
 import com.example.simplemessenger.ui.messaging.ComposeMessageActivity;
 import com.example.simplemessenger.ui.messaging.MessageListFragment;
 import com.example.simplemessenger.ui.profile.ProfileActivity;

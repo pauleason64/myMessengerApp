@@ -137,6 +137,17 @@
                 android:value=".ui.main.MainActivity" />
         </activity>
 
+        <!-- Manage Contacts Activity -->
+        <activity
+            android:name="com.example.simplemessenger.ui.contacts.ManageContactsActivity"
+            android:exported="false"
+            android:parentActivityName="com.example.simplemessenger.ui.main.MainActivity"
+            android:theme="@style/Theme.SimpleMessenger.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+
         <!-- Firebase Services -->
         <service
             android:name="com.example.simplemessenger.services.AppFirebaseMessagingService"

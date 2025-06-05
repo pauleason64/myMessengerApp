@@ -32,7 +32,10 @@
     
     <!-- NoActionBar Theme for Activities with Toolbar (kept for backward compatibility) -->
     <style name="Theme.SimpleMessenger.NoActionBar" parent="Theme.SimpleMessenger">
-        <!-- Inherits all styles from base theme -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <!-- AppBarOverlay and PopupOverlay styles -->

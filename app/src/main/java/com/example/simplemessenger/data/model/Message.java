@@ -24,6 +24,7 @@ public class Message {
     private boolean hasReminder = false;
     private long reminderTime = 0;
     private boolean archived = false;
+    @com.google.firebase.database.PropertyName("isNote")
     private boolean isNote = false;
 
     // Required empty constructor for Firebase
@@ -172,14 +173,26 @@ public class Message {
         this.hasReminder = true;
     }
     
+    // Standard getter/setter with Firebase annotations
     @com.google.firebase.database.Exclude
-    public void setIsNote(boolean isNote) {
+    public boolean isNote() {
+        return isNote;
+    }
+
+    @com.google.firebase.database.Exclude
+    public void setNote(boolean isNote) {
         this.isNote = isNote;
     }
-    
-    @com.google.firebase.database.Exclude
+
+    // These methods are used by Firebase for serialization/deserialization
+    @com.google.firebase.database.PropertyName("isNote")
     public boolean getIsNote() {
         return isNote;
+    }
+
+    @com.google.firebase.database.PropertyName("isNote")
+    public void setIsNote(boolean isNote) {
+        this.isNote = isNote;
     }
 
     public boolean isArchived() {
@@ -211,14 +224,6 @@ public class Message {
         return map;
     }
 
-    public boolean isNote() {
-        return isNote;
-    }
-
-    public void setNote(boolean note) {
-        isNote = note;
-    }
-    
     public void setContents(String messageText) {
     }
 }

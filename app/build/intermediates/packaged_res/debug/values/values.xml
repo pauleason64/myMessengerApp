@@ -90,7 +90,7 @@
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="add_attachment">Add attachment</string>
-    <string name="add_contact">Add contact</string>
+    <string name="add_contact">Add Contact</string>
     <string name="add_recipient">Add recipient</string>
     <string name="app_description">Simple Messenger - A simple and secure messaging app</string>
     <string name="app_logo">App Logo</string>
@@ -111,8 +111,10 @@
     <string name="choose_theme">Choose Theme</string>
     <string name="coming_soon">Coming Soon</string>
     <string name="compose_message">Compose Message</string>
+    <string name="confirm_delete_contact">Are you sure you want to delete %1$s from your contacts?</string>
     <string name="confirm_logout">Are you sure you want to logout?</string>
     <string name="confirm_password">Confirm new password</string>
+    <string name="contact_deleted">%1$s has been removed from your contacts</string>
     <string name="contact_requests">Contact Requests</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="copy_to_clipboard">Copy to Clipboard</string>
@@ -123,6 +125,7 @@
     <string name="days_ago">%1$d days ago</string>
     <string name="decline">Decline</string>
     <string name="delete">Delete</string>
+    <string name="delete_contact">Delete Contact</string>
     <string name="delete_draft_confirmation">Discard this draft?</string>
     <string name="delete_draft_confirmation_multiple">Discard %1$d selected drafts?</string>
     <string name="delete_message">Delete Message</string>
@@ -163,6 +166,7 @@
     <string name="error_unknown">An unknown error occurred</string>
     <string name="error_user_not_found">User not found</string>
     <string name="ethernet">Ethernet</string>
+    <string name="failed_to_delete_contact">Failed to delete contact: %1$s</string>
     <string name="firebase_settings">Firebase Settings</string>
     <string name="forward">Forward</string>
     <string name="forward_message">Forward Message</string>
@@ -432,7 +436,10 @@
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.SimpleMessenger.NoActionBar" parent="Theme.SimpleMessenger">
-        
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
     <style name="Theme.SimpleMessenger.Splash" parent="Theme.SimpleMessenger">
         <item name="android:windowBackground">@drawable/splash_screen_background</item>

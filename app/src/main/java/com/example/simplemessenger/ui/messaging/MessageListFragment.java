@@ -233,13 +233,17 @@ public class MessageListFragment extends Fragment {
                                 
                                 if (isNotes) {
                                     // For notes, we don't need to set sender/recipient
-                                    message.setIsNote(true);
+                                    // Set isNote after Firebase deserialization to ensure it's not overridden
+                                    message.setNote(true);
+                                    Log.d("MessageListFragment", "Set isNote=true for message: " + messageId);
                                 } else if (isInbox) {
                                     // For inbox, set recipient ID
                                     message.setRecipientId(currentUserId);
+                                    message.setNote(false);
                                 } else {
                                     // For sent, set sender ID
                                     message.setSenderId(currentUserId);
+                                    message.setNote(false);
                                 }
                                 allMessages.add(message);
                                 Log.d("MessageListFragment", "Added message with ID: " + messageId);
