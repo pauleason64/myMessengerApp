@@ -40,6 +40,10 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="small_padding">4dp</dimen>
+    <plurals name="confirm_delete_messages">
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
+    </plurals>
     <plurals name="days_ago">
         <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
@@ -100,6 +104,7 @@
     <string name="archive_message_confirmation">Archive this message?</string>
     <string name="archive_message_confirmation_multiple">Archive %1$d selected messages?</string>
     <string name="are_you_sure_logout">Are you sure you want to logout?</string>
+    <string name="back">Back</string>
     <string name="blocked_contacts">Blocked Contacts</string>
     <string name="cancel">Cancel</string>
     <string name="change_password">Change Password</string>
@@ -112,6 +117,7 @@
     <string name="coming_soon">Coming Soon</string>
     <string name="compose_message">Compose Message</string>
     <string name="confirm_delete_contact">Are you sure you want to delete %1$s from your contacts?</string>
+    <string name="confirm_delete_messages">Delete %1$d selected message(s)?</string>
     <string name="confirm_logout">Are you sure you want to logout?</string>
     <string name="confirm_password">Confirm new password</string>
     <string name="contact_deleted">%1$s has been removed from your contacts</string>
@@ -132,6 +138,7 @@
     <string name="delete_message_confirmation">Are you sure you want to delete this message?</string>
     <string name="delete_message_confirmation_multiple">Delete %1$d selected messages?</string>
     <string name="delete_message_title">Delete Message</string>
+    <string name="delete_messages">Delete Messages</string>
     <string name="disconnected">Disconnected</string>
     <string name="dismiss">Dismiss</string>
     <string name="edit">Edit</string>
@@ -145,6 +152,7 @@
     <string name="error_authentication_required">Please sign in to continue</string>
     <string name="error_creating_message">Failed to create message</string>
     <string name="error_deleting_message">Failed to delete message</string>
+    <string name="error_deleting_messages">Failed to delete messages: %1$s</string>
     <string name="error_field_required">This field is required</string>
     <string name="error_generic">Unknown error occurred</string>
     <string name="error_incorrect_password">This password is incorrect</string>
@@ -173,6 +181,11 @@
     <string name="forward_prefix">Fwd: </string>
     <string name="from">From: %1$s</string>
     <string name="full_date_format">EEEE, MMMM d, yyyy</string>
+    <string name="gcm_defaultSenderId" translatable="false">126830894242</string>
+    <string name="google_api_key" translatable="false">AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I</string>
+    <string name="google_app_id" translatable="false">1:126830894242:android:d393abd1bd0d43ab774bfb</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I</string>
+    <string name="google_storage_bucket" translatable="false">simplemessenger-c0a47.firebasestorage.app</string>
     <string name="help_center">Help Center</string>
     <string name="hint_bcc">Bcc</string>
     <string name="hint_cc">Cc</string>
@@ -315,6 +328,7 @@
     <string name="pref_title_version">Version</string>
     <string name="print_message">Print</string>
     <string name="profile_picture">Profile Picture</string>
+    <string name="project_id" translatable="false">simplemessenger-c0a47</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="push_notifications">Push Notifications</string>

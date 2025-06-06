@@ -20,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.simplemessenger.util.FirebaseFactory;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class ManageContactsActivity extends AppCompatActivity {
         
         // Initialize Firebase
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        contactsRef = FirebaseDatabase.getInstance().getReference("users");
+        contactsRef = FirebaseFactory.getDatabase().getReference("users");
         
         // Initialize the Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);

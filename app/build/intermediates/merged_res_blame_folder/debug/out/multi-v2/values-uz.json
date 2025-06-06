@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-58:/values-uz/values-uz.xml",
+            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-59:/values-uz/values-uz.xml",
             "map": [
                 {
                     "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\9fd52893e97243b1bd6cbdbf5192af4b\\transformed\\jetified-play-services-base-18.1.0\\res\\values-uz\\values.xml",

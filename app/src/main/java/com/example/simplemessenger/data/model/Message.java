@@ -26,6 +26,7 @@ public class Message {
     private boolean archived = false;
     @com.google.firebase.database.PropertyName("isNote")
     private boolean isNote = false;
+    private String previousMessageId = "";
 
     // Required empty constructor for Firebase
     public Message() {
@@ -39,6 +40,11 @@ public class Message {
 
     public Message(String senderId, String senderEmail, String recipientId, String recipientEmail, 
                   String subject, String content, boolean isNote) {
+        this(senderId, senderEmail, recipientId, recipientEmail, subject, content, isNote, "");
+    }
+    
+    public Message(String senderId, String senderEmail, String recipientId, String recipientEmail, 
+                  String subject, String content, boolean isNote, String previousMessageId) {
         this.senderId = senderId;
         this.senderEmail = senderEmail;
         this.recipientId = recipientId;
@@ -49,6 +55,7 @@ public class Message {
         this.hasReminder = false;
         this.archived = false;
         this.isNote = isNote;
+        this.previousMessageId = previousMessageId != null ? previousMessageId : "";
     }
 
     // Getters and Setters
@@ -173,6 +180,19 @@ public class Message {
         this.hasReminder = true;
     }
     
+    /**
+     * Formats the timestamp for display in message headers
+     * @return Formatted date/time string
+     */
+    @Exclude
+    public String getFormattedTimestamp() {
+        try {
+            return android.text.format.DateFormat.format("MMM d, yyyy h:mm a", new java.util.Date(timestamp)).toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
     // Standard getter/setter with Firebase annotations
     @com.google.firebase.database.Exclude
     public boolean isNote() {
@@ -220,10 +240,21 @@ public class Message {
             map.put("reminderTime", reminderTime > 0 ? reminderTime : ServerValue.TIMESTAMP);
         }
         map.put("archived", archived);
+        if (previousMessageId != null && !previousMessageId.isEmpty()) {
+            map.put("previousMessageId", previousMessageId);
+        }
 //        map.put("isNote", isNote);
         return map;
     }
 
+    public String getPreviousMessageId() {
+        return previousMessageId;
+    }
+
+    public void setPreviousMessageId(String previousMessageId) {
+        this.previousMessageId = previousMessageId != null ? previousMessageId : "";
+    }
+    
     public void setContents(String messageText) {
     }
 }

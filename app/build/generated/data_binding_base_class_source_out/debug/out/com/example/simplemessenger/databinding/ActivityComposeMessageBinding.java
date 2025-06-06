@@ -16,7 +16,6 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.simplemessenger.R;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.lang.NullPointerException;
@@ -32,9 +31,6 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
 
   @NonNull
   public final CheckBox checkboxSetReminder;
-
-  @NonNull
-  public final FloatingActionButton fabSend;
 
   @NonNull
   public final TextInputEditText inputMessage;
@@ -65,15 +61,14 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
 
   private ActivityComposeMessageBinding(@NonNull CoordinatorLayout rootView,
       @NonNull MaterialButton buttonSetReminder, @NonNull CheckBox checkboxSetReminder,
-      @NonNull FloatingActionButton fabSend, @NonNull TextInputEditText inputMessage,
-      @NonNull AutoCompleteTextView inputRecipient, @NonNull TextInputEditText inputSubject,
-      @NonNull TextInputLayout layoutMessage, @NonNull TextInputLayout layoutRecipient,
-      @NonNull TextInputLayout layoutSubject, @NonNull ProgressBar progressBar,
-      @NonNull TextView textReminderTime, @NonNull Toolbar toolbar) {
+      @NonNull TextInputEditText inputMessage, @NonNull AutoCompleteTextView inputRecipient,
+      @NonNull TextInputEditText inputSubject, @NonNull TextInputLayout layoutMessage,
+      @NonNull TextInputLayout layoutRecipient, @NonNull TextInputLayout layoutSubject,
+      @NonNull ProgressBar progressBar, @NonNull TextView textReminderTime,
+      @NonNull Toolbar toolbar) {
     this.rootView = rootView;
     this.buttonSetReminder = buttonSetReminder;
     this.checkboxSetReminder = checkboxSetReminder;
-    this.fabSend = fabSend;
     this.inputMessage = inputMessage;
     this.inputRecipient = inputRecipient;
     this.inputSubject = inputSubject;
@@ -121,12 +116,6 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
       id = R.id.checkbox_set_reminder;
       CheckBox checkboxSetReminder = ViewBindings.findChildViewById(rootView, id);
       if (checkboxSetReminder == null) {
-        break missingId;
-      }
-
-      id = R.id.fab_send;
-      FloatingActionButton fabSend = ViewBindings.findChildViewById(rootView, id);
-      if (fabSend == null) {
         break missingId;
       }
 
@@ -185,7 +174,7 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
       }
 
       return new ActivityComposeMessageBinding((CoordinatorLayout) rootView, buttonSetReminder,
-          checkboxSetReminder, fabSend, inputMessage, inputRecipient, inputSubject, layoutMessage,
+          checkboxSetReminder, inputMessage, inputRecipient, inputSubject, layoutMessage,
           layoutRecipient, layoutSubject, progressBar, textReminderTime, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);

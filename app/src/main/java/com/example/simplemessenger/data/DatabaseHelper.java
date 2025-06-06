@@ -16,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DatabaseHelper {
@@ -23,6 +24,8 @@ public class DatabaseHelper {
     private static DatabaseHelper instance;
     private final DatabaseReference databaseReference;
     private final FirebaseAuth mAuth;
+    private boolean isNotes = false;
+    private boolean isInbox = true;
 
     // Database paths
     protected static final String MESSAGES_NODE = "messages";
@@ -36,12 +39,23 @@ public class DatabaseHelper {
     }
     
     /**
+     * Set the current tab state for message operations
+     * @param isNotes Whether the current tab is the Notes tab
+     * @param isInbox Whether the current tab is the Inbox tab (only relevant if not Notes)
+     */
+    public void setTabState(boolean isNotes, boolean isInbox) {
+        this.isNotes = isNotes;
+        this.isInbox = isInbox;
+    }
+    
+    /**
      * Package-private constructor for testing
      */
     DatabaseHelper(String databaseUrl) {
+        // Use FirebaseFactory to get the database reference
         this(
-            FirebaseDatabase.getInstance(databaseUrl).getReference(),
-            FirebaseAuth.getInstance()
+            FirebaseFactory.getDatabase().getReference(),
+            FirebaseFactory.getAuth()
         );
     }
     
@@ -195,11 +209,60 @@ public class DatabaseHelper {
         void onError(String error);
     }
     
+    // Callback interface for message operations
+    public interface MessageOperationCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+    
     /**
      * Get the database reference for direct database operations.
      * @return The DatabaseReference instance
      */
     public DatabaseReference getDatabaseReference() {
         return databaseReference;
+    }
+    
+    /**
+     * Delete multiple messages by their IDs
+     * @param messageIds List of message IDs to delete
+     * @param callback Callback to handle success or error
+     */
+    public void deleteMessages(List<String> messageIds, final MessageOperationCallback callback) {
+        if (mAuth.getCurrentUser() == null) {
+            if (callback != null) {
+                callback.onError("User not authenticated");
+            }
+            return;
+        }
+        
+        String currentUserId = mAuth.getCurrentUser().getUid();
+        DatabaseReference userMessagesRef = databaseReference.child(USER_MESSAGES_NODE).child(currentUserId);
+        
+        // Determine the message type based on the current tab (inbox/outbox/notes)
+        String messageType = isNotes ? "notes" : (isInbox ? USER_RECEIVED_NODE : USER_SENT_NODE);
+        
+        // Create a map to hold all updates
+        Map<String, Object> updates = new HashMap<>();
+        
+        // Add each message to be deleted to the updates map
+        for (String messageId : messageIds) {
+            updates.put("/" + MESSAGES_NODE + "/" + messageId, null);
+            updates.put("/" + USER_MESSAGES_NODE + "/" + currentUserId + "/" + messageType + "/" + messageId, null);
+        }
+        
+        // Perform the updates atomically
+        databaseReference.updateChildren(updates)
+            .addOnSuccessListener(aVoid -> {
+                if (callback != null) {
+                    callback.onSuccess();
+                }
+            })
+            .addOnFailureListener(e -> {
+                Log.e(TAG, "Error deleting messages: " + e.getMessage());
+                if (callback != null) {
+                    callback.onError(e.getMessage());
+                }
+            });
     }
 }

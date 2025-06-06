@@ -1,13 +1,17 @@
 package com.example.simplemessenger.ui.messaging;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.simplemessenger.R;
 import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityMessageDetailBinding;
@@ -16,7 +20,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.simplemessenger.util.FirebaseFactory;
 import com.google.firebase.database.ValueEventListener;
 
 import com.example.simplemessenger.data.ContactsManager;
@@ -37,6 +41,57 @@ public class MessageDetailActivity extends AppCompatActivity {
     private ValueEventListener messageValueEventListener;
     private String currentUserId;
 
+    private void setupActionButtons() {
+        // Set up click listeners for action buttons
+        binding.btnBack.setOnClickListener(v -> onBackPressed());
+        binding.btnReply.setOnClickListener(v -> replyToMessage());
+        binding.btnForward.setOnClickListener(v -> forwardMessage());
+        binding.btnDelete.setOnClickListener(v -> deleteMessage());
+        binding.btnArchive.setOnClickListener(v -> archiveMessage());
+        
+        // Set up the toolbar
+        setSupportActionBar(binding.toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+        
+        // Disable reply button if message is from current user
+        if (message != null && mAuth.getCurrentUser() != null && 
+            message.getSenderId() != null && 
+            message.getSenderId().equals(mAuth.getCurrentUser().getUid())) {
+            binding.btnReply.setEnabled(false);
+        }
+    }
+
+    private void replyToMessage() {
+        if (message == null) {
+            showError("Cannot reply: Message not loaded");
+            return;
+        }
+        Intent intent = new Intent(this, ComposeMessageActivity.class);
+        intent.putExtra(ComposeMessageActivity.EXTRA_REPLY_TO, message.getSenderEmail());
+        intent.putExtra(ComposeMessageActivity.EXTRA_SUBJECT, "Re: " + message.getSubject());
+        intent.putExtra(ComposeMessageActivity.EXTRA_PREVIOUS_MESSAGE_ID, message.getId());
+        startActivity(intent);
+    }
+
+    private void deleteMessage() {
+        // TODO: Implement delete message functionality
+        Toast.makeText(this, "Delete message functionality will be implemented here", Toast.LENGTH_SHORT).show();
+    }
+
+    private void archiveMessage() {
+        // TODO: Implement archive message functionality
+        Toast.makeText(this, "Archive message functionality will be implemented here", Toast.LENGTH_SHORT).show();
+    }
+
+    private void setReminder() {
+        // TODO: Implement set reminder functionality
+        Toast.makeText(this, "Set reminder functionality will be implemented here", Toast.LENGTH_SHORT).show();
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,12 +99,14 @@ public class MessageDetailActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         // Set up the toolbar
-        Toolbar toolbar = binding.toolbar;
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false); // Disable the default back button
             getSupportActionBar().setTitle("");
         }
+        
+        // Set up action buttons
+        setupActionButtons();
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -105,7 +162,7 @@ public class MessageDetailActivity extends AppCompatActivity {
         });
 
         // Then try to get the latest from Firebase
-        DatabaseReference messageRef = FirebaseDatabase.getInstance().getReference("messages").child(messageId);
+        DatabaseReference messageRef = FirebaseFactory.getDatabase().getReference("messages").child(messageId);
         messageValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -339,7 +396,7 @@ public class MessageDetailActivity extends AppCompatActivity {
         if (message != null && !message.isRead()) {
             message.setRead(true);
             // Update read status in Firebase
-            FirebaseDatabase.getInstance().getReference("messages")
+            FirebaseFactory.getDatabase().getReference("messages")
                 .child(message.getId())
                 .child("read")
                 .setValue(true);
@@ -351,12 +408,65 @@ public class MessageDetailActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
+    private void forwardMessage() {
+        if (message == null) {
+            showError("Cannot forward: Message not loaded");
+            return;
+        }
+
+        // Format the forwarded message with audit trail
+        String forwardedContent = formatForwardedMessage(message);
+        
+        // Create intent to compose new message with forwarded content
+        Intent intent = new Intent(this, ComposeMessageActivity.class);
+        intent.putExtra(ComposeMessageActivity.EXTRA_SUBJECT, 
+            getString(R.string.forward_prefix) + " " + message.getSubject());
+        intent.putExtra(ComposeMessageActivity.EXTRA_MESSAGE, forwardedContent);
+        intent.putExtra(ComposeMessageActivity.EXTRA_FORWARD_MESSAGE_ID, message.getId());
+        startActivity(intent);
+    }
+    
+    /**
+     * Formats a message for forwarding with proper audit trail
+     * @param originalMessage The message to forward
+     * @return Formatted message content with audit trail
+     */
+    private String formatForwardedMessage(Message originalMessage) {
+        StringBuilder builder = new StringBuilder();
+        
+        // Add separator line
+        builder.append("\n\n-------- Forwarded Message --------\n");
+        
+        // Add original message headers
+        builder.append("From: ").append(originalMessage.getSenderEmail()).append("\n");
+        builder.append("To: ").append(originalMessage.getRecipientEmail()).append("\n");
+        builder.append("Date: ").append(originalMessage.getFormattedTimestamp()).append("\n");
+        builder.append("Subject: ").append(originalMessage.getSubject()).append("\n\n");
+        
+        // Add original message content
+        builder.append(originalMessage.getContent());
+        
+        return builder.toString();
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // No menu needed as all actions are in the toolbar
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here if needed
+        return super.onOptionsItemSelected(item);
+    }
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // Remove listeners to prevent memory leaks
         if (messageValueEventListener != null) {
-            FirebaseDatabase.getInstance().getReference("messages")
+            FirebaseFactory.getDatabase().getReference("messages")
                 .child(messageId)
                 .removeEventListener(messageValueEventListener);
         }

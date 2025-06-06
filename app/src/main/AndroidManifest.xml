@@ -68,7 +68,7 @@
         <activity
             android:name=".ui.messaging.MessageDetailActivity"
             android:exported="false"
-            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
+            android:theme="@style/Theme.SimpleMessenger"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".ui.main.MainActivity">
             <meta-data

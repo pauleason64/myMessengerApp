@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-58:/values-en-rGB/values-en-rGB.xml",
+            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-59:/values-en-rGB/values-en-rGB.xml",
             "map": [
                 {
                     "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\f23c044609b9f4399557127a395a7147\\transformed\\navigation-ui-2.7.7\\res\\values-en-rGB\\values-en-rGB.xml",

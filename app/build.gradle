@@ -100,9 +100,9 @@ dependencies {
     testImplementation 'com.google.firebase:firebase-database:20.0.4'
     testImplementation 'com.google.firebase:firebase-auth:21.0.4'
     testImplementation 'org.awaitility:awaitility:4.2.0'
-    
-    // Testing
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
+    
+    // Android Testing
     androidTestImplementation "androidx.test.ext:junit:$rootProject.ext.extJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.ext.espressoVersion"
     
@@ -111,3 +111,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
     implementation 'com.google.code.gson:gson:2.10.1'
 }
+
+// Apply the Google Services plugin (no version required)
+apply plugin: 'com.google.gms.google-services'

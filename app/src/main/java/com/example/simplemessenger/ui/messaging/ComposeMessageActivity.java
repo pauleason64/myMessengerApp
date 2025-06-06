@@ -46,6 +46,8 @@ public class ComposeMessageActivity extends AppCompatActivity {
     // Intent extra keys
     public static final String EXTRA_MESSAGE_ID = "message_id";
     public static final String EXTRA_FORWARD_MESSAGE_ID = "forward_message_id";
+    public static final String EXTRA_PREVIOUS_MESSAGE_ID = "previous_message_id";
+
     public static final String EXTRA_SUBJECT = "subject";
     public static final String EXTRA_MESSAGE = "message";
     public static final String EXTRA_REPLY_TO = "reply_to";
@@ -108,6 +110,16 @@ public class ComposeMessageActivity extends AppCompatActivity {
                     binding.inputSubject.setText(subject);
                 }
             }
+            
+            // Handle forwarded message content
+            if (intent.hasExtra(EXTRA_MESSAGE)) {
+                String message = intent.getStringExtra(EXTRA_MESSAGE);
+                if (message != null && !message.isEmpty()) {
+                    binding.inputMessage.setText(message);
+                    // Move cursor to the beginning of the message
+                    binding.inputMessage.setSelection(0);
+                }
+            }
         }
 
         // Initialize Firebase and DatabaseHelper
@@ -167,15 +179,6 @@ public class ComposeMessageActivity extends AppCompatActivity {
         // Load contacts from Firebase
         contactsManager.initializeContacts();
         
-        // Set up click listeners
-        binding.fabSend.setOnClickListener(v -> {
-            if (isNoteMode) {
-                saveNote();
-            } else {
-                sendMessage();
-            }
-        });
-        
         // Set up the initial UI state
         updateUiForMode();
     }
@@ -189,6 +192,13 @@ public class ComposeMessageActivity extends AppCompatActivity {
         if (noteItem != null) {
             // Set the initial state based on current mode
             updateNoteToggleMenuItem(noteItem);
+        }
+        
+        // Set up the send button
+        MenuItem sendItem = menu.findItem(R.id.action_send);
+        if (sendItem != null) {
+            sendItem.setIcon(isNoteMode ? R.drawable.ic_save : R.drawable.ic_send);
+            sendItem.setTitle(isNoteMode ? R.string.save : R.string.action_send);
         }
         
         return true;
@@ -280,12 +290,11 @@ public class ComposeMessageActivity extends AppCompatActivity {
             binding.layoutSubject.setHint(R.string.hint_note_title);
             binding.inputMessage.setHint(R.string.hint_note_content);
             
-            // Update send button icon and behavior
-            binding.fabSend.setImageResource(R.drawable.ic_save);
-            binding.fabSend.setContentDescription(getString(R.string.save));
-            
             // Clear any recipient-related errors
             binding.inputRecipient.setError(null);
+            
+            // Update toolbar send button
+            invalidateOptionsMenu();
             
             // Set focus to subject if empty, otherwise to message
             if (TextUtils.isEmpty(binding.inputSubject.getText())) {
@@ -306,9 +315,8 @@ public class ComposeMessageActivity extends AppCompatActivity {
             binding.layoutSubject.setHint(R.string.hint_subject);
             binding.inputMessage.setHint(R.string.hint_message);
             
-            // Restore send button icon
-            binding.fabSend.setImageResource(R.drawable.ic_send);
-            binding.fabSend.setContentDescription(getString(R.string.send_message));
+            // Update toolbar send button
+            invalidateOptionsMenu();
             
             // Set focus to the first empty field
             if (TextUtils.isEmpty(binding.inputRecipient.getText())) {
@@ -438,7 +446,6 @@ public class ComposeMessageActivity extends AppCompatActivity {
         }
         
         // Show loading
-        binding.fabSend.hide();
         binding.progressBar.setVisibility(View.VISIBLE);
         
         // Get current user ID for recipient (notes are saved under the user's own ID)
@@ -484,6 +491,12 @@ public class ComposeMessageActivity extends AppCompatActivity {
         messageData.put("timestamp", System.currentTimeMillis());
         messageData.put("read", isNote); // Notes are always read
         messageData.put("isNote", isNote);
+        
+        // If this is a forwarded message, include the original message ID
+        String forwardMessageId = getIntent().getStringExtra(EXTRA_FORWARD_MESSAGE_ID);
+        if (forwardMessageId != null && !forwardMessageId.isEmpty()) {
+            messageData.put("previousMessageId", forwardMessageId);
+        }
 
         // Create updates map
         Map<String, Object> updates = new HashMap<>();

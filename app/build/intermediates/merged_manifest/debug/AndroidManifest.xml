@@ -92,7 +92,7 @@
             android:name="com.example.simplemessenger.ui.messaging.MessageDetailActivity"
             android:exported="false"
             android:parentActivityName="com.example.simplemessenger.ui.main.MainActivity"
-            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
+            android:theme="@style/Theme.SimpleMessenger"
             android:windowSoftInputMode="adjustResize" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

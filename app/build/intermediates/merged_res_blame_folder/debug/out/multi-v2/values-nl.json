@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-58:/values-nl/values-nl.xml",
+            "outputFile": "com.example.simplemessenger.app-mergeDebugResources-59:/values-nl/values-nl.xml",
             "map": [
                 {
                     "source": "C:\\Users\\peaso\\.gradle\\caches\\8.9\\transforms\\11cc5821c3b83b2c465d2cfcb174ccd4\\transformed\\preference-1.2.1\\res\\values-nl\\values-nl.xml",

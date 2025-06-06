@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,12 +21,16 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
     private static final String TAG = "MessageAdapter";
     private List<Message> messages = new ArrayList<>();
+    private final Set<String> selectedMessages = new HashSet<>();
+    private boolean isMultiSelectMode = false;
     private final OnMessageActionListener actionListener;
     private final boolean isInbox;
     private final ContactsManager contactsManager;
@@ -33,6 +38,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public interface OnMessageActionListener {
         void onMessageSelected(Message message);
         void onMessageLongClicked(Message message);
+        void onSelectionChanged(int selectedCount);
     }
 
     public MessageAdapter(OnMessageActionListener actionListener, boolean isInbox) {
@@ -68,18 +74,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message message = messages.get(position);
-        holder.bind(message, isInbox);
+        boolean isSelected = selectedMessages.contains(message.getId());
+        holder.bind(message, isInbox, isSelected, isMultiSelectMode);
         
         // Set click listener for the item
         holder.itemView.setOnClickListener(v -> {
-            if (actionListener != null) {
+            if (isMultiSelectMode) {
+                toggleSelection(message.getId());
+            } else if (actionListener != null) {
                 actionListener.onMessageSelected(message);
             }
         });
         
         // Set long click listener for item selection
         holder.itemView.setOnLongClickListener(v -> {
-            if (actionListener != null) {
+            if (!isMultiSelectMode && actionListener != null) {
                 actionListener.onMessageLongClicked(message);
                 return true;
             }
@@ -93,12 +102,84 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     // ViewHolder inner class
+    public void setMultiSelectMode(boolean enabled) {
+        isMultiSelectMode = enabled;
+        if (!enabled) {
+            selectedMessages.clear();
+            if (actionListener != null) {
+                actionListener.onSelectionChanged(0);
+            }
+        }
+        notifyDataSetChanged();
+    }
+    
+    public void selectAll() {
+        selectedMessages.clear();
+        for (Message message : messages) {
+            selectedMessages.add(message.getId());
+        }
+        if (actionListener != null) {
+            actionListener.onSelectionChanged(selectedMessages.size());
+        }
+        notifyDataSetChanged();
+    }
+    
+    public void clearSelections() {
+        selectedMessages.clear();
+        if (actionListener != null) {
+            actionListener.onSelectionChanged(0);
+        }
+        notifyDataSetChanged();
+    }
+    
+    public List<String> getSelectedMessageIds() {
+        return new ArrayList<>(selectedMessages);
+    }
+    
+    public int getSelectedCount() {
+        return selectedMessages.size();
+    }
+    
+    public boolean isMultiSelectMode() {
+        return isMultiSelectMode;
+    }
+    
+    private int getPositionForId(String messageId) {
+        if (messageId == null) return -1;
+        for (int i = 0; i < messages.size(); i++) {
+            if (messageId.equals(messages.get(i).getId())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public void toggleSelection(String messageId) {
+        if (messageId == null) return;
+        
+        if (selectedMessages.contains(messageId)) {
+            selectedMessages.remove(messageId);
+        } else {
+            selectedMessages.add(messageId);
+        }
+        
+        int position = getPositionForId(messageId);
+        if (position != -1) {
+            notifyItemChanged(position);
+        }
+        
+        if (actionListener != null) {
+            actionListener.onSelectionChanged(selectedMessages.size());
+        }
+    }
+    
     class MessageViewHolder extends RecyclerView.ViewHolder {
         private final TextView textSender;
         private final TextView textTime;
         private final TextView textSubject;
         private final TextView textPreview;
         private final View imageReminder;
+        private final ImageView imageCheck;
         private String currentUserId;
 
         public MessageViewHolder(@NonNull View itemView) {
@@ -108,13 +189,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             textSubject = itemView.findViewById(R.id.text_subject);
             textPreview = itemView.findViewById(R.id.text_preview);
             imageReminder = itemView.findViewById(R.id.image_reminder);
+            imageCheck = itemView.findViewById(R.id.image_check);
             
             // Get current user ID
             currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ? 
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
         }
 
-        public void bind(Message message, boolean isInbox) {
+        public void bind(Message message, boolean isInbox, boolean isSelected, boolean multiSelectMode) {
+            // Update checkmark visibility based on selection state
+            if (imageCheck != null) {
+                imageCheck.setVisibility(multiSelectMode ? View.VISIBLE : View.GONE);
+                imageCheck.setImageResource(isSelected ? 
+                    R.drawable.ic_check_circle_filled : 
+                    R.drawable.ic_check_circle_outline);
+            }
             // Clear all views first
             textSender.setText("");
             textTime.setText("");

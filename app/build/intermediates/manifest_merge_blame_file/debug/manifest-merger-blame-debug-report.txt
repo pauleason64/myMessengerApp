@@ -170,8 +170,8 @@
 93-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:70:13-37
 94            android:parentActivityName="com.example.simplemessenger.ui.main.MainActivity"
 94-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:73:13-63
-95            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
-95-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:71:13-69
+95            android:theme="@style/Theme.SimpleMessenger"
+95-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:71:13-57
 96            android:windowSoftInputMode="adjustResize" >
 96-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:72:13-55
 97            <meta-data

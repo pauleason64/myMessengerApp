@@ -421,7 +421,7 @@ public class ContactsManager {
 
         // Generate a contact ID if not provided (for new contacts)
         final String finalContactId = (contactId != null && !contactId.isEmpty()) ? contactId : 
-            FirebaseDatabase.getInstance().getReference(CONTACTS_NODE).child(currentUserId).push().getKey();
+            FirebaseFactory.getDatabase().getReference(CONTACTS_NODE).child(currentUserId).push().getKey();
 
         // Check if contact already exists in cache by email
         for (Contact contact : contactsCache.values()) {

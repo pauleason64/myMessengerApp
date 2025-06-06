@@ -3170,6 +3170,9 @@ drawable ic_archive
 drawable ic_arrow_back
 drawable ic_arrow_back_black_24
 drawable ic_arrow_down_24dp
+drawable ic_check_circle
+drawable ic_check_circle_filled
+drawable ic_check_circle_outline
 drawable ic_chevron_right
 drawable ic_clear_black_24
 drawable ic_clock_black_24dp
@@ -3410,9 +3413,14 @@ id browser_actions_menu_view
 id btnChangePassword
 id btnEditProfile
 id btnSignOut
+id btn_archive
+id btn_back
+id btn_delete
+id btn_forward
 id btn_login
 id btn_register
 id btn_register_submit
+id btn_reply
 id btn_save_config
 id buttonPanel
 id button_change_password
@@ -3523,10 +3531,6 @@ id expanded_menu
 id fab
 id fab_add_contact
 id fab_compose
-id fab_delete
-id fab_forward
-id fab_reply
-id fab_send
 id fade
 id fill
 id fill_horizontal
@@ -3569,6 +3573,7 @@ id ignore
 id ignoreRequest
 id image
 id imageView
+id image_check
 id image_logo
 id image_profile
 id image_reminder
@@ -4179,8 +4184,10 @@ menu menu_compose
 menu menu_main
 menu menu_message_actions
 menu menu_message_detail
+menu menu_message_list
 mipmap ic_launcher
 mipmap ic_launcher_round
+plurals confirm_delete_messages
 plurals days_ago
 plurals hours_ago
 plurals minutes_ago
@@ -4254,6 +4261,7 @@ string archive
 string archive_message_confirmation
 string archive_message_confirmation_multiple
 string are_you_sure_logout
+string back
 string blocked_contacts
 string bottom_sheet_behavior
 string bottomsheet_action_collapse
@@ -4294,6 +4302,7 @@ string common_signin_button_text
 string common_signin_button_text_long
 string compose_message
 string confirm_delete_contact
+string confirm_delete_messages
 string confirm_logout
 string confirm_password
 string contact_deleted
@@ -4316,6 +4325,7 @@ string delete_message
 string delete_message_confirmation
 string delete_message_confirmation_multiple
 string delete_message_title
+string delete_messages
 string dest_title
 string disconnected
 string dismiss
@@ -4331,6 +4341,7 @@ string error_accept_terms
 string error_authentication_required
 string error_creating_message
 string error_deleting_message
+string error_deleting_messages
 string error_field_required
 string error_generic
 string error_icon_content_description
@@ -4368,6 +4379,11 @@ string forward_message
 string forward_prefix
 string from
 string full_date_format
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
 string help_center
 string hide_bottom_view_on_scroll_behavior
 string hint_bcc
@@ -4622,6 +4638,7 @@ string pref_title_version
 string preference_copied
 string print_message
 string profile_picture
+string project_id
 string prompt_email
 string prompt_password
 string push_notifications

@@ -118,6 +118,14 @@ public class MessageListActivity extends AppCompatActivity {
                 actionMode = startSupportActionMode(actionModeCallback);
             }
         }
+        
+        @Override
+        public void onSelectionChanged(int selectedCount) {
+            if (actionMode != null) {
+                actionMode.setTitle(String.valueOf(selectedCount));
+                actionMode.invalidate();
+            }
+        }
     }, isInbox);
 
     @Override

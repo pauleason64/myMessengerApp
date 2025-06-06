@@ -12,6 +12,7 @@
     <string name="share">Share</string>
     <string name="reply">Reply</string>
     <string name="forward">Forward</string>
+    <string name="back">Back</string>
     <string name="archive">Archive</string>
     <string name="set_reminder">Set Reminder</string>
     <string name="reminder">Reminder</string>
@@ -175,6 +176,9 @@
     <string name="delete_message">Delete Message</string>
     <string name="delete_message_confirmation">Are you sure you want to delete this message?</string>
     <string name="delete_message_confirmation_multiple">Delete %1$d selected messages?</string>
+    <string name="confirm_delete_messages">Delete %1$d selected message(s)?</string>
+    <string name="delete_messages">Delete Messages</string>
+    <string name="error_deleting_messages">Failed to delete messages: %1$s</string>
     <string name="delete_draft_confirmation">Discard this draft?</string>
     <string name="delete_draft_confirmation_multiple">Discard %1$d selected drafts?</string>
     <string name="archive_message_confirmation">Archive this message?</string>

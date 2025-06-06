@@ -21,6 +21,9 @@ public final class ItemMessageBinding implements ViewBinding {
   private final MaterialCardView rootView;
 
   @NonNull
+  public final ImageView imageCheck;
+
+  @NonNull
   public final ImageView imageReminder;
 
   @NonNull
@@ -35,10 +38,11 @@ public final class ItemMessageBinding implements ViewBinding {
   @NonNull
   public final TextView textTime;
 
-  private ItemMessageBinding(@NonNull MaterialCardView rootView, @NonNull ImageView imageReminder,
-      @NonNull TextView textPreview, @NonNull TextView textSender, @NonNull TextView textSubject,
-      @NonNull TextView textTime) {
+  private ItemMessageBinding(@NonNull MaterialCardView rootView, @NonNull ImageView imageCheck,
+      @NonNull ImageView imageReminder, @NonNull TextView textPreview, @NonNull TextView textSender,
+      @NonNull TextView textSubject, @NonNull TextView textTime) {
     this.rootView = rootView;
+    this.imageCheck = imageCheck;
     this.imageReminder = imageReminder;
     this.textPreview = textPreview;
     this.textSender = textSender;
@@ -73,6 +77,12 @@ public final class ItemMessageBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.image_check;
+      ImageView imageCheck = ViewBindings.findChildViewById(rootView, id);
+      if (imageCheck == null) {
+        break missingId;
+      }
+
       id = R.id.image_reminder;
       ImageView imageReminder = ViewBindings.findChildViewById(rootView, id);
       if (imageReminder == null) {
@@ -103,8 +113,8 @@ public final class ItemMessageBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ItemMessageBinding((MaterialCardView) rootView, imageReminder, textPreview,
-          textSender, textSubject, textTime);
+      return new ItemMessageBinding((MaterialCardView) rootView, imageCheck, imageReminder,
+          textPreview, textSender, textSubject, textTime);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

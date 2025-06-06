@@ -418,7 +418,7 @@ ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:6
 	android:exported
 		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:70:13-37
 	android:theme
-		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:71:13-69
+		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:71:13-57
 	android:name
 		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:69:13-63
 meta-data#android.support.PARENT_ACTIVITY

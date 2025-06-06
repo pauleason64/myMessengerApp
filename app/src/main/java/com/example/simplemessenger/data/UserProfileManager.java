@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.simplemessenger.util.FirebaseFactory;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class UserProfileManager {
     }
 
     private UserProfileManager() {
-        this.databaseReference = FirebaseDatabase.getInstance().getReference();
+        this.databaseReference = FirebaseFactory.getDatabase().getReference();
         this.auth = FirebaseAuth.getInstance();
     }
 

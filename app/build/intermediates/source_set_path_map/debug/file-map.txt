@@ -55,9 +55,10 @@ com.example.simplemessenger.app-jetified-emoji2-1.2.0-53 C:\Users\peaso\.gradle\
 com.example.simplemessenger.app-jetified-firebase-common-20.4.2-54 C:\Users\peaso\.gradle\caches\8.9\transforms\fab69fd4b6535062e96aa4f8a6c10e86\transformed\jetified-firebase-common-20.4.2\res
 com.example.simplemessenger.app-jetified-firebase-messaging-23.4.1-55 C:\Users\peaso\.gradle\caches\8.9\transforms\fd820b7b6cb47bf5b8bc1478406dff41\transformed\jetified-firebase-messaging-23.4.1\res
 com.example.simplemessenger.app-pngs-56 E:\androidprojects\SimpleMessenger\app\build\generated\res\pngs\debug
-com.example.simplemessenger.app-resValues-57 E:\androidprojects\SimpleMessenger\app\build\generated\res\resValues\debug
-com.example.simplemessenger.app-packageDebugResources-58 E:\androidprojects\SimpleMessenger\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.example.simplemessenger.app-packageDebugResources-59 E:\androidprojects\SimpleMessenger\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.example.simplemessenger.app-merged_res-60 E:\androidprojects\SimpleMessenger\app\build\intermediates\merged_res\debug
-com.example.simplemessenger.app-debug-61 E:\androidprojects\SimpleMessenger\app\src\debug\res
-com.example.simplemessenger.app-main-62 E:\androidprojects\SimpleMessenger\app\src\main\res
+com.example.simplemessenger.app-res-57 E:\androidprojects\SimpleMessenger\app\build\generated\res\processDebugGoogleServices
+com.example.simplemessenger.app-resValues-58 E:\androidprojects\SimpleMessenger\app\build\generated\res\resValues\debug
+com.example.simplemessenger.app-packageDebugResources-59 E:\androidprojects\SimpleMessenger\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.example.simplemessenger.app-packageDebugResources-60 E:\androidprojects\SimpleMessenger\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.example.simplemessenger.app-merged_res-61 E:\androidprojects\SimpleMessenger\app\build\intermediates\merged_res\debug
+com.example.simplemessenger.app-debug-62 E:\androidprojects\SimpleMessenger\app\src\debug\res
+com.example.simplemessenger.app-main-63 E:\androidprojects\SimpleMessenger\app\src\main\res

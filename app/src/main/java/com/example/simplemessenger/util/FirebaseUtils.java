@@ -21,7 +21,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
@@ -55,7 +54,7 @@ public class FirebaseUtils {
     
     private FirebaseUtils() {
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app").getReference();
+        database = FirebaseFactory.getDatabase().getReference();
         storage = FirebaseStorage.getInstance();
     }
     
@@ -280,8 +279,7 @@ public class FirebaseUtils {
      * @return The users node reference.
      */
     public DatabaseReference getUsersReference() {
-        return FirebaseDatabase.getInstance("https://simplemessenger-c0a47-default-rtdb.europe-west1.firebasedatabase.app")
-                .getReference(PATH_USERS);
+        return database.child(PATH_USERS);
     }
     
     /**
