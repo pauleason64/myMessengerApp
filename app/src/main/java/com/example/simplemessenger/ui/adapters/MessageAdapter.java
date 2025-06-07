@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
+import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +20,11 @@ import com.example.simplemessenger.data.model.Contact;
 import com.example.simplemessenger.data.model.Message;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -154,8 +161,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return -1;
     }
     
-    public void toggleSelection(String messageId) {
-        if (messageId == null) return;
+    public int toggleSelection(String messageId) {
+        if (messageId == null) return 0;
         
         if (selectedMessages.contains(messageId)) {
             selectedMessages.remove(messageId);
@@ -168,9 +175,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             notifyItemChanged(position);
         }
         
+        int selectedCount = selectedMessages.size();
         if (actionListener != null) {
-            actionListener.onSelectionChanged(selectedMessages.size());
+            actionListener.onSelectionChanged(selectedCount);
         }
+        return selectedCount;
     }
     
     class MessageViewHolder extends RecyclerView.ViewHolder {
@@ -194,15 +203,57 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             // Get current user ID
             currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ? 
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+                
+            // Set up click listeners
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    Message message = messages.get(position);
+                    if (isMultiSelectMode) {
+                        int selectedCount = toggleSelection(message.getId());
+                        // Update the action bar immediately
+                        if (actionListener != null) {
+                            actionListener.onSelectionChanged(selectedCount);
+                        }
+                    } else if (actionListener != null) {
+                        actionListener.onMessageSelected(message);
+                    }
+                }
+            });
+            
+            itemView.setOnLongClickListener(v -> {
+                if (!isMultiSelectMode) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        Message message = messages.get(position);
+                        if (actionListener != null) {
+                            actionListener.onMessageLongClicked(message);
+                            // Select the item on long click
+                            toggleSelection(message.getId());
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            });
         }
 
         public void bind(Message message, boolean isInbox, boolean isSelected, boolean multiSelectMode) {
-            // Update checkmark visibility based on selection state
+            // Always show the checkbox, but update its state based on selection
             if (imageCheck != null) {
-                imageCheck.setVisibility(multiSelectMode ? View.VISIBLE : View.GONE);
+                // Set the appropriate drawable based on selection state
                 imageCheck.setImageResource(isSelected ? 
                     R.drawable.ic_check_circle_filled : 
                     R.drawable.ic_check_circle_outline);
+                
+                // Update background to show selection state
+                int bgColor = isSelected ? 
+                    ContextCompat.getColor(itemView.getContext(), R.color.selected_item_background) : 
+                    Color.TRANSPARENT;
+                itemView.setBackgroundColor(bgColor);
+                
+                // Set alpha based on multi-select mode to make it more subtle when not in multi-select
+                imageCheck.setAlpha(multiSelectMode ? 1.0f : 0.5f);
             }
             // Clear all views first
             textSender.setText("");
@@ -241,6 +292,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 String userEmail = currentUser != null ? 
                     (currentUser.getEmail() != null ? currentUser.getEmail() : "Me") : "Me";
+                // Update the message with the current user's email
+                if (isInbox) {
+                    message.setSenderEmail(userEmail);
+                } else {
+                    message.setRecipientEmail(userEmail);
+                }
                 updateDisplayName(message, userEmail, isInbox);
             }
             // Otherwise, try to get from contacts cache
@@ -262,15 +319,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     
                     // Show a temporary display name while loading
                     String tempName = isInbox ? 
-                        (message.getSenderId() != null ? "User " + message.getSenderId().substring(0, Math.min(6, message.getSenderId().length())) : "Unknown Sender") :
-                        (message.getRecipientId() != null ? "User " + message.getRecipientId().substring(0, Math.min(6, message.getRecipientId().length())) : "Unknown Recipient");
+                        (message.getSenderEmail() != null ? message.getSenderEmail() : 
+                         (message.getSenderId() != null ? "User " + message.getSenderId().substring(0, Math.min(6, message.getSenderId().length())) : "Unknown Sender")) :
+                        (message.getRecipientEmail() != null ? message.getRecipientEmail() :
+                         (message.getRecipientId() != null ? "User " + message.getRecipientId().substring(0, Math.min(6, message.getRecipientId().length())) : "Unknown Recipient"));
                     textSender.setText(tempName);
                 }
             } else {
-                // Fallback to showing the ID
+                // Fallback to showing the email if available, otherwise show ID
                 String tempName = isInbox ? 
-                    (message.getSenderId() != null ? "User " + message.getSenderId().substring(0, Math.min(6, message.getSenderId().length())) : "Unknown Sender") :
-                    (message.getRecipientId() != null ? "User " + message.getRecipientId().substring(0, Math.min(6, message.getRecipientId().length())) : "Unknown Recipient");
+                    (message.getSenderEmail() != null ? message.getSenderEmail() : 
+                     (message.getSenderId() != null ? "User " + message.getSenderId().substring(0, Math.min(6, message.getSenderId().length())) : "Unknown Sender")) :
+                    (message.getRecipientEmail() != null ? message.getRecipientEmail() :
+                     (message.getRecipientId() != null ? "User " + message.getRecipientId().substring(0, Math.min(6, message.getRecipientId().length())) : "Unknown Recipient"));
                 textSender.setText(tempName);
             }
             
@@ -286,41 +347,72 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 return;
             }
             
+            // First, check if we already have the contact in cache
+            Contact existingContact = contactsManager.getContactById(contactId);
+            if (existingContact != null && existingContact.getEmailAddress() != null && !existingContact.getEmailAddress().isEmpty()) {
+                updateContactInfo(existingContact, message, isInbox);
+                return;
+            }
+            
+            // Use the ContactsManager's fetchAndCreateContact method to handle the contact creation
             contactsManager.fetchAndCreateContact(contactId, new ContactsManager.ContactsLoadListener() {
                 @Override
                 public void onContactAdded(Contact contact) {
-                    if (contact != null && contact.getUserId().equals(contactId)) {
+                    if (contact != null && contact.getEmailAddress() != null && !contact.getEmailAddress().isEmpty()) {
+                        // Update the message with the contact's email
                         String email = contact.getEmailAddress();
-                        if (email != null && !email.isEmpty()) {
-                            // Update the message with the contact's email
-                            if (isInbox) {
-                                message.setSenderEmail(email);
-                            } else {
-                                message.setRecipientEmail(email);
-                            }
-                            
-                            // Update the UI on the main thread
-                            if (itemView.getHandler() != null) {
-                                itemView.post(() -> {
-                                    updateDisplayName(message, email, isInbox);
-                                    updateMessageInfo(message);
-                                });
-                            }
+                        if (isInbox) {
+                            message.setSenderEmail(email);
+                        } else {
+                            message.setRecipientEmail(email);
+                        }
+                        
+                        // Update the UI on the main thread
+                        if (itemView.getHandler() != null) {
+                            itemView.post(() -> {
+                                updateDisplayName(message, email, isInbox);
+                                updateMessageInfo(message);
+                            });
                         }
                     }
                 }
 
                 @Override
-                public void onContactsLoaded(List<Contact> contacts) {}
+                public void onContactsLoaded(List<Contact> contacts) {
+                    // Not used in this context
+                }
 
                 @Override
-                public void onContactRemoved(Contact contact) {}
+                public void onContactRemoved(Contact contact) {
+                    // Not used in this context
+                }
 
                 @Override
                 public void onError(String error) {
                     Log.e(TAG, "Error fetching contact: " + error);
                 }
             });
+        }
+        
+        private void updateContactInfo(Contact contact, Message message, boolean isInbox) {
+            if (contact == null || contact.getEmailAddress() == null) {
+                return;
+            }
+            
+            String email = contact.getEmailAddress();
+            if (isInbox) {
+                message.setSenderEmail(email);
+            } else {
+                message.setRecipientEmail(email);
+            }
+            
+            // Update the UI on the main thread
+            if (itemView.getHandler() != null) {
+                itemView.post(() -> {
+                    updateDisplayName(message, email, isInbox);
+                    updateMessageInfo(message);
+                });
+            }
         }
         
         private void updateDisplayName(Message message, String email, boolean isInbox) {

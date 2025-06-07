@@ -33,6 +33,7 @@
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
+    <color name="selected_item_background">#1A000000</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="white">#FFFFFFFF</color>
@@ -93,6 +94,8 @@
     <string name="action_set_reminder">Set Reminder</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
+    <string name="action_switch_to_message">Switch to Message</string>
+    <string name="action_switch_to_note">Switch to Note</string>
     <string name="add_attachment">Add attachment</string>
     <string name="add_contact">Add Contact</string>
     <string name="add_recipient">Add recipient</string>
@@ -114,6 +117,7 @@
     <string name="channel_reminder_description">Scheduled reminders for messages</string>
     <string name="channel_reminder_name">Reminders</string>
     <string name="choose_theme">Choose Theme</string>
+    <string name="close">Close</string>
     <string name="coming_soon">Coming Soon</string>
     <string name="compose_message">Compose Message</string>
     <string name="confirm_delete_contact">Are you sure you want to delete %1$s from your contacts?</string>
@@ -239,6 +243,7 @@
     <string name="name">Name</string>
     <string name="new_message">New message</string>
     <string name="new_message_from">New message from %1$s</string>
+    <string name="new_note">New note</string>
     <string name="new_password">New password</string>
     <string name="no">No</string>
     <string name="no_attachments">No attachments</string>
@@ -358,7 +363,9 @@
     <string name="save_attachment">Save Attachment</string>
     <string name="saving_draft">Saving draft…</string>
     <string name="search_in_message">Search in message</string>
+    <string name="select_items">Select items</string>
     <string name="select_text">Select Text</string>
+    <string name="selected_count">%1$d selected</string>
     <string name="send_message">Send</string>
     <string name="sending">Sending…</string>
     <string name="set_reminder">Set Reminder</string>
@@ -420,6 +427,15 @@
     <string name="years_ago">%1$d years ago</string>
     <string name="yes">Yes</string>
     <string name="yesterday">Yesterday</string>
+    <style name="ActionButtonStyle" parent="Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:minWidth">56dp</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:contentDescription">@string/close</item>
+        <item name="android:tint">@android:color/white</item>
+    </style>
+    <style name="ActionModePopupStyle" parent="Widget.AppCompat.PopupWindow">
+        <item name="overlapAnchor">true</item>
+    </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
     <style name="ProgressBarTheme" parent="Theme.AppCompat.Light">
@@ -448,6 +464,15 @@
         
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        
+        
+        <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
+        <item name="actionModeBackground">?attr/colorPrimary</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButtonStyle</item>
+        <item name="actionModeCloseDrawable">@android:drawable/ic_menu_close_clear_cancel</item>
+        <item name="actionModePopupWindowStyle">@style/ActionModePopupStyle</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="actionModeSplitBackground">?attr/colorPrimary</item>
     </style>
     <style name="Theme.SimpleMessenger.NoActionBar" parent="Theme.SimpleMessenger">
         <item name="windowActionBar">false</item>
@@ -475,6 +500,18 @@
         <item name="fabSize">normal</item>
         <item name="elevation">6dp</item>
         <item name="pressedTranslationZ">12dp</item>
+    </style>
+    <style name="Widget.AppCompat.ActionMode" parent="Widget.MaterialComponents.ActionMode">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="background">?attr/colorPrimary</item>
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle</item>
+        <item name="height">?attr/actionBarSize</item>
+        <item name="displayOptions">none</item>
+        <item name="backgroundSplit">?attr/colorPrimary</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">8dp</item>
     </style>
     <style name="Widget.MaterialComponents.TextView.ListItem" parent="Widget.MaterialComponents.TextView">
         <item name="android:paddingStart">16dp</item>

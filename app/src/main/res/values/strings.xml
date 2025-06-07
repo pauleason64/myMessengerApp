@@ -38,6 +38,7 @@
     <string name="channel_reminder_name">Reminders</string>
     <string name="channel_reminder_description">Scheduled reminders for messages</string>
     <string name="new_message">New message</string>
+    <string name="new_note">New note</string>
     <string name="new_message_from">New message from %1$s</string>
     <string name="message_preview">%1$s: %2$s</string>
     
@@ -115,6 +116,8 @@
     <string name="action_select_all">Select All</string>
     <string name="action_clear_selection">Clear Selection</string>
     <string name="note_mode">Switch to Note</string>
+    <string name="action_switch_to_message">Switch to Message</string>
+    <string name="action_switch_to_note">Switch to Note</string>
     <string name="hint_message">Type your message here</string>
     <string name="hint_recipient">Recipient email</string>
     <string name="hint_subject">Subject (optional)</string>
@@ -177,6 +180,9 @@
     <string name="delete_message_confirmation">Are you sure you want to delete this message?</string>
     <string name="delete_message_confirmation_multiple">Delete %1$d selected messages?</string>
     <string name="confirm_delete_messages">Delete %1$d selected message(s)?</string>
+    <string name="close">Close</string>
+    <string name="selected_count">%1$d selected</string>
+    <string name="select_items">Select items</string>
     <string name="delete_messages">Delete Messages</string>
     <string name="error_deleting_messages">Failed to delete messages: %1$s</string>
     <string name="delete_draft_confirmation">Discard this draft?</string>

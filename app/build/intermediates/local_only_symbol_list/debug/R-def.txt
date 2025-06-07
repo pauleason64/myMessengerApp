@@ -13,6 +13,7 @@ color ic_launcher_background
 color purple_200
 color purple_500
 color purple_700
+color selected_item_background
 color teal_200
 color teal_700
 color white
@@ -36,6 +37,7 @@ drawable ic_chevron_right
 drawable ic_contacts
 drawable ic_delete
 drawable ic_edit
+drawable ic_email
 drawable ic_empty_inbox
 drawable ic_empty_state
 drawable ic_firebase
@@ -256,6 +258,8 @@ string action_send
 string action_set_reminder
 string action_sign_in
 string action_sign_in_short
+string action_switch_to_message
+string action_switch_to_note
 string add_attachment
 string add_contact
 string add_recipient
@@ -277,6 +281,7 @@ string channel_name
 string channel_reminder_description
 string channel_reminder_name
 string choose_theme
+string close
 string coming_soon
 string compose_message
 string confirm_delete_contact
@@ -402,6 +407,7 @@ string months_ago
 string name
 string new_message
 string new_message_from
+string new_note
 string new_password
 string no
 string no_attachments
@@ -521,7 +527,9 @@ string save
 string save_attachment
 string saving_draft
 string search_in_message
+string select_items
 string select_text
+string selected_count
 string send_message
 string sending
 string set_reminder
@@ -583,6 +591,8 @@ string wifi
 string years_ago
 string yes
 string yesterday
+style ActionButtonStyle
+style ActionModePopupStyle
 style AppTheme.AppBarOverlay
 style AppTheme.PopupOverlay
 style ProgressBarTheme
@@ -591,6 +601,7 @@ style TextAppearance.Headline5
 style Theme.SimpleMessenger
 style Theme.SimpleMessenger.NoActionBar
 style Theme.SimpleMessenger.Splash
+style Widget.AppCompat.ActionMode
 style Widget.App.BottomNavigationView
 style Widget.App.FloatingActionButton
 style Widget.MaterialComponents.TextView.ListItem

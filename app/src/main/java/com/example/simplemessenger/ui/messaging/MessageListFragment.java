@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
@@ -63,39 +65,45 @@ public class MessageListFragment extends Fragment {
     private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
     private Runnable timeoutRunnable;
     
-    private final androidx.appcompat.view.ActionMode.Callback actionModeCallback = new androidx.appcompat.view.ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) {
-            mode.getMenuInflater().inflate(R.menu.menu_message_list, menu);
-            trashMenuItem = menu.findItem(R.id.action_delete);
+    // No need for ActionMode.Callback anymore
+    
+    private void updateActionBarForSelection(int selectedCount) {
+        if (getActivity() == null || isDetached() || !isAdded()) {
+            return;
+        }
+        
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar == null) return;
+        
+        if (isMultiSelectMode) {
+            // Show back button and update title
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(android.R.drawable.ic_menu_close_clear_cancel);
+            actionBar.setTitle(selectedCount > 0 ? 
+                getString(R.string.selected_count, selectedCount) : 
+                getString(R.string.select_items));
+            
+            // Show/hide and enable/disable trash icon
             if (trashMenuItem != null) {
                 trashMenuItem.setVisible(true);
+                trashMenuItem.setEnabled(selectedCount > 0);
+            }
+        } else {
+            // Reset to normal mode
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            updateToolbarTitle();
+            
+            if (trashMenuItem != null) {
+                trashMenuItem.setVisible(false);
                 trashMenuItem.setEnabled(false);
             }
-            return true;
         }
-
-        @Override
-        public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode mode, Menu menu) {
-            return false;
+        
+        // Invalidate the options menu to refresh the menu items
+        if (getActivity() != null) {
+            getActivity().invalidateOptionsMenu();
         }
-
-        @Override
-        public boolean onActionItemClicked(androidx.appcompat.view.ActionMode mode, MenuItem item) {
-            int id = item.getItemId();
-            if (id == R.id.action_delete) {
-                deleteSelectedMessages();
-                mode.finish();
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(androidx.appcompat.view.ActionMode mode) {
-            exitMultiSelectMode();
-        }
-    };
+    }
 
     public MessageListFragment() {
     }
@@ -140,6 +148,9 @@ public class MessageListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
+        // Set has options menu to enable toolbar menu items
+        setHasOptionsMenu(true);
+        
         // Update the tab state in DatabaseHelper
         if (databaseHelper != null) {
             databaseHelper.setTabState(isNotes, isInbox);
@@ -169,7 +180,10 @@ public class MessageListFragment extends Fragment {
             public void onMessageSelected(Message message) {
                 if (isMultiSelectMode) {
                     // In multi-select mode, toggle selection on click
-                    adapter.toggleSelection(message.getId());
+                    if (adapter != null) {
+                        int selectedCount = adapter.toggleSelection(message.getId());
+                        updateActionBarForSelection(selectedCount);
+                    }
                 } else {
                     // In normal mode, open message details
                     if (getActivity() != null && message != null) {
@@ -189,19 +203,18 @@ public class MessageListFragment extends Fragment {
                 // Enter multi-select mode on long click
                 if (!isMultiSelectMode) {
                     isMultiSelectMode = true;
-                    adapter.setMultiSelectMode(true);
-                    
-                    // Start the action mode
-                    if (getActivity() != null) {
-                        ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
+                    if (adapter != null) {
+                        adapter.setMultiSelectMode(true);
+                        int selectedCount = adapter.toggleSelection(message.getId());
+                        updateActionBarForSelection(selectedCount);
                     }
-                    
-                    if (trashMenuItem != null) {
-                        trashMenuItem.setVisible(true);
+                } else {
+                    // Toggle selection of the clicked item if already in multi-select mode
+                    if (adapter != null) {
+                        int selectedCount = adapter.toggleSelection(message.getId());
+                        updateActionBarForSelection(selectedCount);
                     }
                 }
-                // Toggle selection of the clicked item
-                adapter.toggleSelection(message.getId());
             }
 
             @Override
@@ -587,15 +600,12 @@ public class MessageListFragment extends Fragment {
                     // Enter multi-select mode on long click
                     if (!isMultiSelectMode) {
                         isMultiSelectMode = true;
-                        if (trashMenuItem != null) {
-                            trashMenuItem.setVisible(true);
-                        }
-                    }
-                    // Toggle selection of the clicked item
-                    adapter.toggleSelection(message.getId());
-                    // Show the action mode if not already shown
-                    if (getActivity() != null && getActivity() instanceof AppCompatActivity) {
-                        ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
+                        adapter.setMultiSelectMode(true);
+                        updateActionBarForSelection(1);
+                    } else {
+                        // Toggle selection of the clicked item
+                        int selectedCount = adapter.toggleSelection(message.getId());
+                        updateActionBarForSelection(selectedCount);
                     }
                 }
                 
@@ -960,8 +970,9 @@ public class MessageListFragment extends Fragment {
             adapter.setMultiSelectMode(false);
             adapter.clearSelections();
         }
-        if (trashMenuItem != null) {
-            trashMenuItem.setVisible(false);
+        // Update UI after a small delay to ensure state is properly updated
+        if (getView() != null) {
+            getView().post(() -> updateActionBarForSelection(0));
         }
     }
     
@@ -981,9 +992,13 @@ public class MessageListFragment extends Fragment {
         // Get reference to the trash menu item
         trashMenuItem = menu.findItem(R.id.action_delete);
         if (trashMenuItem != null) {
-            // Initially hide the trash icon
-            trashMenuItem.setVisible(false);
+            // Set initial state based on multi-select mode
+            trashMenuItem.setVisible(isMultiSelectMode);
+            trashMenuItem.setEnabled(adapter != null && adapter.getSelectedCount() > 0);
         }
+        
+        // Show/hide menu items based on multi-select state
+        updateActionBarForSelection(adapter != null ? adapter.getSelectedCount() : 0);
         
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -996,6 +1011,12 @@ public class MessageListFragment extends Fragment {
             // Show delete confirmation dialog
             showDeleteConfirmationDialog();
             return true;
+        } else if (id == android.R.id.home) {
+            // Handle back button in multi-select mode
+            if (isMultiSelectMode) {
+                exitMultiSelectMode();
+                return true;
+            }
         }
         
         return super.onOptionsItemSelected(item);
@@ -1019,6 +1040,9 @@ public class MessageListFragment extends Fragment {
             .setMessage(message)
             .setPositiveButton(R.string.delete, (dialog, which) -> deleteSelectedMessages())
             .setNegativeButton(android.R.string.cancel, null)
+            .setOnDismissListener(dialog -> {
+                // No action needed on dialog dismiss
+            })
             .show();
     }
     
@@ -1065,6 +1089,12 @@ public class MessageListFragment extends Fragment {
     
     @Override
     public void onDestroy() {
+        // Clear any pending callbacks
+        if (timeoutRunnable != null) {
+            timeoutHandler.removeCallbacks(timeoutRunnable);
+            timeoutHandler.removeCallbacksAndMessages(null);
+            timeoutRunnable = null;
+        }
         super.onDestroy();
     }
     

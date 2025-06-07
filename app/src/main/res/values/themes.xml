@@ -15,6 +15,26 @@
         <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        
+        <!-- ActionMode styling -->
+        <item name="actionModeStyle">@style/Widget.AppCompat.ActionMode</item>
+        <item name="actionModeBackground">?attr/colorPrimary</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButtonStyle</item>
+        <item name="actionModeCloseDrawable">@android:drawable/ic_menu_close_clear_cancel</item>
+        <item name="actionModePopupWindowStyle">@style/ActionModePopupStyle</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="actionModeSplitBackground">?attr/colorPrimary</item>
+    </style>
+    
+    <style name="ActionButtonStyle" parent="Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:minWidth">56dp</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:contentDescription">@string/close</item>
+        <item name="android:tint">@android:color/white</item>
+    </style>
+    
+    <style name="ActionModePopupStyle" parent="Widget.AppCompat.PopupWindow">
+        <item name="overlapAnchor">true</item>
     </style>
 
     <!-- ProgressBar Theme -->
@@ -41,6 +61,20 @@
     <!-- AppBarOverlay and PopupOverlay styles -->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+    
+    <!-- Custom ActionMode Style -->
+    <style name="Widget.AppCompat.ActionMode" parent="Widget.MaterialComponents.ActionMode">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="background">?attr/colorPrimary</item>
+        <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionMode.Subtitle</item>
+        <item name="height">?attr/actionBarSize</item>
+        <item name="displayOptions">none</item>
+        <item name="backgroundSplit">?attr/colorPrimary</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
     
     <!-- Text appearance styles -->
     <style name="TextAppearance.Headline5" parent="TextAppearance.MaterialComponents.Headline5">

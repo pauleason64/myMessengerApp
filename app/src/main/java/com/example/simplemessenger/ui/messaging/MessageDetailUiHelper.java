@@ -1,5 +1,7 @@
 package com.example.simplemessenger.ui.messaging;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -101,12 +103,29 @@ public class MessageDetailUiHelper {
         String email = isSender ? message.getSenderEmail() : message.getRecipientEmail();
         String userId = isSender ? message.getSenderId() : message.getRecipientId();
         
+        // If we have the current user's Firebase instance, check if this is the current user
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // If this is the current user, show "Me" instead of the email
+            if (currentUser.getUid().equals(userId)) {
+                return "Me";
+            }
+            // If the email matches the current user's email, show "Me"
+            if (currentUser.getEmail() != null && currentUser.getEmail().equals(email)) {
+                return "Me";
+            }
+        }
+        
+        // If we have an email, use it
         if (email != null && !email.isEmpty()) {
             return email;
-        } else if (userId != null) {
-            // If we have a user ID but no email, show a shortened version of the ID
+        } 
+        // If we have a user ID but no email, show a shortened version of the ID
+        else if (userId != null) {
             return "User " + userId.substring(0, Math.min(6, userId.length()));
-        } else {
+        } 
+        // Fallback to generic text
+        else {
             return isSender ? "Unknown Sender" : "Unknown Recipient";
         }
     }

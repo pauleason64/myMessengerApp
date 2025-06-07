@@ -235,58 +235,172 @@ public class ContactsManager {
 
     /**
      * Fetch user details from Firebase and create contact if not exists
-     * @param userId The user ID to fetch
+     * @param userIdOrEmail The user ID or email to fetch
      * @param callback Callback to handle the result
      */
-    public void fetchAndCreateContact(String userId, final ContactsLoadListener callback) {
-        if (userId == null || userId.isEmpty()) {
-            callback.onError("Invalid user ID");
+    public void fetchAndCreateContact(String userIdOrEmail, final ContactsLoadListener callback) {
+        Log.d(TAG, "[fetchAndCreateContact] Starting lookup for: " + userIdOrEmail);
+        
+        if (userIdOrEmail == null || userIdOrEmail.isEmpty()) {
+            Log.e(TAG, "[fetchAndCreateContact] Error: userIdOrEmail is null or empty");
+            callback.onError("Invalid user ID or email");
             return;
         }
-
-        // First check if contact already exists
-        Contact existingContact = getContactById(userId);
+        
+        Log.d(TAG, "[fetchAndCreateContact] 1. Input: " + userIdOrEmail);
+        
+        // First check if contact already exists in cache by ID
+        Contact existingContact = getContactById(userIdOrEmail);
         if (existingContact != null) {
+            Log.d(TAG, "[fetchAndCreateContact] 2. Found existing contact in cache by ID: " + existingContact.getContactId());
             callback.onContactAdded(existingContact);
             return;
+        } else {
+            Log.d(TAG, "[fetchAndCreateContact] 2. No contact found in cache by ID");
         }
-
-        // Fetch user details from Firebase
-        databaseReference.child("users").child(userId)
+        
+        // If the input looks like a UID (alphanumeric and at least 20 chars)
+        boolean isUidPattern = userIdOrEmail.matches("^[a-zA-Z0-9]{20,}$");
+        Log.d(TAG, "[fetchAndCreateContact] 3. Input " + (isUidPattern ? "matches" : "does not match") + " UID pattern");
+        
+        if (isUidPattern) {
+            Log.d(TAG, "[fetchAndCreateContact] 4. Checking users node for UID: " + userIdOrEmail);
+            databaseReference.child("users").child(userIdOrEmail)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            String email = dataSnapshot.child("email").getValue(String.class);
-                            String name = dataSnapshot.child("name").getValue(String.class);
+                    public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                        Log.d(TAG, "[fetchAndCreateContact] 5. UID lookup result - exists: " + userSnapshot.exists());
+                        
+                        if (userSnapshot.exists()) {
+                            String uid = userSnapshot.getKey();
+                            String email = userSnapshot.child("email").getValue(String.class);
+                            String name = userSnapshot.child("name").getValue(String.class);
+                            
+                            Log.d(TAG, String.format("[fetchAndCreateContact] 6. Found user by UID - UID: %s, Email: %s, Name: %s", 
+                                uid, email, name));
                             
                             if (email != null && !email.isEmpty()) {
-                                // Create new contact
-                                addContact(userId, name != null ? name : email, email);
-                                Contact newContact = getContactById(userId);
+                                Log.d(TAG, "[fetchAndCreateContact] 7. Adding contact from UID lookup");
+                                addContact(uid, name != null ? name : email, email);
+                                Contact newContact = getContactById(uid);
                                 if (newContact != null) {
+                                    Log.d(TAG, "[fetchAndCreateContact] 8. Successfully created contact from UID");
                                     callback.onContactAdded(newContact);
+                                    return;
                                 } else {
-                                    callback.onError("Failed to create contact");
+                                    Log.e(TAG, "[fetchAndCreateContact] 8. Failed to create contact from UID");
                                 }
                             } else {
-                                callback.onError("User has no email address");
+                                Log.e(TAG, "[fetchAndCreateContact] 7. Email is null or empty in user data");
                             }
                         } else {
-                            callback.onError("User not found in Firebase");
+                            Log.d(TAG, "[fetchAndCreateContact] 6. No user found with UID: " + userIdOrEmail);
                         }
+                        
+                        // If we get here, either user doesn't exist or we couldn't create contact
+                        Log.d(TAG, "[fetchAndCreateContact] 9. Falling back to email check after UID lookup");
+                        checkEmailInAuthAndDatabase(userIdOrEmail, callback);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        callback.onError(databaseError.getMessage());
+                        Log.e(TAG, "[fetchAndCreateContact] 5. Database error in UID lookup: " + databaseError.getMessage());
+                        Log.d(TAG, "[fetchAndCreateContact] 6. Falling back to email check after UID lookup error");
+                        checkEmailInAuthAndDatabase(userIdOrEmail, callback);
                     }
                 });
+        } else {
+            Log.d(TAG, "[fetchAndCreateContact] 4. Treating input as email");
+            // If input doesn't look like a UID, treat it as an email
+            checkEmailInAuthAndDatabase(userIdOrEmail, callback);
+        }
+    }
+    
+    private void checkEmailInAuthAndDatabase(String email, final ContactsLoadListener callback) {
+        Log.d(TAG, "1. Starting lookup for email: " + email);
+        
+        // First check if contact exists by email in cache
+        Contact existingContact = getContactByEmail(email);
+        if (existingContact != null) {
+            Log.d(TAG, "2. Found existing contact in cache by email");
+            callback.onContactAdded(existingContact);
+            return;
+        }
+
+        Log.d(TAG, "3. Checking database for user with email: " + email.toLowerCase());
+        // Check if user exists in our database
+        databaseReference.child("users")
+            .orderByChild("email")
+            .equalTo(email.toLowerCase())
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "4. Database query completed. Data exists: " + dataSnapshot.exists() + 
+                        ", has children: " + dataSnapshot.hasChildren());
+                        
+                    if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                        try {
+                            // Log all children for debugging
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                Log.d(TAG, "5. Found user in database - Key: " + child.getKey() + 
+                                    ", Value: " + child.getValue());
+                            }
+                            
+                            // Get the first user with this email (should be only one)
+                            DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
+                            String uid = userSnapshot.getKey();
+                            String userEmail = userSnapshot.child("email").getValue(String.class);
+                            String name = userSnapshot.child("name").getValue(String.class);
+                            
+                            Log.d(TAG, "6. User data - UID: " + uid + ", Email: " + userEmail + ", Name: " + name);
+                            
+                            if (uid == null || userEmail == null) {
+                                Log.e(TAG, "7. Invalid user data - UID or email is null");
+                                callback.onError("Invalid user data in database");
+                                return;
+                            }
+                            
+                            if (name == null) {
+                                // If no name in database, use email prefix as name
+                                name = userEmail.contains("@") ? 
+                                    userEmail.substring(0, userEmail.indexOf('@')) : 
+                                    userEmail;
+                                Log.d(TAG, "8. Using email prefix as name: " + name);
+                            }
+                            
+                            // Create new contact with UID as contactId
+                            Log.d(TAG, "9. Creating contact - UID: " + uid + ", Email: " + userEmail + ", Name: " + name);
+                                
+                            addContact(uid, name, userEmail);
+                            Contact newContact = getContactById(uid);
+                            if (newContact != null) {
+                                Log.d(TAG, "10. Successfully created contact");
+                                callback.onContactAdded(newContact);
+                            } else {
+                                Log.e(TAG, "11. Failed to create contact");
+                                callback.onError("Failed to create contact");
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "12. Error processing user data: " + e.getMessage(), e);
+                            callback.onError("Error processing user data");
+                        }
+                    } else {
+                        Log.d(TAG, "13. No user found in database with email: " + email);
+                        callback.onError("No user found with this email");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e(TAG, "14. Database error: " + databaseError.getMessage(), databaseError.toException());
+                    callback.onError("Error looking up user in database: " + databaseError.getMessage());
+                }
+            });
     }
 
-
     public void addContact(String email) {
-        addContact(null, email);
+        // If email is provided but no contactId, use email as contactId
+        addContact(email, email);
     }
     
     /**
@@ -321,11 +435,21 @@ public class ContactsManager {
      * @param displayName The display name of the contact (can be null to use user's profile name)
      * @param email The email address of the contact
      */
+    /**
+     * Adds a new contact with the specified contact ID, display name, and email.
+     * @param contactId The ID of the contact (can be null to use email as ID)
+     * @param displayName The display name of the contact (can be null to use email as name)
+     * @param email The email address of the contact
+     */
     public void addContact(String contactId, String displayName, String email) {
-        // If contactId is not provided, treat this as a regular add by email
+        // If contactId is not provided, use email as contactId
         if (contactId == null || contactId.isEmpty()) {
-            addContact(email);
-            return;
+            contactId = email;
+        }
+        
+        // If email is not provided but contactId is, use contactId as email
+        if ((email == null || email.isEmpty()) && contactId != null) {
+            email = contactId;
         }
         
         String currentUserId = getCurrentUserId();
@@ -338,64 +462,37 @@ public class ContactsManager {
             return;
         }
         
-        // Validate email
-        if (email == null || email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            String error = "Invalid email address: " + email;
-            log.e(TAG, error);
-            if (loadListener != null) {
-                loadListener.onError(error);
-            }
-            return;
-        }
-        
         // Create a new contact with the provided details
         Contact newContact = new Contact();
+        newContact.setUserId(currentUserId);
         newContact.setContactId(contactId);
         newContact.setEmailAddress(email);
         newContact.setTimestamp(System.currentTimeMillis());
         
-        // If displayName is provided, use it as the contact name
-        // Otherwise, we'll use the user's profile name or email as fallback
+        // Set display name (use provided name, email prefix, or contactId as fallback)
         if (displayName != null && !displayName.trim().isEmpty()) {
             newContact.setDisplayName(displayName);
-            newContact.setCustomName(true); // Mark that this is a custom name
+            newContact.setCustomName(true);
+        } else if (email != null && email.contains("@")) {
+            newContact.setDisplayName(email.substring(0, email.indexOf('@')));
+            newContact.setCustomName(false);
         } else {
-            // Default to email for now, will be updated after user lookup
-            newContact.setDisplayName(email);
+            newContact.setDisplayName(contactId);
             newContact.setCustomName(false);
         }
         
-        // First, try to get the user's profile information
-        databaseReference.child("users").child(contactId)
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                    if (userSnapshot.exists()) {
-                        // Get the user's display name from their profile
-                        String userDisplayName = userSnapshot.child("displayName").getValue(String.class);
-                        
-                        // Only update the display name if it's not a custom name
-                        if (!newContact.isCustomName() && userDisplayName != null && !userDisplayName.isEmpty()) {
-                            newContact.setDisplayName(userDisplayName);
-                        }
-                    }
-                    
-                    // Save the contact with the updated information
-                    saveContactToDatabase(newContact);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    log.e(TAG, "Error looking up user profile: " + databaseError.getMessage());
-                    // Save with the information we have
-                    saveContactToDatabase(newContact);
-                }
-            });
+        // Save the contact
+        saveContactToDatabase(newContact);
     }
 
 /**
      * Adds a new contact with the specified contact ID and email.
      * @param contactId The ID of the contact (can be null to auto-generate)
+     * @param email The email address of the contact (also used as display name if not provided)
+     */
+    /**
+     * Adds a new contact with the specified contact ID and email.
+     * @param contactId The ID of the contact (can be null to use email as ID)
      * @param email The email address of the contact (also used as display name if not provided)
      */
     public void addContact(String contactId, String email) {

@@ -14,4 +14,7 @@
     
     <!-- Launcher icon background color -->
     <color name="ic_launcher_background">@color/colorPrimary</color>
+    
+    <!-- Selection colors -->
+    <color name="selected_item_background">#1A000000</color>
 </resources>

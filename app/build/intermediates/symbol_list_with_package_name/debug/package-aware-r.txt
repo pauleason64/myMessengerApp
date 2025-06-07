@@ -2223,6 +2223,7 @@ color secondary_text_default_material_dark
 color secondary_text_default_material_light
 color secondary_text_disabled_material_dark
 color secondary_text_disabled_material_light
+color selected_item_background
 color switch_thumb_disabled_material_dark
 color switch_thumb_disabled_material_light
 color switch_thumb_material_dark
@@ -3179,6 +3180,7 @@ drawable ic_clock_black_24dp
 drawable ic_contacts
 drawable ic_delete
 drawable ic_edit
+drawable ic_email
 drawable ic_empty_inbox
 drawable ic_empty_state
 drawable ic_firebase
@@ -4248,6 +4250,8 @@ string action_send
 string action_set_reminder
 string action_sign_in
 string action_sign_in_short
+string action_switch_to_message
+string action_switch_to_note
 string add_attachment
 string add_contact
 string add_recipient
@@ -4281,6 +4285,7 @@ string character_counter_overflowed_content_description
 string character_counter_pattern
 string choose_theme
 string clear_text_end_icon_content_description
+string close
 string coming_soon
 string common_google_play_services_enable_button
 string common_google_play_services_enable_text
@@ -4542,6 +4547,7 @@ string nav_app_bar_navigate_up_description
 string nav_app_bar_open_drawer_description
 string new_message
 string new_message_from
+string new_note
 string new_password
 string no
 string no_attachments
@@ -4672,7 +4678,9 @@ string search_menu_title
 string searchbar_scrolling_view_behavior
 string searchview_clear_text_content_description
 string searchview_navigation_content_description
+string select_items
 string select_text
+string selected_count
 string send_message
 string sending
 string set_reminder
@@ -4740,6 +4748,8 @@ string wifi
 string years_ago
 string yes
 string yesterday
+style ActionButtonStyle
+style ActionModePopupStyle
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog
