@@ -115,15 +115,30 @@ public class DatabaseHelper {
         // Add reference to sender's sent messages
         updates.put("/" + USER_MESSAGES_NODE + "/" + currentUserId + "/" + USER_SENT_NODE + "/" + messageId, true);
         
-        // Add reference to recipient's received messages
-        updates.put("/" + USER_MESSAGES_NODE + "/" + recipientId + "/" + USER_RECEIVED_NODE + "/" + messageId, true);
+        // Add reference to recipient's received messages using their actual user ID
+        // Use the recipientId from the message instead of converting the email
+        String recipientUserId = message.getRecipientId();
+        if (recipientUserId != null && !recipientUserId.isEmpty()) {
+            updates.put("/" + USER_MESSAGES_NODE + "/" + recipientUserId + "/" + USER_RECEIVED_NODE + "/" + messageId, true);
+        } else {
+            Log.e(TAG, "Recipient ID is null or empty in message: " + messageId);
+        }
         
+        // Log the updates map for debugging
+        try {
+            com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+            String updatesJson = gson.toJson(updates);
+            Log.d(TAG, "Attempting to update database with: \n" + updatesJson);
+        } catch (Exception e) {
+            Log.e(TAG, "Error logging updates: " + e.getMessage());
+        }
+
         // Perform all updates as a single atomic operation
         databaseReference.updateChildren(updates)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(messageId))
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error sending message: " + e.getMessage());
-                    callback.onError(e.getMessage());
+                    callback.onError("Firebase Database error: " + e.getMessage());
                 });
     }
 
@@ -206,6 +221,7 @@ public class DatabaseHelper {
     // Callback interface for database operations
     public interface DatabaseCallback {
         void onSuccess(Object result);
+
         void onError(String error);
     }
     

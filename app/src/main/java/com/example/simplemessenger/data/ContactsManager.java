@@ -29,6 +29,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ContactsManager {
+    /**
+     * Callback interface for database operations
+     */
+    public interface DatabaseCallback {
+        void onSuccess(Object result);
+        void onError(String error);
+    }
+
     private static final String TAG = "ContactsManager";
     private static final String CONTACTS_NODE = "user-contacts";
     private static ContactsManager instance;
@@ -234,6 +242,14 @@ public class ContactsManager {
     }
 
     /**
+     * Returns the in-memory cache of contacts.
+     * @return A map of contact IDs to Contact objects.
+     */
+    public Map<String, Contact> getContactsCache() {
+        return contactsCache;
+    }
+
+    /**
      * Fetch user details from Firebase and create contact if not exists
      * @param userIdOrEmail The user ID or email to fetch
      * @param callback Callback to handle the result
@@ -259,8 +275,8 @@ public class ContactsManager {
             Log.d(TAG, "[fetchAndCreateContact] 2. No contact found in cache by ID");
         }
         
-        // If the input looks like a UID (alphanumeric and at least 20 chars)
-        boolean isUidPattern = userIdOrEmail.matches("^[a-zA-Z0-9]{20,}$");
+        // If the input looks like a UID (alphanumeric and at least 16 chars)
+        boolean isUidPattern = userIdOrEmail.matches("^[a-zA-Z0-9]{16,}$");
         Log.d(TAG, "[fetchAndCreateContact] 3. Input " + (isUidPattern ? "matches" : "does not match") + " UID pattern");
         
         if (isUidPattern) {
@@ -281,15 +297,26 @@ public class ContactsManager {
                             
                             if (email != null && !email.isEmpty()) {
                                 Log.d(TAG, "[fetchAndCreateContact] 7. Adding contact from UID lookup");
-                                addContact(uid, name != null ? name : email, email);
-                                Contact newContact = getContactById(uid);
-                                if (newContact != null) {
-                                    Log.d(TAG, "[fetchAndCreateContact] 8. Successfully created contact from UID");
-                                    callback.onContactAdded(newContact);
-                                    return;
-                                } else {
-                                    Log.e(TAG, "[fetchAndCreateContact] 8. Failed to create contact from UID");
-                                }
+                                addContact(uid, name != null ? name : email, email, new DatabaseCallback() {
+                                    @Override
+                                    public void onSuccess(Object result) {
+                                        Log.d(TAG, "[fetchAndCreateContact] 8. Successfully created contact from UID");
+                                        Contact newContact = getContactById(uid);
+                                        if (newContact != null) {
+                                            callback.onContactAdded(newContact);
+                                        } else {
+                                            Log.e(TAG, "[fetchAndCreateContact] 8. Contact created but not found in cache");
+                                            callback.onError("Contact created but not found in cache");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(String error) {
+                                        Log.e(TAG, "[fetchAndCreateContact] 8. Failed to create contact from UID: " + error);
+                                        callback.onError("Failed to create contact: " + error);
+                                    }
+                                });
+                                return;
                             } else {
                                 Log.e(TAG, "[fetchAndCreateContact] 7. Email is null or empty in user data");
                             }
@@ -328,7 +355,6 @@ public class ContactsManager {
         }
 
         Log.d(TAG, "3. Checking database for user with email: " + email.toLowerCase());
-        // Check if user exists in our database
         databaseReference.child("users")
             .orderByChild("email")
             .equalTo(email.toLowerCase())
@@ -340,22 +366,17 @@ public class ContactsManager {
                         
                     if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                         try {
-                            // Log all children for debugging
-                            for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                Log.d(TAG, "5. Found user in database - Key: " + child.getKey() + 
-                                    ", Value: " + child.getValue());
-                            }
-                            
                             // Get the first user with this email (should be only one)
                             DataSnapshot userSnapshot = dataSnapshot.getChildren().iterator().next();
                             String uid = userSnapshot.getKey();
                             String userEmail = userSnapshot.child("email").getValue(String.class);
                             String name = userSnapshot.child("name").getValue(String.class);
                             
-                            Log.d(TAG, "6. User data - UID: " + uid + ", Email: " + userEmail + ", Name: " + name);
+                            Log.d(TAG, "5. Found user in database - UID: " + uid + 
+                                ", Email: " + userEmail + ", Name: " + name);
                             
                             if (uid == null || userEmail == null) {
-                                Log.e(TAG, "7. Invalid user data - UID or email is null");
+                                Log.e(TAG, "6. Invalid user data - UID or email is null");
                                 callback.onError("Invalid user data in database");
                                 return;
                             }
@@ -365,21 +386,34 @@ public class ContactsManager {
                                 name = userEmail.contains("@") ? 
                                     userEmail.substring(0, userEmail.indexOf('@')) : 
                                     userEmail;
-                                Log.d(TAG, "8. Using email prefix as name: " + name);
+                                Log.d(TAG, "7. Using email prefix as name: " + name);
                             }
                             
-                            // Create new contact with UID as contactId
-                            Log.d(TAG, "9. Creating contact - UID: " + uid + ", Email: " + userEmail + ", Name: " + name);
+                            // Create a temporary contact object with the user's details
+                            Contact tempContact = new Contact();
+                            tempContact.setContactId(uid);
+                            tempContact.setEmailAddress(userEmail);
+                            tempContact.setDisplayName(name);
+                            tempContact.setCustomName(false);
+                            
+                            // Return the contact immediately
+                            Log.d(TAG, "8. Returning temporary contact for immediate use");
+                            callback.onContactAdded(tempContact);
+                            
+                            // Save the contact in the background
+                            Log.d(TAG, "9. Saving contact in background");
+                            addContact(uid, name, userEmail, new DatabaseCallback() {
+                                @Override
+                                public void onSuccess(Object result) {
+                                    Log.d(TAG, "10. Successfully saved contact in background: " + uid);
+                                }
                                 
-                            addContact(uid, name, userEmail);
-                            Contact newContact = getContactById(uid);
-                            if (newContact != null) {
-                                Log.d(TAG, "10. Successfully created contact");
-                                callback.onContactAdded(newContact);
-                            } else {
-                                Log.e(TAG, "11. Failed to create contact");
-                                callback.onError("Failed to create contact");
-                            }
+                                @Override
+                                public void onError(String error) {
+                                    Log.e(TAG, "11. Error saving contact in background: " + error);
+                                }
+                            });
+                            
                         } catch (Exception e) {
                             Log.e(TAG, "12. Error processing user data: " + e.getMessage(), e);
                             callback.onError("Error processing user data");
@@ -396,11 +430,6 @@ public class ContactsManager {
                     callback.onError("Error looking up user in database: " + databaseError.getMessage());
                 }
             });
-    }
-
-    public void addContact(String email) {
-        // If email is provided but no contactId, use email as contactId
-        addContact(email, email);
     }
     
     /**
@@ -441,7 +470,7 @@ public class ContactsManager {
      * @param displayName The display name of the contact (can be null to use email as name)
      * @param email The email address of the contact
      */
-    public void addContact(String contactId, String displayName, String email) {
+    public void addContact(String contactId, String displayName, String email, DatabaseCallback callback) {
         // If contactId is not provided, use email as contactId
         if (contactId == null || contactId.isEmpty()) {
             contactId = email;
@@ -482,20 +511,25 @@ public class ContactsManager {
         }
         
         // Save the contact
-        saveContactToDatabase(newContact);
+        saveContactToDatabase(newContact, new DatabaseCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Log.d(TAG, "Contact saved successfully: " + (result != null ? result.toString() : "null"));
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Error saving contact: " + error);
+            }
+        });
     }
 
-/**
-     * Adds a new contact with the specified contact ID and email.
-     * @param contactId The ID of the contact (can be null to auto-generate)
-     * @param email The email address of the contact (also used as display name if not provided)
-     */
     /**
      * Adds a new contact with the specified contact ID and email.
      * @param contactId The ID of the contact (can be null to use email as ID)
      * @param email The email address of the contact (also used as display name if not provided)
      */
-    public void addContact(String contactId, String email) {
+    public void addContact(String contactId, String email, DatabaseCallback callback) {
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {
             String error = "User not authenticated";
@@ -539,6 +573,19 @@ public class ContactsManager {
         newContact.setUserName(email.split("@")[0]); // Default to first part of email
         newContact.setTimestamp(System.currentTimeMillis());
 
+
+        DatabaseCallback dcb=new DatabaseCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Log.d(TAG, "Contact saved successfully: " + (result != null ? result.toString() : "null"));
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Error saving contact: " + error);
+            }
+        };
+
         // Try to look up user details from /users node
         databaseReference.child("users").orderByChild("email").equalTo(email.toLowerCase())
             .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -559,22 +606,26 @@ public class ContactsManager {
                             break; // Just use the first matching user
                         }
                     }
-                    saveContactToDatabase(newContact);
+                    saveContactToDatabase(newContact,dcb);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     // If user lookup fails, just save with the minimal info we have
                     log.e(TAG, "Error looking up user: " + databaseError.getMessage());
-                    saveContactToDatabase(newContact);
+                    saveContactToDatabase(newContact, dcb);
                 }
             });
     }
 
-    private void saveContactToDatabase(Contact contact) {
+    private void saveContactToDatabase(Contact contact, DatabaseCallback callback) {
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {
-            log.e(TAG, "Cannot save contact - user not authenticated",null);
+            String error = "Cannot save contact - user not authenticated";
+            log.e(TAG, error, null);
+            if (callback != null) {
+                callback.onError(error);
+            }
             return;
         }
 
@@ -589,6 +640,10 @@ public class ContactsManager {
                     if (loadListener != null) {
                         loadListener.onContactAdded(contact);
                     }
+                    
+                    if (callback != null) {
+                        callback.onSuccess(contact);
+                    }
                 }
             })
             .addOnFailureListener(e -> {
@@ -596,6 +651,9 @@ public class ContactsManager {
                 log.e(TAG, errorMsg, e);
                 if (loadListener != null) {
                     loadListener.onError(errorMsg);
+                }
+                if (callback != null) {
+                    callback.onError(errorMsg);
                 }
             });
     }
@@ -632,10 +690,6 @@ public class ContactsManager {
         }
     }
 
-    public Map<String, Contact> getContactsCache() {
-        return contactsCache;
-    }
-    
     public Task<Void> removeContact(String contactId) {
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {

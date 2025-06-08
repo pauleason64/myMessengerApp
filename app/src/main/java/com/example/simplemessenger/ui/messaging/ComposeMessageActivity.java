@@ -1,6 +1,9 @@
 package com.example.simplemessenger.ui.messaging;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,19 +13,21 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.simplemessenger.R;
 import com.example.simplemessenger.data.model.Contact;
 import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.data.DatabaseHelper;
+import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityComposeMessageBinding;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ComposeMessageActivity extends AppCompatActivity {
+public class ComposeMessageActivity extends AppCompatActivity implements ContactsManager.ContactsLoadListener {
     private static final String TAG = "ComposeMessage";
     
     // Intent extras
@@ -43,63 +48,110 @@ public class ComposeMessageActivity extends AppCompatActivity {
     private List<String> contactEmails = new ArrayList<>();
     private boolean isNoteMode = false;
     private MenuItem sendMenuItem;
+    private String pendingMessageContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityComposeMessageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        Toolbar toolbar = binding.toolbar;
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("New Message");
-
-        databaseHelper = DatabaseHelper.getInstance();
+        
+        // Initialize Firebase and database
         mAuth = FirebaseAuth.getInstance();
+        databaseHelper = DatabaseHelper.getInstance();
+        
+        // Initialize ContactsManager
         contactsManager = ContactsManager.getInstance();
-
-        setupRecipientAutoComplete();
+        contactsManager.setLoadListener(this);
+        
+        // Set up the action bar
+        setSupportActionBar(binding.toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("New Message");
+        }
+        
+        // The send button is in the toolbar and will be handled in onOptionsItemSelected
+        
+        // Set up recipient autocomplete
+        setupRecipientAutocomplete();
+        
         loadContacts();
     }
 
     private void loadContacts() {
-        contactsManager.setLoadListener(new ContactsManager.ContactsLoadListener() {
-            @Override
-            public void onContactsLoaded(List<Contact> contacts) {
-                updateAutoCompleteAdapter();
-            }
-
-            @Override
-            public void onContactAdded(Contact contact) {
-                updateAutoCompleteAdapter();
-            }
-
-            @Override
-            public void onContactRemoved(Contact contact) {
-                updateAutoCompleteAdapter();
-            }
-
-            @Override
-            public void onError(String error) {
-                Log.e(TAG, "Error loading contacts: " + error);
-            }
-        });
+        // We'll use the activity as the listener
+        contactsManager.setLoadListener(this);
+    }
+    
+    @Override
+    public void onContactsLoaded(List<Contact> contacts) {
+        updateAutoCompleteAdapter();
     }
 
-    private void setupRecipientAutoComplete() {
-        // Set up the AutoCompleteTextView with the contact emails
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-            this, 
-            android.R.layout.simple_dropdown_item_1line, 
-            contactEmails
-        );
+    @Override
+    public void onContactAdded(Contact contact) {
+        if (pendingMessageContent != null && contact != null) {
+            // Use a handler to ensure the contact is fully processed
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                sendMessage(contact, pendingMessageContent);
+                pendingMessageContent = null; // Clear the pending message
+            }, 500); // Small delay to ensure contact is fully processed
+        }
+        updateAutoCompleteAdapter();
+    }
+
+    @Override
+    public void onContactRemoved(Contact contact) {
+        updateAutoCompleteAdapter();
+    }
+
+    @Override
+    public void onError(String error) {
+        Log.e(TAG, "Error: " + error);
+        runOnUiThread(() -> Toast.makeText(this, error, Toast.LENGTH_SHORT).show());
+    }
+
+    private void setupRecipientAutocomplete() {
+        // Create a list to hold contact display strings (email + name if available)
+        List<String> contactDisplayList = new ArrayList<>();
         
-        AutoCompleteTextView recipientView = binding.inputRecipient;
-        recipientView.setAdapter(adapter);
+        // Create a map to store email to contact ID mapping
+        final Map<String, String> emailToContactIdMap = new HashMap<>();
         
-        // Show/hide recipient field based on note mode
-        updateUiForMode();
+        // Populate the list with contact information
+        for (Contact contact : contactsManager.getContactsCache().values()) {
+            String email = contact.getEmailAddress();
+            if (email != null && !email.isEmpty()) {
+                String displayName = contact.getDisplayName();
+                String displayText = displayName != null && !displayName.isEmpty() ? 
+                    String.format("%s <%s>", displayName, email) : email;
+                
+                contactDisplayList.add(displayText);
+                emailToContactIdMap.put(email, contact.getContactId());
+            }
+        }
+        
+        // Create and set the adapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, contactDisplayList);
+        
+        // Set up the AutoCompleteTextView
+        binding.inputRecipient.setAdapter(adapter);
+        binding.inputRecipient.setThreshold(1); // Start showing suggestions after 1 character
+        
+        // Handle item selection
+        binding.inputRecipient.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedItem = (String) parent.getItemAtPosition(position);
+            // Extract email from the selected item (format: "Display Name <email@example.com>" or "email@example.com")
+            String email = selectedItem;
+            if (selectedItem.contains("<")) {
+                email = selectedItem.substring(selectedItem.indexOf('<') + 1, selectedItem.indexOf('>'));
+            }
+            
+            // Update the field with just the email
+            binding.inputRecipient.setText(email);
+            binding.inputRecipient.setSelection(email.length());
+        });
     }
     
     private void updateUiForMode() {
@@ -183,11 +235,56 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
             @Override
             public void onContactAdded(Contact contact) {
-                Log.d(TAG, "Contact added successfully: " + contact.getEmailAddress());
+                Log.d(TAG, "onContactAdded called with contact: " + (contact != null ? 
+                    "ID: " + contact.getContactId() + ", Email: " + contact.getEmailAddress() : "null"));
+                
+                if (contact == null) {
+                    Log.e(TAG, "Contact is null in onContactAdded");
+                    runOnUiThread(() -> {
+                        Toast.makeText(ComposeMessageActivity.this, "Error: Contact is null", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    });
+                    return;
+                }
+                
+                // Update the local contacts cache immediately with the temporary contact
+                if (!contactsManager.getContactsCache().containsKey(contact.getContactId())) {
+                    contactsManager.getContactsCache().put(contact.getContactId(), contact);
+                    Log.d(TAG, "Added temporary contact to local cache: " + contact.getEmailAddress());
+                }
+                
+                Log.d(TAG, "Processing contact - ID: " + contact.getContactId() + ", Email: " + contact.getEmailAddress());
+                
+                // Update the recipient field with the contact's email
                 runOnUiThread(() -> {
-                    showLoading(false);
-                    // Now send the message with the new contact
-                    sendMessageToRecipient(contact.getEmailAddress(), finalSubject, messageText, contact.getContactId());
+                    try {
+                        // Set the recipient field with the contact's email
+                        binding.inputRecipient.setText(contact.getEmailAddress());
+                        
+                        // If we have a pending message, send it now
+                        if (!TextUtils.isEmpty(pendingMessageContent)) {
+                            Log.d(TAG, "Sending pending message to: " + contact.getEmailAddress());
+                            sendMessage(contact, pendingMessageContent);
+                            pendingMessageContent = null; // Clear the pending message
+                            
+                            // Close the activity after a short delay to ensure message is sent
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                setResult(RESULT_OK);
+                                finish();
+                            }, 300);
+                        } else {
+                            Log.d(TAG, "No pending message to send");
+                            // If no pending message, just close the activity
+                            setResult(RESULT_OK);
+                            finish();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error in onContactAdded UI update: " + e.getMessage(), e);
+                        Toast.makeText(ComposeMessageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    }
                 });
             }
 
@@ -202,6 +299,78 @@ public class ComposeMessageActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     showLoading(false);
                     binding.inputRecipient.setError(error);
+                });
+            }
+        });
+    }
+    
+    private void sendMessage(Contact contact, String messageContent) {
+        String subject = binding.inputSubject.getText() != null ? 
+            binding.inputSubject.getText().toString().trim() : "";
+            
+        Log.d(TAG, "sendMessage called - Contact: " + (contact != null ? 
+            "ID: " + contact.getContactId() + ", Email: " + contact.getEmailAddress() : "null") + 
+            ", Subject: " + subject + ", Message: " + messageContent);
+            
+        if (contact == null || TextUtils.isEmpty(messageContent)) {
+            Log.e(TAG, "Cannot send message - contact or message content is null");
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Cannot send message: Invalid contact or message", 
+                    Toast.LENGTH_SHORT).show();
+            });
+            return;
+        }
+        
+        // Show loading indicator
+        showLoading(true);
+        
+        // Create a new message with all required fields
+        Message message = new Message();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String currentUserEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        
+        message.setId(databaseHelper.getDatabaseReference().child("messages").push().getKey());
+        message.setSenderId(currentUserId);
+        message.setSenderEmail(currentUserEmail != null ? currentUserEmail : "");
+        
+        // Use the contact's user ID, not their email
+        if (contact.getUserId() != null && !contact.getUserId().isEmpty()) {
+            message.setRecipientId(contact.getUserId());
+        } else {
+            message.setRecipientId(contact.getContactId());
+        }
+        
+        message.setRecipientEmail(contact.getEmailAddress());
+        message.setContent(messageContent);
+        message.setTimestamp(System.currentTimeMillis());
+        message.setRead(false);
+        message.setSubject(subject);
+        message.setIsNote(false);
+        message.setHasReminder(false);
+        message.setArchived(false);
+        
+        // Use DatabaseHelper to send the message
+        databaseHelper.sendMessage(message, new DatabaseHelper.DatabaseCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                Log.d(TAG, "Message sent successfully to " + contact.getEmailAddress() + 
+                    " (ID: " + contact.getContactId() + ")");
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    // Don't finish here, let onContactAdded handle it
+                    // This allows the contact to be properly saved in the background
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "Failed to send message: " + error);
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    Toast.makeText(ComposeMessageActivity.this, "Failed to send message: " + error, 
+                        Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_CANCELED);
+                    finish();
                 });
             }
         });
@@ -244,7 +413,10 @@ public class ComposeMessageActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_compose, menu);
         sendMenuItem = menu.findItem(R.id.action_send);
-        updateNoteToggleMenuItem(menu.findItem(R.id.action_toggle_note));
+        MenuItem noteToggleItem = menu.findItem(R.id.action_toggle_note);
+        if (noteToggleItem != null) {
+            updateNoteToggleMenuItem(noteToggleItem);
+        }
         return true;
     }
     
@@ -253,15 +425,46 @@ public class ComposeMessageActivity extends AppCompatActivity {
         int id = item.getItemId();
         
         if (id == R.id.action_send) {
-            sendMessage();
+            String recipient = binding.inputRecipient.getText().toString().trim();
+            String message = binding.inputMessage.getText().toString().trim();
+            
+            if (TextUtils.isEmpty(recipient)) {
+                Toast.makeText(this, "Please enter a recipient", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            
+            if (TextUtils.isEmpty(message)) {
+                Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            
+            // Check if we already have this contact locally
+            Contact existingContact = null;
+            for (Contact contact : contactsManager.getContactsCache().values()) {
+                if (recipient.equalsIgnoreCase(contact.getEmailAddress())) {
+                    existingContact = contact;
+                    break;
+                }
+            }
+            
+            if (existingContact != null) {
+                // We have the contact, send the message directly
+                Log.d(TAG, "Sending message to existing contact: " + existingContact.getEmailAddress());
+                sendMessage(existingContact, message);
+            } else {
+                // We need to create the contact first
+                Log.d(TAG, "Creating new contact for: " + recipient);
+                pendingMessageContent = message;
+                contactsManager.fetchAndCreateContact(recipient, this);
+            }
             return true;
         } else if (id == R.id.action_toggle_note) {
             isNoteMode = !isNoteMode;
-            updateUiForMode();
             updateNoteToggleMenuItem(item);
+            updateUiForMode();
             return true;
         } else if (id == android.R.id.home) {
-            onBackPressed();
+            finish();
             return true;
         }
         
@@ -283,7 +486,9 @@ public class ComposeMessageActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (contactsManager != null) {
-            contactsManager.setLoadListener(null);
+            // Clear the listener to prevent memory leaks
+            contactsManager.clearPreviousListener();
+            contactsManager.cleanupContacts();
         }
     }
 }

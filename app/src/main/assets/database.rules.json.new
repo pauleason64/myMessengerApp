@@ -2,7 +2,7 @@
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null",
-
+    
     "users": {
       ".indexOn": "email",
       "$uid": {
@@ -14,6 +14,7 @@
         }
       }
     },
+    
     "user-contacts": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -48,6 +49,7 @@
         }
       }
     },
+    
     "messages": {
       "$messageId": {
         ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid || (data.child('isNote').val() === true && data.child('senderId').val() === auth.uid))",
@@ -78,7 +80,7 @@
           ".validate": "newData.isBoolean()"
         },
         "reminderTime": {
-          ".validate": "newData.isNumber()"
+          ".validate": "!newData.exists() || newData.isNumber()"
         },
         "subject": {
           ".validate": "newData.isString()"
@@ -100,31 +102,22 @@
         }
       }
     },
-
+    
     "user-messages": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
-
+        
         "sent": {
-          "$messageId": {
-            ".validate": "newData.isBoolean()",
-            ".write": "auth != null && auth.uid === $uid"
-          }
+          "$messageId": true
         },
-
+        
         "received": {
-          "$messageId": {
-            ".validate": "newData.isBoolean()",
-            ".write": "auth != null"
-          }
+          "$messageId": true
         },
-
+        
         "notes": {
-          "$messageId": {
-            ".validate": "newData.isBoolean()",
-            ".write": "auth != null && auth.uid === $uid"
-          }
+          "$messageId": true
         }
       }
     }
