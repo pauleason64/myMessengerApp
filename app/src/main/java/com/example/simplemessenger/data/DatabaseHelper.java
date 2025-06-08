@@ -94,18 +94,28 @@ public class DatabaseHelper {
             return;
         }
 
-        // Set sender and recipient emails
+        // Validate recipient ID
+        if (message.getRecipientId() == null || message.getRecipientId().isEmpty()) {
+            callback.onError("Recipient ID is not available. Please ensure the contact is valid.");
+            return;
+        }
+
+        // Set sender information
         message.setSenderId(mAuth.getCurrentUser().getUid());
         message.setSenderEmail(currentEmail);
-        message.setRecipientId(getUserIdFromEmail(message.getRecipientEmail()));
-        message.setRecipientEmail(message.getRecipientEmail());
-        
         message.setId(messageId);
+        
         // The timestamp will be set by the Message.toMap() method using ServerValue.TIMESTAMP
         
         // Create a map to update multiple locations at once
         String currentUserId = mAuth.getCurrentUser().getUid();
-        String recipientId = getUserIdFromEmail(message.getRecipientEmail());
+        String recipientId = message.getRecipientId();
+        
+        // Validate recipient ID format (should be a Firebase UID, not an email)
+        if (recipientId.contains("@") || recipientId.contains(".")) {
+            callback.onError("Invalid recipient ID format. Expected UID but got: " + recipientId);
+            return;
+        }
         
         Map<String, Object> updates = new HashMap<>();
         
@@ -115,14 +125,8 @@ public class DatabaseHelper {
         // Add reference to sender's sent messages
         updates.put("/" + USER_MESSAGES_NODE + "/" + currentUserId + "/" + USER_SENT_NODE + "/" + messageId, true);
         
-        // Add reference to recipient's received messages using their actual user ID
-        // Use the recipientId from the message instead of converting the email
-        String recipientUserId = message.getRecipientId();
-        if (recipientUserId != null && !recipientUserId.isEmpty()) {
-            updates.put("/" + USER_MESSAGES_NODE + "/" + recipientUserId + "/" + USER_RECEIVED_NODE + "/" + messageId, true);
-        } else {
-            Log.e(TAG, "Recipient ID is null or empty in message: " + messageId);
-        }
+        // Add reference to recipient's received messages using their UID
+        updates.put("/" + USER_MESSAGES_NODE + "/" + recipientId + "/" + USER_RECEIVED_NODE + "/" + messageId, true);
         
         // Log the updates map for debugging
         try {

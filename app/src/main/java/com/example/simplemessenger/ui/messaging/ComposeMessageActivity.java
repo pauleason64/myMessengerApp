@@ -221,7 +221,7 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         if (existingContact != null) {
             // If contact exists, send the message directly
             Log.d(TAG, "Found existing contact in cache: " + recipientEmail);
-            sendMessageToRecipient(recipientEmail, finalSubject, messageText, existingContact.getContactId());
+            sendMessage(existingContact, messageText);
             return;
         }
         
@@ -241,9 +241,8 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
                 if (contact == null) {
                     Log.e(TAG, "Contact is null in onContactAdded");
                     runOnUiThread(() -> {
+                        showLoading(false);
                         Toast.makeText(ComposeMessageActivity.this, "Error: Contact is null", Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_CANCELED);
-                        finish();
                     });
                     return;
                 }
@@ -254,36 +253,19 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
                     Log.d(TAG, "Added temporary contact to local cache: " + contact.getEmailAddress());
                 }
                 
-                Log.d(TAG, "Processing contact - ID: " + contact.getContactId() + ", Email: " + contact.getEmailAddress());
+                Log.d(TAG, "Sending message to contact - ID: " + contact.getContactId() + ", Email: " + contact.getEmailAddress());
                 
-                // Update the recipient field with the contact's email
+                // Send the message with the found contact
                 runOnUiThread(() -> {
                     try {
                         // Set the recipient field with the contact's email
                         binding.inputRecipient.setText(contact.getEmailAddress());
-                        
-                        // If we have a pending message, send it now
-                        if (!TextUtils.isEmpty(pendingMessageContent)) {
-                            Log.d(TAG, "Sending pending message to: " + contact.getEmailAddress());
-                            sendMessage(contact, pendingMessageContent);
-                            pendingMessageContent = null; // Clear the pending message
-                            
-                            // Close the activity after a short delay to ensure message is sent
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                setResult(RESULT_OK);
-                                finish();
-                            }, 300);
-                        } else {
-                            Log.d(TAG, "No pending message to send");
-                            // If no pending message, just close the activity
-                            setResult(RESULT_OK);
-                            finish();
-                        }
+                        // Send the message
+                        sendMessage(contact, messageText);
                     } catch (Exception e) {
-                        Log.e(TAG, "Error in onContactAdded UI update: " + e.getMessage(), e);
+                        Log.e(TAG, "Error in onContactAdded: " + e.getMessage(), e);
+                        showLoading(false);
                         Toast.makeText(ComposeMessageActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_CANCELED);
-                        finish();
                     }
                 });
             }
@@ -299,6 +281,7 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
                 runOnUiThread(() -> {
                     showLoading(false);
                     binding.inputRecipient.setError(error);
+                    Toast.makeText(ComposeMessageActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
                 });
             }
         });
@@ -309,14 +292,30 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
             binding.inputSubject.getText().toString().trim() : "";
             
         Log.d(TAG, "sendMessage called - Contact: " + (contact != null ? 
-            "ID: " + contact.getContactId() + ", Email: " + contact.getEmailAddress() : "null") + 
+            "ID: " + contact.getContactId() + ", UserID: " + contact.getUserId() + 
+            ", Email: " + contact.getEmailAddress() : "null") + 
             ", Subject: " + subject + ", Message: " + messageContent);
             
         if (contact == null || TextUtils.isEmpty(messageContent)) {
-            Log.e(TAG, "Cannot send message - contact or message content is null");
+            String error = "Cannot send message - contact or message content is null";
+            Log.e(TAG, error);
             runOnUiThread(() -> {
-                Toast.makeText(this, "Cannot send message: Invalid contact or message", 
-                    Toast.LENGTH_SHORT).show();
+                showLoading(false);
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
+            });
+            return;
+        }
+        
+        // Validate we have a valid recipient ID
+        String recipientId = contact.getUserId() != null && !contact.getUserId().isEmpty() ? 
+            contact.getUserId() : contact.getContactId();
+            
+        if (recipientId == null || recipientId.isEmpty()) {
+            String error = "Cannot determine recipient ID for contact: " + contact.getEmailAddress();
+            Log.e(TAG, error);
+            runOnUiThread(() -> {
+                showLoading(false);
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
             });
             return;
         }
@@ -333,14 +332,11 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         message.setSenderId(currentUserId);
         message.setSenderEmail(currentUserEmail != null ? currentUserEmail : "");
         
-        // Use the contact's user ID, not their email
-        if (contact.getUserId() != null && !contact.getUserId().isEmpty()) {
-            message.setRecipientId(contact.getUserId());
-        } else {
-            message.setRecipientId(contact.getContactId());
-        }
-        
+        // Always use the contact's user ID as recipient ID
+        message.setRecipientId(recipientId);
         message.setRecipientEmail(contact.getEmailAddress());
+        
+        // Set message content and metadata
         message.setContent(messageContent);
         message.setTimestamp(System.currentTimeMillis());
         message.setRead(false);
@@ -348,6 +344,9 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         message.setIsNote(false);
         message.setHasReminder(false);
         message.setArchived(false);
+        
+        Log.d(TAG, "Prepared message - Sender: " + currentUserId + 
+            ", Recipient: " + recipientId + ", Email: " + contact.getEmailAddress());
         
         // Use DatabaseHelper to send the message
         databaseHelper.sendMessage(message, new DatabaseHelper.DatabaseCallback() {
@@ -357,8 +356,10 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
                     " (ID: " + contact.getContactId() + ")");
                 runOnUiThread(() -> {
                     showLoading(false);
-                    // Don't finish here, let onContactAdded handle it
-                    // This allows the contact to be properly saved in the background
+                    Toast.makeText(ComposeMessageActivity.this, "Message sent successfully", 
+                        Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
                 });
             }
 

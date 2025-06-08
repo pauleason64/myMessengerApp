@@ -230,6 +230,7 @@ public class Message {
         map.put("id", id);
         map.put("senderId", senderId);
         map.put("senderEmail", senderEmail);
+        map.put("recipientId", recipientId);  // Added missing recipientId
         map.put("recipientEmail", recipientEmail);
         map.put("subject", subject);
         map.put("content", content);
@@ -240,10 +241,10 @@ public class Message {
             map.put("reminderTime", reminderTime > 0 ? reminderTime : ServerValue.TIMESTAMP);
         }
         map.put("archived", archived);
+        map.put("isNote", isNote);  // Uncommented and fixed to use the field directly
         if (previousMessageId != null && !previousMessageId.isEmpty()) {
             map.put("previousMessageId", previousMessageId);
         }
-//        map.put("isNote", isNote);
         return map;
     }
 

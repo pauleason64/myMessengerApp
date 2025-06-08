@@ -471,30 +471,41 @@ public class ContactsManager {
      * @param email The email address of the contact
      */
     public void addContact(String contactId, String displayName, String email, DatabaseCallback callback) {
-        // If contactId is not provided, use email as contactId
-        if (contactId == null || contactId.isEmpty()) {
-            contactId = email;
-        }
-        
         // If email is not provided but contactId is, use contactId as email
         if ((email == null || email.isEmpty()) && contactId != null) {
             email = contactId;
+        }
+        
+        // If we still don't have an email, we can't proceed
+        if (email == null || email.isEmpty()) {
+            String error = "Email is required to add a contact";
+            log.e(TAG, error);
+            if (callback != null) {
+                callback.onError(error);
+            }
+            return;
         }
         
         String currentUserId = getCurrentUserId();
         if (currentUserId == null) {
             String error = "User not authenticated";
             log.e(TAG, error);
-            if (loadListener != null) {
-                loadListener.onError(error);
+            if (callback != null) {
+                callback.onError(error);
             }
             return;
         }
         
+        // If contactId is not provided, use the email as a fallback for the contact ID
+        // But we should have the actual user ID from the lookup
+        if (contactId == null || contactId.isEmpty()) {
+            contactId = email; // Fallback, but this should be the actual user ID from the lookup
+        }
+        
         // Create a new contact with the provided details
         Contact newContact = new Contact();
-        newContact.setUserId(currentUserId);
-        newContact.setContactId(contactId);
+        newContact.setUserId(contactId); // This should be the recipient's user ID, not the current user's ID
+        newContact.setContactId(contactId); // Use the same ID for contactId
         newContact.setEmailAddress(email);
         newContact.setTimestamp(System.currentTimeMillis());
         
@@ -629,21 +640,42 @@ public class ContactsManager {
             return;
         }
 
+        // Make sure we have a valid contact ID
+        if (contact.getContactId() == null || contact.getContactId().isEmpty()) {
+            String error = "Cannot save contact - invalid contact ID";
+            log.e(TAG, error);
+            if (callback != null) {
+                callback.onError(error);
+            }
+            return;
+        }
+
+        // Make sure we have a valid user ID for the contact
+        if (contact.getUserId() == null || contact.getUserId().isEmpty()) {
+            contact.setUserId(contact.getContactId()); // Use contact ID as user ID if not set
+        }
+
+        log.d(TAG, "Saving contact - ID: " + contact.getContactId() + 
+              ", UserID: " + contact.getUserId() + 
+              ", Email: " + contact.getEmailAddress());
+
+        // Save to the current user's contacts
         databaseReference.child(CONTACTS_NODE).child(currentUserId).child(contact.getContactId())
             .setValue(contact)
             .addOnSuccessListener(aVoid -> {
-                if (!contactsCache.containsKey(contact.getContactId())) {
-                    contact.setId(contact.getContactId());
-                    contactsCache.put(contact.getContactId(), contact);
-                    log.d(TAG, "Contact added/updated: " + contact.getEmailAddress());
-                    
-                    if (loadListener != null) {
-                        loadListener.onContactAdded(contact);
-                    }
-                    
-                    if (callback != null) {
-                        callback.onSuccess(contact);
-                    }
+                // Update cache
+                contact.setId(contact.getContactId());
+                contactsCache.put(contact.getContactId(), contact);
+                log.d(TAG, "Contact added/updated: " + contact.getEmailAddress() + " (ID: " + contact.getContactId() + ")");
+                
+                // Notify listeners
+                if (loadListener != null) {
+                    loadListener.onContactAdded(contact);
+                }
+                
+                // Call the callback
+                if (callback != null) {
+                    callback.onSuccess(contact);
                 }
             })
             .addOnFailureListener(e -> {
