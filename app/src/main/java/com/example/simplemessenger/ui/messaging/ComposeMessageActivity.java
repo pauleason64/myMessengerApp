@@ -89,6 +89,38 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         if (getIntent() != null) {
             isNoteMode = getIntent().getBooleanExtra(EXTRA_IS_NOTE, false) || 
                         getIntent().getBooleanExtra(EXTRA_NOTE_MODE, false);
+            
+            // Handle reply to
+            if (getIntent().hasExtra(EXTRA_REPLY_TO)) {
+                String replyTo = getIntent().getStringExtra(EXTRA_REPLY_TO);
+                if (replyTo != null && !replyTo.isEmpty()) {
+                    binding.inputRecipient.setText(replyTo);
+                }
+            }
+            
+            // Handle subject
+            if (getIntent().hasExtra(EXTRA_SUBJECT)) {
+                String subject = getIntent().getStringExtra(EXTRA_SUBJECT);
+                if (subject != null && !subject.isEmpty()) {
+                    binding.inputSubject.setText(subject);
+                }
+            }
+            
+            // Handle forwarded message content
+            if (getIntent().hasExtra(EXTRA_MESSAGE)) {
+                String message = getIntent().getStringExtra(EXTRA_MESSAGE);
+                if (message != null && !message.isEmpty()) {
+                    binding.inputMessage.setText(message);
+                    // Move cursor to the beginning of the message
+                    binding.inputMessage.setSelection(0);
+                }
+            }
+            
+            // Handle previous message ID for context
+            if (getIntent().hasExtra(EXTRA_PREVIOUS_MESSAGE_ID)) {
+                // Could be used to load previous message context if needed
+                String previousMessageId = getIntent().getStringExtra(EXTRA_PREVIOUS_MESSAGE_ID);
+            }
         }
         
         // Set appropriate title based on mode

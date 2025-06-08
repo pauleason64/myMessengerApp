@@ -68,8 +68,21 @@ public class MessageDetailActivity extends AppCompatActivity {
             showError("Cannot reply: Message not loaded");
             return;
         }
+        
+        String currentUserId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        if (currentUserId == null) {
+            showError("User not authenticated");
+            return;
+        }
+        
+        // If current user is the sender, reply to the recipient instead
+        String replyToEmail = message.getSenderEmail();
+        if (currentUserId.equals(message.getSenderId())) {
+            replyToEmail = message.getRecipientEmail();
+        }
+        
         Intent intent = new Intent(this, ComposeMessageActivity.class);
-        intent.putExtra(ComposeMessageActivity.EXTRA_REPLY_TO, message.getSenderEmail());
+        intent.putExtra(ComposeMessageActivity.EXTRA_REPLY_TO, replyToEmail);
         intent.putExtra(ComposeMessageActivity.EXTRA_SUBJECT, "Re: " + message.getSubject());
         intent.putExtra(ComposeMessageActivity.EXTRA_PREVIOUS_MESSAGE_ID, message.getId());
         startActivity(intent);
