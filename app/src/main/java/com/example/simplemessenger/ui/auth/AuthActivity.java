@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,17 +83,19 @@ public class AuthActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         
         Button btnLogin = findViewById(R.id.btn_login);
-        Button btnRegister = findViewById(R.id.btn_register);
         Button btnRegisterSubmit = findViewById(R.id.btn_register_submit);
         TextView textForgotPassword = findViewById(R.id.text_forgot_password);
         TextView textLogin = findViewById(R.id.text_login);
 
         // Set click listeners
         btnLogin.setOnClickListener(v -> attemptLogin());
-        btnRegister.setOnClickListener(v -> showRegistration());
         btnRegisterSubmit.setOnClickListener(v -> attemptRegistration());
         textForgotPassword.setOnClickListener(v -> resetPassword());
         textLogin.setOnClickListener(v -> showLogin());
+        
+        // Set up create account text click listener
+        TextView textCreateAccount = findViewById(R.id.text_create_account);
+        textCreateAccount.setOnClickListener(v -> showRegistration());
         
         // Set up keyboard actions
         inputPassword.setOnEditorActionListener((v, actionId, event) -> {
@@ -500,7 +504,6 @@ public class AuthActivity extends AppCompatActivity {
         checkTerms.setVisibility(View.VISIBLE);
         checkRememberMe.setVisibility(View.GONE);
         findViewById(R.id.btn_login).setVisibility(View.GONE);
-        findViewById(R.id.btn_register).setVisibility(View.GONE);
         findViewById(R.id.text_forgot_password).setVisibility(View.GONE);
         findViewById(R.id.btn_register_submit).setVisibility(View.VISIBLE);
         findViewById(R.id.text_login).setVisibility(View.VISIBLE);
@@ -517,7 +520,6 @@ public class AuthActivity extends AppCompatActivity {
         checkTerms.setVisibility(View.GONE);
         checkRememberMe.setVisibility(View.VISIBLE);
         findViewById(R.id.btn_login).setVisibility(View.VISIBLE);
-        findViewById(R.id.btn_register).setVisibility(View.VISIBLE);
         findViewById(R.id.text_forgot_password).setVisibility(View.VISIBLE);
         findViewById(R.id.btn_register_submit).setVisibility(View.GONE);
         findViewById(R.id.text_login).setVisibility(View.GONE);

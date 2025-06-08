@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.simplemessenger.R;
@@ -54,6 +55,9 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
   public final ProgressBar progressBar;
 
   @NonNull
+  public final NestedScrollView scrollView;
+
+  @NonNull
   public final TextView textReminderTime;
 
   @NonNull
@@ -64,8 +68,8 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
       @NonNull TextInputEditText inputMessage, @NonNull AutoCompleteTextView inputRecipient,
       @NonNull TextInputEditText inputSubject, @NonNull TextInputLayout layoutMessage,
       @NonNull TextInputLayout layoutRecipient, @NonNull TextInputLayout layoutSubject,
-      @NonNull ProgressBar progressBar, @NonNull TextView textReminderTime,
-      @NonNull Toolbar toolbar) {
+      @NonNull ProgressBar progressBar, @NonNull NestedScrollView scrollView,
+      @NonNull TextView textReminderTime, @NonNull Toolbar toolbar) {
     this.rootView = rootView;
     this.buttonSetReminder = buttonSetReminder;
     this.checkboxSetReminder = checkboxSetReminder;
@@ -76,6 +80,7 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
     this.layoutRecipient = layoutRecipient;
     this.layoutSubject = layoutSubject;
     this.progressBar = progressBar;
+    this.scrollView = scrollView;
     this.textReminderTime = textReminderTime;
     this.toolbar = toolbar;
   }
@@ -161,6 +166,12 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.scrollView;
+      NestedScrollView scrollView = ViewBindings.findChildViewById(rootView, id);
+      if (scrollView == null) {
+        break missingId;
+      }
+
       id = R.id.text_reminder_time;
       TextView textReminderTime = ViewBindings.findChildViewById(rootView, id);
       if (textReminderTime == null) {
@@ -175,7 +186,7 @@ public final class ActivityComposeMessageBinding implements ViewBinding {
 
       return new ActivityComposeMessageBinding((CoordinatorLayout) rootView, buttonSetReminder,
           checkboxSetReminder, inputMessage, inputRecipient, inputSubject, layoutMessage,
-          layoutRecipient, layoutSubject, progressBar, textReminderTime, toolbar);
+          layoutRecipient, layoutSubject, progressBar, scrollView, textReminderTime, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

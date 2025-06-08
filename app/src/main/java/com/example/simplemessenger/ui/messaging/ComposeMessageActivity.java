@@ -1,5 +1,6 @@
 package com.example.simplemessenger.ui.messaging;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Filter;
@@ -28,6 +30,7 @@ import com.example.simplemessenger.data.ContactsManager;
 import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityComposeMessageBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -79,6 +82,9 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
+        // Note: Bottom navigation and FAB have been removed as they're not needed
+        // The send functionality is handled by the send button in the toolbar
+        
         // Check if we're in note mode from intent
         if (getIntent() != null) {
             isNoteMode = getIntent().getBooleanExtra(EXTRA_IS_NOTE, false) || 
@@ -94,12 +100,20 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         // Load contacts
         loadContacts();
         
-        // Set focus to the appropriate field
-        if (isNoteMode) {
-            binding.inputSubject.requestFocus();
-        } else {
-            binding.inputRecipient.requestFocus();
-        }
+        // Request focus and show keyboard for the appropriate field
+        binding.getRoot().postDelayed(() -> {
+            if (isNoteMode) {
+                if (binding.inputSubject.requestFocus()) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(binding.inputSubject, InputMethodManager.SHOW_IMPLICIT);
+                }
+            } else {
+                if (binding.inputRecipient.requestFocus()) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(binding.inputRecipient, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }
+        }, 100);
     }
 
     private void loadContacts() {
@@ -186,7 +200,21 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         binding.inputRecipient.setAdapter(emailAdapter);
         binding.inputRecipient.setThreshold(1); // Start showing suggestions after 1 character
         
-        // Handle item selection - no need to do anything special since we're already showing the email
+        // Handle item selection
+        binding.inputRecipient.setOnItemClickListener((parent, view, position, id) -> {
+            // Get the selected email
+            String selectedEmail = parent.getItemAtPosition(position).toString();
+            
+            // Set the text and move cursor to end
+            binding.inputRecipient.setText(selectedEmail);
+            binding.inputRecipient.setSelection(selectedEmail.length());
+            
+            // Dismiss the dropdown
+            binding.inputRecipient.dismissDropDown();
+            
+            // Move focus to subject field
+            binding.inputSubject.requestFocus();
+        });
         
         // Update the adapter when the text changes
         binding.inputRecipient.addTextChangedListener(new TextWatcher() {

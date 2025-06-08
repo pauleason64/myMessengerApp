@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:fitsSystemWindows="true"
     tools:context=".ui.messaging.ComposeMessageActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -24,15 +26,22 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:isScrollContainer="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="72dp"
+            android:focusableInTouchMode="true">
 
             <!-- Recipient -->
             <com.google.android.material.textfield.TextInputLayout
@@ -50,8 +59,14 @@
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:completionThreshold="1"
-                    android:singleLine="true"
-                    tools:ignore="TextFields" />
+                    android:dropDownHeight="wrap_content"
+                    android:dropDownWidth="match_parent"
+                    android:dropDownVerticalOffset="4dp"
+                    android:dropDownAnchor="@id/layout_recipient"
+                    android:popupBackground="@android:color/white"
+                    android:dropDownSelector="?attr/colorPrimary"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@+id/input_subject" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Subject -->
@@ -67,10 +82,11 @@
                     android:id="@+id/input_subject"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
+                    android:hint="@string/hint_subject"
+                    android:inputType="textCapSentences"
                     android:maxLines="1"
-                    android:singleLine="true"
-                    tools:ignore="TextFields" />
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@+id/input_message" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Message -->
@@ -86,14 +102,16 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/input_message"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="top|start"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_message"
                     android:inputType="textMultiLine|textCapSentences"
-                    android:minHeight="150dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
+                    android:gravity="top"
+                    android:minLines="6"
+                    android:maxLines="10"
                     android:scrollbars="vertical"
-                    tools:ignore="LabelFor" />
+                    android:overScrollMode="always"
+                    android:imeOptions="actionDone"
+                    android:nextFocusForward="@+id/input_recipient" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Reminder Options -->

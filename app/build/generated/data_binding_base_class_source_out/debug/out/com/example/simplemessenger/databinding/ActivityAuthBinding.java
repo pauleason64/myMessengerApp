@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,10 +28,10 @@ public final class ActivityAuthBinding implements ViewBinding {
   private final CoordinatorLayout rootView;
 
   @NonNull
-  public final MaterialButton btnLogin;
+  public final ScrollView authScrollView;
 
   @NonNull
-  public final MaterialButton btnRegister;
+  public final MaterialButton btnLogin;
 
   @NonNull
   public final MaterialButton btnRegisterSubmit;
@@ -75,6 +76,9 @@ public final class ActivityAuthBinding implements ViewBinding {
   public final ProgressBar progressBar;
 
   @NonNull
+  public final TextView textCreateAccount;
+
+  @NonNull
   public final TextView textForgotPassword;
 
   @NonNull
@@ -86,18 +90,20 @@ public final class ActivityAuthBinding implements ViewBinding {
   @NonNull
   public final Toolbar toolbar;
 
-  private ActivityAuthBinding(@NonNull CoordinatorLayout rootView, @NonNull MaterialButton btnLogin,
-      @NonNull MaterialButton btnRegister, @NonNull MaterialButton btnRegisterSubmit,
-      @NonNull CheckBox checkRememberMe, @NonNull CheckBox checkTerms, @NonNull ImageView imageLogo,
+  private ActivityAuthBinding(@NonNull CoordinatorLayout rootView,
+      @NonNull ScrollView authScrollView, @NonNull MaterialButton btnLogin,
+      @NonNull MaterialButton btnRegisterSubmit, @NonNull CheckBox checkRememberMe,
+      @NonNull CheckBox checkTerms, @NonNull ImageView imageLogo,
       @NonNull TextInputEditText inputConfirmPassword, @NonNull TextInputEditText inputEmail,
       @NonNull TextInputEditText inputName, @NonNull TextInputEditText inputPassword,
       @NonNull TextInputLayout layoutConfirmPassword, @NonNull TextInputLayout layoutEmail,
       @NonNull TextInputLayout layoutName, @NonNull TextInputLayout layoutPassword,
-      @NonNull View overlay, @NonNull ProgressBar progressBar, @NonNull TextView textForgotPassword,
-      @NonNull TextView textLogin, @NonNull TextView textTitle, @NonNull Toolbar toolbar) {
+      @NonNull View overlay, @NonNull ProgressBar progressBar, @NonNull TextView textCreateAccount,
+      @NonNull TextView textForgotPassword, @NonNull TextView textLogin,
+      @NonNull TextView textTitle, @NonNull Toolbar toolbar) {
     this.rootView = rootView;
+    this.authScrollView = authScrollView;
     this.btnLogin = btnLogin;
-    this.btnRegister = btnRegister;
     this.btnRegisterSubmit = btnRegisterSubmit;
     this.checkRememberMe = checkRememberMe;
     this.checkTerms = checkTerms;
@@ -112,6 +118,7 @@ public final class ActivityAuthBinding implements ViewBinding {
     this.layoutPassword = layoutPassword;
     this.overlay = overlay;
     this.progressBar = progressBar;
+    this.textCreateAccount = textCreateAccount;
     this.textForgotPassword = textForgotPassword;
     this.textLogin = textLogin;
     this.textTitle = textTitle;
@@ -145,15 +152,15 @@ public final class ActivityAuthBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btn_login;
-      MaterialButton btnLogin = ViewBindings.findChildViewById(rootView, id);
-      if (btnLogin == null) {
+      id = R.id.auth_scroll_view;
+      ScrollView authScrollView = ViewBindings.findChildViewById(rootView, id);
+      if (authScrollView == null) {
         break missingId;
       }
 
-      id = R.id.btn_register;
-      MaterialButton btnRegister = ViewBindings.findChildViewById(rootView, id);
-      if (btnRegister == null) {
+      id = R.id.btn_login;
+      MaterialButton btnLogin = ViewBindings.findChildViewById(rootView, id);
+      if (btnLogin == null) {
         break missingId;
       }
 
@@ -241,6 +248,12 @@ public final class ActivityAuthBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.text_create_account;
+      TextView textCreateAccount = ViewBindings.findChildViewById(rootView, id);
+      if (textCreateAccount == null) {
+        break missingId;
+      }
+
       id = R.id.text_forgot_password;
       TextView textForgotPassword = ViewBindings.findChildViewById(rootView, id);
       if (textForgotPassword == null) {
@@ -265,10 +278,11 @@ public final class ActivityAuthBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityAuthBinding((CoordinatorLayout) rootView, btnLogin, btnRegister,
+      return new ActivityAuthBinding((CoordinatorLayout) rootView, authScrollView, btnLogin,
           btnRegisterSubmit, checkRememberMe, checkTerms, imageLogo, inputConfirmPassword,
           inputEmail, inputName, inputPassword, layoutConfirmPassword, layoutEmail, layoutName,
-          layoutPassword, overlay, progressBar, textForgotPassword, textLogin, textTitle, toolbar);
+          layoutPassword, overlay, progressBar, textCreateAccount, textForgotPassword, textLogin,
+          textTitle, toolbar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

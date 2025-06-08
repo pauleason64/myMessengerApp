@@ -193,8 +193,8 @@
 106-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:85:13-63
 107            android:theme="@style/Theme.SimpleMessenger.NoActionBar"
 107-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:83:13-69
-108            android:windowSoftInputMode="adjustResize" >
-108-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:84:13-55
+108            android:windowSoftInputMode="adjustResize|stateVisible" >
+108-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:84:13-68
 109            <meta-data
 109-->E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:74:13-76:57
 110                android:name="android.support.PARENT_ACTIVITY"

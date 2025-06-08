@@ -432,7 +432,7 @@ ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:8
 	android:parentActivityName
 		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:85:13-63
 	android:windowSoftInputMode
-		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:84:13-55
+		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:84:13-68
 	android:exported
 		ADDED from E:\androidprojects\SimpleMessenger\app\src\main\AndroidManifest.xml:82:13-37
 	android:theme

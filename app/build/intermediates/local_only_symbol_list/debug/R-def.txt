@@ -23,6 +23,7 @@ dimen fab_margin
 dimen small_padding
 drawable bg_reminder
 drawable bg_rounded_dialog
+drawable bottom_nav_colors
 drawable bottom_nav_selector
 drawable ic_access_time
 drawable ic_account_circle
@@ -78,6 +79,7 @@ id action_set_reminder
 id action_settings
 id action_share
 id action_toggle_note
+id auth_scroll_view
 id bottom_navigation
 id btnChangePassword
 id btnEditProfile
@@ -87,7 +89,6 @@ id btn_back
 id btn_delete
 id btn_forward
 id btn_login
-id btn_register
 id btn_register_submit
 id btn_reply
 id btn_save_config
@@ -156,6 +157,7 @@ id radio_group
 id radio_inbox
 id radio_outbox
 id recycler_view
+id scrollView
 id settings_container
 id sort_header
 id swipe_refresh_layout
@@ -163,6 +165,7 @@ id switch_email_notifications
 id switch_push_notifications
 id switch_sound
 id tabLayout
+id text_create_account
 id text_date
 id text_date_header
 id text_empty

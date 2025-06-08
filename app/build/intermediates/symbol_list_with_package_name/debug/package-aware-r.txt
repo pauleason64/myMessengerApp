@@ -3128,6 +3128,7 @@ drawable avd_hide_password
 drawable avd_show_password
 drawable bg_reminder
 drawable bg_rounded_dialog
+drawable bottom_nav_colors
 drawable bottom_nav_selector
 drawable btn_checkbox_checked_mtrl
 drawable btn_checkbox_checked_to_unchecked_mtrl_animation
@@ -3391,6 +3392,7 @@ id anticipate
 id arc
 id asConfigured
 id async
+id auth_scroll_view
 id auto
 id autoComplete
 id autoCompleteToEnd
@@ -3420,7 +3422,6 @@ id btn_back
 id btn_delete
 id btn_forward
 id btn_login
-id btn_register
 id btn_register_submit
 id btn_reply
 id btn_save_config
@@ -3862,6 +3863,7 @@ id textSpacerNoButtons
 id textSpacerNoTitle
 id textStart
 id textTop
+id text_create_account
 id text_date
 id text_date_header
 id text_empty
