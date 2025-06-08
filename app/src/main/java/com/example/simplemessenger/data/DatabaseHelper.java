@@ -94,12 +94,6 @@ public class DatabaseHelper {
             return;
         }
 
-        // Validate recipient ID
-        if (message.getRecipientId() == null || message.getRecipientId().isEmpty()) {
-            callback.onError("Recipient ID is not available. Please ensure the contact is valid.");
-            return;
-        }
-
         // Set sender information
         message.setSenderId(mAuth.getCurrentUser().getUid());
         message.setSenderEmail(currentEmail);
@@ -109,24 +103,36 @@ public class DatabaseHelper {
         
         // Create a map to update multiple locations at once
         String currentUserId = mAuth.getCurrentUser().getUid();
-        String recipientId = message.getRecipientId();
-        
-        // Validate recipient ID format (should be a Firebase UID, not an email)
-        if (recipientId.contains("@") || recipientId.contains(".")) {
-            callback.onError("Invalid recipient ID format. Expected UID but got: " + recipientId);
-            return;
-        }
-        
         Map<String, Object> updates = new HashMap<>();
         
         // Add the message to the messages node
         updates.put("/" + MESSAGES_NODE + "/" + messageId, message.toMap());
         
-        // Add reference to sender's sent messages
-        updates.put("/" + USER_MESSAGES_NODE + "/" + currentUserId + "/" + USER_SENT_NODE + "/" + messageId, true);
-        
-        // Add reference to recipient's received messages using their UID
-        updates.put("/" + USER_MESSAGES_NODE + "/" + recipientId + "/" + USER_RECEIVED_NODE + "/" + messageId, true);
+        if (message.isNote()) {
+            // For notes, save to the user's notes node
+            updates.put("/" + USER_MESSAGES_NODE + "/" + currentUserId + "/notes/" + messageId, true);
+        } else {
+            // For regular messages, validate recipient and set up sent/received references
+            String recipientId = message.getRecipientId();
+            
+            // Validate recipient ID
+            if (recipientId == null || recipientId.isEmpty()) {
+                callback.onError("Recipient ID is not available. Please ensure the contact is valid.");
+                return;
+            }
+            
+            // Validate recipient ID format (should be a Firebase UID, not an email)
+            if (recipientId.contains("@") || recipientId.contains(".")) {
+                callback.onError("Invalid recipient ID format. Expected UID but got: " + recipientId);
+                return;
+            }
+            
+            // Add reference to sender's sent messages
+            updates.put("/" + USER_MESSAGES_NODE + "/" + currentUserId + "/" + USER_SENT_NODE + "/" + messageId, true);
+            
+            // Add reference to recipient's received messages using their UID
+            updates.put("/" + USER_MESSAGES_NODE + "/" + recipientId + "/" + USER_RECEIVED_NODE + "/" + messageId, true);
+        }
         
         // Log the updates map for debugging
         try {

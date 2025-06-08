@@ -3,15 +3,23 @@ package com.example.simplemessenger.ui.messaging;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.simplemessenger.R;
@@ -21,6 +29,7 @@ import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityComposeMessageBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,25 +77,61 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("New Message");
         }
         
-        // The send button is in the toolbar and will be handled in onOptionsItemSelected
+        // Check if we're in note mode from intent
+        if (getIntent() != null) {
+            isNoteMode = getIntent().getBooleanExtra(EXTRA_IS_NOTE, false) || 
+                        getIntent().getBooleanExtra(EXTRA_NOTE_MODE, false);
+        }
+        
+        // Set appropriate title based on mode
+        updateUiForMode();
         
         // Set up recipient autocomplete
         setupRecipientAutocomplete();
         
+        // Load contacts
         loadContacts();
+        
+        // Set focus to the appropriate field
+        if (isNoteMode) {
+            binding.inputSubject.requestFocus();
+        } else {
+            binding.inputRecipient.requestFocus();
+        }
     }
 
     private void loadContacts() {
-        // We'll use the activity as the listener
+        // Set this activity as the load listener
         contactsManager.setLoadListener(this);
+        
+        // Load contacts if not already loaded
+        if (contactsManager.getCachedContacts().isEmpty()) {
+            // Show loading indicator
+            showLoading(true);
+            
+            // Initialize contacts - this will trigger onContactsLoaded when done
+            try {
+                contactsManager.initializeContacts();
+            } catch (Exception e) {
+                Log.e(TAG, "Error initializing contacts", e);
+                showLoading(false);
+                Toast.makeText(this, "Error loading contacts: " + e.getMessage(), 
+                    Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Contacts already loaded, update the adapter
+            updateAutoCompleteAdapter();
+        }
     }
     
     @Override
     public void onContactsLoaded(List<Contact> contacts) {
-        updateAutoCompleteAdapter();
+        runOnUiThread(() -> {
+            showLoading(false);
+            updateAutoCompleteAdapter();
+        });
     }
 
     @Override
@@ -113,44 +158,68 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
     }
 
     private void setupRecipientAutocomplete() {
-        // Create a list to hold contact display strings (email + name if available)
-        List<String> contactDisplayList = new ArrayList<>();
-        
-        // Create a map to store email to contact ID mapping
-        final Map<String, String> emailToContactIdMap = new HashMap<>();
-        
-        // Populate the list with contact information
-        for (Contact contact : contactsManager.getContactsCache().values()) {
-            String email = contact.getEmailAddress();
-            if (email != null && !email.isEmpty()) {
-                String displayName = contact.getDisplayName();
-                String displayText = displayName != null && !displayName.isEmpty() ? 
-                    String.format("%s <%s>", displayName, email) : email;
-                
-                contactDisplayList.add(displayText);
-                emailToContactIdMap.put(email, contact.getContactId());
+        // Create a simple adapter that shows both name and email
+        ArrayAdapter<String> emailAdapter = new ArrayAdapter<String>(
+            this, 
+            android.R.layout.simple_dropdown_item_1line, 
+            new ArrayList<>()
+        ) {
+            @NonNull
+            @Override
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                String email = getItem(position);
+                if (email != null) {
+                    // Try to find the contact to show name if available
+                    Contact contact = contactsManager.getContactByEmail(email);
+                    if (contact != null && contact.getDisplayName() != null && !contact.getDisplayName().isEmpty()) {
+                        ((TextView) view).setText(String.format("%s <%s>", contact.getDisplayName(), email));
+                    } else {
+                        ((TextView) view).setText(email);
+                    }
+                }
+                return view;
             }
-        }
-        
-        // Create and set the adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, contactDisplayList);
+        };
         
         // Set up the AutoCompleteTextView
-        binding.inputRecipient.setAdapter(adapter);
+        binding.inputRecipient.setAdapter(emailAdapter);
         binding.inputRecipient.setThreshold(1); // Start showing suggestions after 1 character
         
-        // Handle item selection
-        binding.inputRecipient.setOnItemClickListener((parent, view, position, id) -> {
-            String selectedItem = (String) parent.getItemAtPosition(position);
-            // Extract email from the selected item (format: "Display Name <email@example.com>" or "email@example.com")
-            String email = selectedItem;
-            if (selectedItem.contains("<")) {
-                email = selectedItem.substring(selectedItem.indexOf('<') + 1, selectedItem.indexOf('>'));
+        // Handle item selection - no need to do anything special since we're already showing the email
+        
+        // Update the adapter when the text changes
+        binding.inputRecipient.addTextChangedListener(new TextWatcher() {
+            private final Handler handler = new Handler(Looper.getMainLooper());
+            private Runnable runnable;
+            
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Clear any previous error when user types
+                binding.inputRecipient.setError(null);
+                
+                // Cancel any pending searches
+                if (runnable != null) {
+                    handler.removeCallbacks(runnable);
+                }
+                
+                // Debounce the search to avoid too many updates
+                String searchText = s.toString().trim();
+                if (searchText.length() >= 1) {  // Only search if there's at least 1 character
+                    runnable = () -> updateEmailSuggestions(searchText);
+                    handler.postDelayed(runnable, 300); // 300ms delay
+                } else {
+                    // Clear the dropdown if search text is too short
+                    emailAdapter.clear();
+                    emailAdapter.notifyDataSetChanged();
+                }
             }
             
-            // Update the field with just the email
-            binding.inputRecipient.setText(email);
-            binding.inputRecipient.setSelection(email.length());
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
     
@@ -176,6 +245,42 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+    }
+    
+    private void updateEmailSuggestions(String searchText) {
+        if (searchText == null || searchText.isEmpty()) {
+            return;
+        }
+        
+        String searchLower = searchText.toLowerCase();
+        List<String> matchingEmails = new ArrayList<>();
+        
+        // Search through all contacts
+        for (Contact contact : contactsManager.getCachedContacts()) {
+            String email = contact.getEmailAddress();
+            String name = contact.getDisplayName();
+            
+            if (email != null && email.toLowerCase().contains(searchLower)) {
+                matchingEmails.add(email);
+            } else if (name != null && name.toLowerCase().contains(searchLower)) {
+                matchingEmails.add(email);
+            }
+        }
+        
+        // Update the adapter on the UI thread
+        runOnUiThread(() -> {
+            ArrayAdapter<String> adapter = (ArrayAdapter<String>) binding.inputRecipient.getAdapter();
+            if (adapter != null) {
+                adapter.clear();
+                adapter.addAll(matchingEmails);
+                adapter.notifyDataSetChanged();
+                
+                // Show dropdown if there are results and the field has focus
+                if (!matchingEmails.isEmpty() && binding.inputRecipient.hasFocus()) {
+                    binding.inputRecipient.showDropDown();
+                }
+            }
+        });
     }
     
     private void sendMessage() {
@@ -391,15 +496,53 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
     }
     
     private void saveNote(String title, String content) {
-        // Implementation of saveNote
         showLoading(true);
         
-        // Here you would implement the actual note saving logic
-        // For now, we'll just show a success message
-        runOnUiThread(() -> {
+        // Get current user
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
             showLoading(false);
-            Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
-            finish();
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Create a new note message
+        Message note = new Message();
+        String noteId = databaseHelper.getDatabaseReference().child("messages").push().getKey();
+        note.setId(noteId);
+        note.setSenderId(currentUser.getUid());
+        note.setSenderEmail(currentUser.getEmail() != null ? currentUser.getEmail() : "");
+        note.setRecipientId(currentUser.getUid()); // Notes are saved to self
+        note.setRecipientEmail(currentUser.getEmail() != null ? currentUser.getEmail() : "");
+        note.setContent(content);
+        note.setSubject(title.isEmpty() ? "(No title)" : title);
+        note.setTimestamp(System.currentTimeMillis());
+        note.setRead(true); // Notes are marked as read by default
+        note.setIsNote(true);
+        note.setHasReminder(false);
+        note.setArchived(false);
+        
+        // Save the note using DatabaseHelper
+        databaseHelper.sendMessage(note, new DatabaseHelper.DatabaseCallback() {
+            @Override
+            public void onSuccess(Object result) {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    Toast.makeText(ComposeMessageActivity.this, "Note saved successfully", 
+                        Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    Toast.makeText(ComposeMessageActivity.this, 
+                        "Failed to save note: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
         });
     }
     
@@ -428,25 +571,36 @@ public class ComposeMessageActivity extends AppCompatActivity implements Contact
         if (id == R.id.action_send) {
             String recipient = binding.inputRecipient.getText().toString().trim();
             String message = binding.inputMessage.getText().toString().trim();
+            String subject = binding.inputSubject.getText().toString().trim();
             
-            if (TextUtils.isEmpty(recipient)) {
-                Toast.makeText(this, "Please enter a recipient", Toast.LENGTH_SHORT).show();
-                return true;
+            // Validate inputs based on mode
+            if (!isNoteMode) {
+                // Message validation
+                if (TextUtils.isEmpty(recipient)) {
+                    binding.inputRecipient.setError("Recipient is required");
+                    return true;
+                }
+                
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(recipient).matches()) {
+                    binding.inputRecipient.setError("Please enter a valid email");
+                    return true;
+                }
             }
             
             if (TextUtils.isEmpty(message)) {
-                Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show();
+                binding.inputMessage.setError(isNoteMode ? 
+                    "Note content cannot be empty" : "Message cannot be empty");
                 return true;
             }
             
-            // Check if we already have this contact locally
-            Contact existingContact = null;
-            for (Contact contact : contactsManager.getContactsCache().values()) {
-                if (recipient.equalsIgnoreCase(contact.getEmailAddress())) {
-                    existingContact = contact;
-                    break;
-                }
+            if (isNoteMode) {
+                // Save as note
+                saveNote(subject, message);
+                return true;
             }
+            
+            // For messages, check for existing contact
+            Contact existingContact = contactsManager.getContactByEmail(recipient);
             
             if (existingContact != null) {
                 // We have the contact, send the message directly
