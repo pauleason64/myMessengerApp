@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.contacts;
+package com.example.SImpleMessenger.ui.contacts;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,8 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.databinding.FragmentContactsBinding;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.databinding.FragmentContactsBinding;
 
 public class ContactsFragment extends Fragment {
 

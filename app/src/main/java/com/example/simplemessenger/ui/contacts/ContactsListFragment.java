@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.contacts;
+package com.example.SImpleMessenger.ui.contacts;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,18 +10,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.simplemessenger.data.model.Contact;
+import com.example.SImpleMessenger.data.model.Contact;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.data.model.User;
-import com.example.simplemessenger.R;
-import android.view.View;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.data.model.User;
+import com.example.SImpleMessenger.R;
+
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.simplemessenger.ui.adapters.ContactsAdapter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +33,7 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
     private TextView textNoContacts;
     private ProgressBar progressBar;
     private ContactsManager contactsManager;
-    private com.example.simplemessenger.ui.contacts.ContactsAdapter adapter;
+    private com.example.SImpleMessenger.ui.contacts.ContactsAdapter adapter;
     private final List<User> contacts = new ArrayList<>();
 
     @Override
@@ -56,7 +54,7 @@ public class ContactsListFragment extends Fragment implements ContactsManager.Co
         contactsManager = ContactsManager.getInstance();
         
         // Set up RecyclerView
-        adapter = new com.example.simplemessenger.ui.contacts.ContactsAdapter(contacts, new com.example.simplemessenger.ui.contacts.ContactsAdapter.OnContactActionListener() {
+        adapter = new com.example.SImpleMessenger.ui.contacts.ContactsAdapter(contacts, new com.example.SImpleMessenger.ui.contacts.ContactsAdapter.OnContactActionListener() {
             @Override
             public void onContactClick(User user) {
                 if (getActivity() != null) {

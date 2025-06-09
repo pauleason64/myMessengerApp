@@ -1,8 +1,7 @@
-package com.example.simplemessenger.ui.main;
+package com.example.SImpleMessenger.ui.main;
 
-import static com.example.simplemessenger.utils.AuthUtils.checkAuthState;
+import static com.example.SImpleMessenger.utils.AuthUtils.checkAuthState;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,17 +19,15 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.SimpleMessengerApp;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.ui.auth.AuthActivity;
-import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
-import com.example.simplemessenger.ui.contacts.ContactsFragment;
-import com.example.simplemessenger.ui.messaging.ComposeMessageActivity;
-import com.example.simplemessenger.ui.messaging.MessageListFragment;
-import com.example.simplemessenger.ui.profile.ProfileActivity;
-import com.example.simplemessenger.ui.profile.ProfileFragment;
-import com.example.simplemessenger.ui.settings.SettingsActivity;
+import com.example.SImpleMessenger.SimpleMessengerApp;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.ui.auth.AuthActivity;
+import com.example.SImpleMessenger.ui.config.FirebaseConfigActivity;
+import com.example.SImpleMessenger.ui.contacts.ContactsFragment;
+import com.example.SImpleMessenger.ui.messaging.ComposeMessageActivity;
+import com.example.SImpleMessenger.ui.messaging.MessageListFragment;
+import com.example.SImpleMessenger.ui.settings.SettingsActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;

@@ -1,0 +1,8 @@
+# Firebase Configuration
+firebase.database.url="https://forget-me-not-426c6-default-rtdb.europe-west1.firebasedatabase.app
+firebase.storage.bucket=forget-me-not-426c6.firebasestorage.app
+firebase.project.id=forget-me-not-426c6
+firebase.api.key=AIzaSyBakj6BOlUUkSMGhDqRsIaLln9BZr04nuk
+firebase.auth.domain=
+firebase.messaging.sender.id=
+firebase.app.id=1:305131800654:android:8b6235e79b23f028b25b1f

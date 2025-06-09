@@ -14,6 +14,7 @@
         }
       }
     },
+
     "user-contacts": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -48,6 +49,7 @@
         }
       }
     },
+
     "messages": {
       "$messageId": {
         ".read": "auth != null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid || (data.child('isNote').val() === true && data.child('senderId').val() === auth.uid))",
@@ -74,23 +76,20 @@
         "read": {
           ".validate": "newData.isBoolean()"
         },
-        "hasReminder": {
-          ".validate": "newData.isBoolean()"
-        },
-        "reminderTime": {
-          ".validate": "newData.isNumber()"
-        },
         "subject": {
           ".validate": "newData.isString()"
+        },
+        "hasReminder": {
+          ".validate": "newData.isBoolean()"
         },
         "isNote": {
           ".validate": "newData.isBoolean()"
         },
+        "category": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
         "id": {
           ".validate": "newData.isString()"
-        },
-        "previousMessageId": {
-          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0)"
         },
         "archived": {
           ".validate": "newData.isBoolean()"
@@ -101,29 +100,43 @@
       }
     },
 
+    "user-category": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "categoryList": {
+          ".validate": "newData.hasChildren(['categories'])",
+          "categories": {
+            ".validate": "newData.isString()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+
     "user-messages": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
+        ".indexOn": ["notes/category"],
 
         "sent": {
           "$messageId": {
-            ".validate": "newData.isBoolean()",
-            ".write": "auth != null && auth.uid === $uid"
+            ".validate": "newData.isBoolean()"
           }
         },
 
         "received": {
           "$messageId": {
-            ".validate": "newData.isBoolean()",
-            ".write": "auth != null"
+            ".validate": "newData.isBoolean()"
           }
         },
 
         "notes": {
           "$messageId": {
-            ".validate": "newData.isBoolean()",
-            ".write": "auth != null && auth.uid === $uid"
+            ".validate": "newData.isBoolean()"
           }
         }
       }

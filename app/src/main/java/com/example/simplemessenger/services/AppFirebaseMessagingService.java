@@ -1,4 +1,4 @@
-package com.example.simplemessenger.services;
+package com.example.SImpleMessenger.services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,8 +13,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.ui.main.MainActivity;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.ui.main.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 

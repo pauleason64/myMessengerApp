@@ -1,4 +1,4 @@
-package com.example.simplemessenger.util;
+package com.example.SImpleMessenger.util;
 
 import android.content.Context;
 import android.util.Log;
@@ -14,9 +14,9 @@ public class FirebaseConfig {
     private FirebaseConfig(Context context) {
         properties = new Properties();
         try {
-            properties.load(context.getAssets().open("firebase.properties"));
+            properties.load(context.getAssets().open("firebase.properties.new"));
         } catch (IOException e) {
-            Log.e(TAG, "Error loading firebase.properties", e);
+            Log.e(TAG, "Error loading firebase.properties.new", e);
         }
     }
 

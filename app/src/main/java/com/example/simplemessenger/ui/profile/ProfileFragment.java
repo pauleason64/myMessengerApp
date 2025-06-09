@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.profile;
+package com.example.SImpleMessenger.ui.profile;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,10 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.UserProfileManager;
-import com.example.simplemessenger.data.model.User;
-import com.example.simplemessenger.databinding.FragmentProfileBinding;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.UserProfileManager;
+import com.example.SImpleMessenger.data.model.User;
+import com.example.SImpleMessenger.databinding.FragmentProfileBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;

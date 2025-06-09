@@ -1,4 +1,4 @@
-package com.example.simplemessenger.util;
+package com.example.SImpleMessenger.util;
 
 import android.content.Context;
 

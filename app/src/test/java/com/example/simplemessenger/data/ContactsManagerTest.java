@@ -1,10 +1,10 @@
-package com.example.simplemessenger.data;
+package com.example.SImpleMessenger.data;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.example.simplemessenger.data.model.Contact;
-import com.example.simplemessenger.util.LogWrapper;
+import com.example.SImpleMessenger.data.model.Contact;
+import com.example.SImpleMessenger.util.LogWrapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 

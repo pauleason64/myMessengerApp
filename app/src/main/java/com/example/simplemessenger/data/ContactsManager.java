@@ -1,23 +1,19 @@
-package com.example.simplemessenger.data;
+package com.example.SImpleMessenger.data;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.simplemessenger.util.FirebaseConfig;
-import com.example.simplemessenger.util.FirebaseConfigManager;
-import com.example.simplemessenger.util.FirebaseFactory;
-import com.example.simplemessenger.util.LogWrapper;
+import com.example.SImpleMessenger.util.FirebaseFactory;
+import com.example.SImpleMessenger.util.LogWrapper;
 
-import com.example.simplemessenger.data.model.Contact;
+import com.example.SImpleMessenger.data.model.Contact;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;

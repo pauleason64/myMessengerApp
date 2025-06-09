@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.adapters;
+package com.example.SImpleMessenger.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +10,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.data.model.User;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.data.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;

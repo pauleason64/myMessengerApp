@@ -1,11 +1,10 @@
-package com.example.simplemessenger.util;
+package com.example.SImpleMessenger.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 
-import com.example.simplemessenger.SimpleMessengerApp;
 import com.google.gson.Gson;
 
 /**

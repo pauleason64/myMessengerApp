@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.adapters;
+package com.example.SImpleMessenger.ui.adapters;
 
 import android.annotation.SuppressLint;
 import android.icu.text.SimpleDateFormat;
@@ -14,17 +14,12 @@ import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.data.model.Contact;
-import com.example.simplemessenger.data.model.Message;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.data.model.Contact;
+import com.example.SImpleMessenger.data.model.Message;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.simplemessenger.R;
-import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.simplemessenger.ForgetMeNotApp;
 import com.example.simplemessenger.data.DatabaseHelper;
 import com.example.simplemessenger.data.model.Message;
 import com.example.simplemessenger.databinding.ActivityMessageDetailBinding;

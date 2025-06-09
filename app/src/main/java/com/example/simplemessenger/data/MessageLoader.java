@@ -1,11 +1,11 @@
-package com.example.simplemessenger.data;
+package com.example.SImpleMessenger.data;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.simplemessenger.data.model.Contact;
-import com.example.simplemessenger.data.model.Message;
+import com.example.SImpleMessenger.data.model.Contact;
+import com.example.SImpleMessenger.data.model.Message;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

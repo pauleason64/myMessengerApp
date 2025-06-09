@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.messaging;
+package com.example.SImpleMessenger.ui.messaging;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,29 +15,23 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.model.Contact;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.data.DatabaseHelper;
-import com.example.simplemessenger.data.model.Message;
-import com.example.simplemessenger.databinding.ActivityComposeMessageBinding;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.model.Contact;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.data.DatabaseHelper;
+import com.example.SImpleMessenger.data.model.Message;
+import com.example.SImpleMessenger.databinding.ActivityComposeMessageBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ComposeMessageActivity extends AppCompatActivity implements ContactsManager.ContactsLoadListener {
     private static final String TAG = "ComposeMessage";

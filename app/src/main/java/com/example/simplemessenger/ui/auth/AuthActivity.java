@@ -1,10 +1,9 @@
-package com.example.simplemessenger.ui.auth;
+package com.example.SImpleMessenger.ui.auth;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -16,29 +15,24 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.SimpleMessengerApp;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.data.UserProfileManager;
-import com.example.simplemessenger.data.model.User;
-import com.example.simplemessenger.ui.main.MainActivity;
+import com.example.SImpleMessenger.SimpleMessengerApp;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.data.UserProfileManager;
+import com.example.SImpleMessenger.ui.main.MainActivity;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
+import com.example.SImpleMessenger.util.CategoryManager;
 
-import com.example.simplemessenger.utils.AuthUtils;
+import com.example.SImpleMessenger.utils.AuthUtils;
 
-import java.util.HashMap;
-import java.util.Map;
 public class AuthActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword, inputName, inputConfirmPassword;
@@ -67,7 +61,7 @@ public class AuthActivity extends AppCompatActivity {
         
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences(
-                SimpleMessengerApp.SHARED_PREFS_NAME, 
+                SimpleMessengerApp.SHARED_PREFS_NAME,
                 Context.MODE_PRIVATE
         );
 
@@ -114,7 +108,7 @@ public class AuthActivity extends AppCompatActivity {
 
     private void checkAutoLogin() {
         boolean rememberMe = sharedPreferences.getBoolean(
-                SimpleMessengerApp.PREF_REMEMBER_ME, 
+                SimpleMessengerApp.PREF_REMEMBER_ME,
                 false
         );
         
@@ -292,7 +286,8 @@ public class AuthActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 Log.d("AuthActivity", "User profile saved successfully");
-                // Continue with any post-save logic
+                // Save default categories for new user
+                saveDefaultCategories(userId);
             }
 
             @Override
@@ -394,26 +389,7 @@ public class AuthActivity extends AppCompatActivity {
             
             Log.d("AuthActivity", "Handling successful login for: " + email);
             
-            // Get display name or use email prefix if display name is not set
-            String displayName = user.getDisplayName();
-            if (TextUtils.isEmpty(displayName)) {
-                try {
-                    displayName = email.split("@")[0];
-                } catch (Exception e) {
-                    Log.e("AuthActivity", "Error extracting username from email", e);
-                    displayName = "User";
-                }
-            }
-            
-            // Update user data with verified status
-            Log.d("AuthActivity", "Saving user to database: " + displayName);
-            saveUserToDatabase(user.getUid(), displayName, email, true);
-            
-            // Save login state
-            Log.d("AuthActivity", "Saving login state");
-            saveLoginState(email);
-            
-            // Initialize contacts before going to main activity
+            // Initialize contacts
             try {
                 Log.d("AuthActivity", "Initializing contacts");
                 ContactsManager contactsManager = ContactsManager.getInstance();
@@ -425,9 +401,20 @@ public class AuthActivity extends AppCompatActivity {
                 return;
             }
             
-            // Go to main activity
-            Log.d("AuthActivity", "Starting MainActivity");
-            startMainActivity();
+            // Check if categories exist for this user, if not create them
+            CategoryManager categoryManager = CategoryManager.getInstance(this);
+            categoryManager.checkUserCategoriesExist(user.getUid(), categoriesExist -> {
+                Log.d("AuthActivity", "Categories exist: " + categoriesExist);
+                if (!categoriesExist) {
+                    Log.d("AuthActivity", "Creating default categories for user: " + user.getUid());
+                    saveDefaultCategories(user.getUid());
+                }
+                
+                // Save login state and proceed to main activity
+                saveLoginState(email);
+                Log.d("AuthActivity", "Starting MainActivity");
+                startMainActivity();
+            });
             
         } catch (Exception e) {
             Log.e("AuthActivity", "Error in handleSuccessfulLogin", e);
@@ -449,6 +436,26 @@ public class AuthActivity extends AppCompatActivity {
             .show();
     }
 
+    /**
+     * Save default categories for a new user
+     * @param userId The ID of the user
+     */
+    private void saveDefaultCategories(String userId) {
+        CategoryManager categoryManager = CategoryManager.getInstance(AuthActivity.this);
+        categoryManager.saveDefaultCategoriesForNewUser(userId, new CategoryManager.CategoryUpdateListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("AuthActivity", "Default categories saved successfully");
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("AuthActivity", "Error saving default categories: " + error);
+                // This is not a critical error, so we don't block the user
+            }
+        });
+    }
+
     private void saveLoginState(String email) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
@@ -457,7 +464,7 @@ public class AuthActivity extends AppCompatActivity {
             
             // Save additional user preferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(SimpleMessengerApp.PREF_USER_NAME, 
+            editor.putString(SimpleMessengerApp.PREF_USER_NAME,
                     user.getDisplayName() != null ? user.getDisplayName() : email.split("@")[0]);
             editor.putBoolean(SimpleMessengerApp.PREF_REMEMBER_ME, checkRememberMe.isChecked());
             editor.apply();

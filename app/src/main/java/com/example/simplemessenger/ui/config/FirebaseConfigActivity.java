@@ -1,17 +1,16 @@
-package com.example.simplemessenger.ui.config;
+package com.example.SImpleMessenger.ui.config;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.util.FirebaseConfigManager;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.util.FirebaseConfigManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class FirebaseConfigActivity extends AppCompatActivity {
                     // If we successfully loaded from assets, save to SharedPreferences
                     configManager.saveToSharedPreferences();
                     isConfigured = true;
-                    Log.d("FirebaseConfigActivity", "Successfully loaded config from firebase.properties");
+                    Log.d("FirebaseConfigActivity", "Successfully loaded config from firebase.properties.new");
                 }
             } catch (Exception e) {
                 Log.e("FirebaseConfigActivity", "Error loading from assets: " + e.getMessage(), e);
@@ -53,7 +52,7 @@ public class FirebaseConfigActivity extends AppCompatActivity {
         // If configured (either from prefs or assets), go to MainActivity
         if (isConfigured) {
             Log.d("FirebaseConfigActivity", "Firebase is already configured, proceeding to MainActivity");
-            startActivity(new Intent(this, com.example.simplemessenger.ui.main.MainActivity.class));
+            startActivity(new Intent(this, com.example.SImpleMessenger.ui.main.MainActivity.class));
             finish();
             return;
         }

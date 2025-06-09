@@ -1,21 +1,22 @@
 {
   "project_info": {
-    "project_number": "126830894242",
-    "project_id": "simplemessenger-c0a47",
-    "storage_bucket": "simplemessenger-c0a47.firebasestorage.app"
+    "project_number": "305131800654",
+    "firebase_url": "https://forget-me-not-426c6-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "forget-me-not-426c6",
+    "storage_bucket": "forget-me-not-426c6.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:126830894242:android:d393abd1bd0d43ab774bfb",
+        "mobilesdk_app_id": "1:305131800654:android:8b6235e79b23f028b25b1f",
         "android_client_info": {
-          "package_name": "com.example.simplemessenger"
+          "package_name": "com.peason.forgetmenot"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDMd8pUeLmohV03JlHhGg4BC5bp9daXg1I"
+          "current_key": "AIzaSyBakj6BOlUUkSMGhDqRsIaLln9BZr04nuk"
         }
       ],
       "services": {

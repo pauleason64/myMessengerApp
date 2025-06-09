@@ -1,14 +1,13 @@
-package com.example.simplemessenger.ui.settings;
+package com.example.SImpleMessenger.ui.settings;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.example.simplemessenger.R;
+import com.example.SImpleMessenger.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

@@ -1,7 +1,6 @@
-package com.example.simplemessenger.ui.splash;
+package com.example.SImpleMessenger.ui.splash;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,11 +9,11 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.SimpleMessengerApp;
-import com.example.simplemessenger.ui.auth.AuthActivity;
-import com.example.simplemessenger.ui.main.MainActivity;
-import com.example.simplemessenger.utils.AuthUtils;
+import com.example.SImpleMessenger.SimpleMessengerApp;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.ui.auth.AuthActivity;
+import com.example.SImpleMessenger.ui.main.MainActivity;
+import com.example.SImpleMessenger.utils.AuthUtils;
 
 public class SplashActivity extends AppCompatActivity {
     private static final long SPLASH_DELAY = 1500; // 1.5 seconds
@@ -28,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
 
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences(
-                SimpleMessengerApp.SHARED_PREFS_NAME, 
+                SimpleMessengerApp.SHARED_PREFS_NAME,
                 Context.MODE_PRIVATE
         );
 

@@ -1,4 +1,4 @@
-package com.example.simplemessenger.util;
+package com.example.SImpleMessenger.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -70,7 +70,7 @@ public class FirebaseConfigManager {
     }
 
     public void loadFromAssets(Context context) throws Exception {
-        Log.d(TAG, "Attempting to load firebase.properties from assets");
+        Log.d(TAG, "Attempting to load firebase.properties.new from assets");
         AssetManager assetManager = context.getAssets();
         
         // First check if the file exists
@@ -78,23 +78,23 @@ public class FirebaseConfigManager {
             String[] files = assetManager.list("");
             boolean fileExists = false;
             for (String file : files) {
-                if (file.equals("firebase.properties")) {
+                if (file.equals("firebase.properties.new")) {
                     fileExists = true;
                     break;
                 }
             }
             
             if (!fileExists) {
-                throw new Exception("firebase.properties not found in assets");
+                throw new Exception("firebase.properties.new not found in assets");
             }
             
             // Now read the file
-            try (InputStream inputStream = assetManager.open("firebase.properties")) {
+            try (InputStream inputStream = assetManager.open("firebase.properties.new")) {
                 Properties properties = new Properties();
                 properties.load(inputStream);
                 
                 // Log all properties for debugging
-                Log.d(TAG, "Properties found in firebase.properties: " + properties.toString());
+                Log.d(TAG, "Properties found in firebase.properties.new: " + properties.toString());
                 
                 // Load all properties with firebase prefix
                 String dbUrl = properties.getProperty("firebase.database.url", "").trim();
@@ -125,12 +125,12 @@ public class FirebaseConfigManager {
                     Log.d(TAG, "Config map after loading: " + configMap.toString());
                     return; // Successfully loaded from assets
                 } else {
-                    throw new Exception("firebase.properties is missing required fields (database URL, storage bucket, or app ID)");
+                    throw new Exception("firebase.properties.new is missing required fields (database URL, storage bucket, or app ID)");
                 }
             }
         } catch (IOException e) {
-            Log.e(TAG, "Error reading firebase.properties", e);
-            throw new Exception("Failed to read firebase.properties from assets: " + e.getMessage(), e);
+            Log.e(TAG, "Error reading firebase.properties.new", e);
+            throw new Exception("Failed to read firebase.properties.new from assets: " + e.getMessage(), e);
         }
     }
 

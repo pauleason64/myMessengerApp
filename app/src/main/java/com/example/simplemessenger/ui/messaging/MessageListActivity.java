@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.messaging;
+package com.example.SImpleMessenger.ui.messaging;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.simplemessenger.ui.main.MainActivity;
+import com.example.SImpleMessenger.ui.main.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -21,17 +21,17 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.ContactsManager;
-import com.example.simplemessenger.data.DatabaseHelper;
-import com.example.simplemessenger.data.MessageLoader;
-import com.example.simplemessenger.data.model.Contact;
-import com.example.simplemessenger.data.model.Message;
-import com.example.simplemessenger.ui.auth.AuthActivity;
-import com.example.simplemessenger.ui.config.FirebaseConfigActivity;
-import com.example.simplemessenger.ui.contacts.ManageContactsActivity;
-import com.example.simplemessenger.ui.adapters.MessageAdapter;
-import com.example.simplemessenger.ui.settings.SettingsActivity;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.ContactsManager;
+import com.example.SImpleMessenger.data.DatabaseHelper;
+import com.example.SImpleMessenger.data.MessageLoader;
+import com.example.SImpleMessenger.data.model.Contact;
+import com.example.SImpleMessenger.data.model.Message;
+import com.example.SImpleMessenger.ui.auth.AuthActivity;
+import com.example.SImpleMessenger.ui.config.FirebaseConfigActivity;
+import com.example.SImpleMessenger.ui.contacts.ManageContactsActivity;
+import com.example.SImpleMessenger.ui.adapters.MessageAdapter;
+import com.example.SImpleMessenger.ui.settings.SettingsActivity;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -89,7 +89,7 @@ class MessagesPagerAdapter extends FragmentStateAdapter {
 
 public class MessageListActivity extends AppCompatActivity {
 
-    private com.example.simplemessenger.databinding.ActivityMessageListWithPagerBinding binding;
+    private com.example.SImpleMessenger.databinding.ActivityMessageListWithPagerBinding binding;
     private DatabaseHelper databaseHelper;
     private FirebaseAuth mAuth;
     private ActionMode actionMode;
@@ -142,7 +142,7 @@ public class MessageListActivity extends AppCompatActivity {
         }
         
         // Initialize the view binding
-        binding = com.example.simplemessenger.databinding.ActivityMessageListWithPagerBinding.inflate(getLayoutInflater());
+        binding = com.example.SImpleMessenger.databinding.ActivityMessageListWithPagerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         try {

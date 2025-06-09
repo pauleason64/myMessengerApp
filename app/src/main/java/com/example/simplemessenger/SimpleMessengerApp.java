@@ -1,9 +1,8 @@
-package com.example.simplemessenger;
+package com.example.SImpleMessenger;
 
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
@@ -11,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
-import com.example.simplemessenger.util.FirebaseFactory;
+import com.example.SImpleMessenger.util.FirebaseFactory;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.example.SImpleMessenger.util.CategoryManager;
 
 public class SimpleMessengerApp extends Application implements Configuration.Provider {
     
@@ -37,7 +37,17 @@ public class SimpleMessengerApp extends Application implements Configuration.Pro
     public void onCreate() {
         super.onCreate();
         
-        // Initialize Firebase
+        // Initialize Firebase first
+        initializeFirebase();
+        
+        // Then initialize CategoryManager
+        CategoryManager.getInstance(this);
+        
+        // Initialize WorkManager
+        WorkManager.initialize(this, getWorkManagerConfiguration());
+    }
+    
+    private void initializeFirebase() {
         try {
             Log.d("SimpleMessengerApp", "Starting Firebase initialization...");
             
@@ -57,66 +67,53 @@ public class SimpleMessengerApp extends Application implements Configuration.Pro
                 return;
             }
             
-            // 2. Initialize Firebase components with proper error handling
-            try {
-                // Initialize our custom Firebase configuration first
-                FirebaseFactory.initialize(this);
-                
-                // Set up database persistence
-                FirebaseDatabase database = FirebaseFactory.getDatabase();
-                database.setPersistenceEnabled(true);
-                Log.d("SimpleMessengerApp", "Firebase Database persistence enabled");
-                
-                // Configure Firebase Auth after database is set up
-                try {
-                    FirebaseAuth auth = FirebaseAuth.getInstance();
-                    FirebaseAuthSettings firebaseAuthSettings = auth.getFirebaseAuthSettings();
-                    
-                    // Disable app verification for testing (only for development!)
-                    firebaseAuthSettings.setAppVerificationDisabledForTesting(true);
-                    
-                    Log.d("SimpleMessengerApp", "Firebase Auth configured with app verification disabled");
-                } catch (Exception e) {
-                    Log.e("SimpleMessengerApp", "Error configuring Firebase Auth", e);
-                }
-                
-                // Verify database connection
-                database.getReference(".info/connected").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Boolean connected = snapshot.getValue(Boolean.class);
-                        if (connected != null && connected) {
-                            Log.d("SimpleMessengerApp", "Connected to Firebase Database");
-                        } else {
-                            Log.d("SimpleMessengerApp", "Not connected to Firebase Database");
-                        }
+            // 2. Initialize our custom Firebase configuration
+            FirebaseFactory.initialize(this);
+            
+            // 3. Set up database persistence
+            FirebaseDatabase database = FirebaseFactory.getDatabase();
+            database.setPersistenceEnabled(true);
+            Log.d("SimpleMessengerApp", "Firebase Database persistence enabled");
+            
+            // 4. Configure Firebase Auth
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseAuthSettings firebaseAuthSettings = auth.getFirebaseAuthSettings();
+            
+            // Disable app verification for testing (only for development!)
+            firebaseAuthSettings.setAppVerificationDisabledForTesting(true);
+            
+            Log.d("SimpleMessengerApp", "Firebase Auth configured with app verification disabled");
+            
+            // 5. Verify database connection
+            database.getReference(".info/connected").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Boolean connected = snapshot.getValue(Boolean.class);
+                    if (connected != null && connected) {
+                        Log.d("SimpleMessengerApp", "Connected to Firebase Database");
+                    } else {
+                        Log.d("SimpleMessengerApp", "Not connected to Firebase Database");
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("SimpleMessengerApp", "Firebase Database connection error", error.toException());
-                    }
-                });
-                
-            } catch (Exception e) {
-                Log.e("SimpleMessengerApp", "Error initializing Firebase components", e);
-                // Try to recover by initializing with default options
-                try {
-                    FirebaseApp.initializeApp(this, FirebaseOptions.fromResource(this));
-                    Log.e("SimpleMessengerApp", "Recovered Firebase initialization with default options");
-                } catch (Exception ex) {
-                    Log.e("SimpleMessengerApp", "Failed to recover Firebase initialization", ex);
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("SimpleMessengerApp", "Firebase Database connection error", error.toException());
                 }
-            }
+            });
+            
+            createNotificationChannel();
+            
         } catch (Exception e) {
-            Log.e("SimpleMessengerApp", "Unexpected error during Firebase initialization", e);
+            Log.e("SimpleMessengerApp", "Error initializing Firebase", e);
+            // Try to recover by initializing with default options
+            try {
+                FirebaseApp.initializeApp(this, FirebaseOptions.fromResource(this));
+                Log.e("SimpleMessengerApp", "Recovered Firebase initialization with default options");
+            } catch (Exception ex) {
+                Log.e("SimpleMessengerApp", "Failed to recover Firebase initialization", ex);
+            }
         }
-        
-        // Create notification channel
-        createNotificationChannel();
-        
-        // Initialize WorkManager
-        WorkManager.initialize(this, getWorkManagerConfiguration());
     }
     
     private void createNotificationChannel() {

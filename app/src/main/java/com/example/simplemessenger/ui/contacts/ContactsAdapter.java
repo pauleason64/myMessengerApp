@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.contacts;
+package com.example.SImpleMessenger.ui.contacts;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,8 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.model.User;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.model.User;
 
 import java.util.List;
 

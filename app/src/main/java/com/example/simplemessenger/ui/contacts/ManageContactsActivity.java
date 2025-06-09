@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.contacts;
+package com.example.SImpleMessenger.ui.contacts;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,14 +13,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.model.User;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.example.simplemessenger.util.FirebaseFactory;
+import com.example.SImpleMessenger.util.FirebaseFactory;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;

@@ -1,9 +1,9 @@
-package com.example.simplemessenger.util;
+package com.example.SImpleMessenger.util;
 
 import android.content.Context;
 import android.text.format.DateUtils;
 
-import com.example.simplemessenger.R;
+import com.example.SImpleMessenger.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

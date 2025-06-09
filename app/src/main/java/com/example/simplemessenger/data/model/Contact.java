@@ -1,4 +1,4 @@
-package com.example.simplemessenger.data.model;
+package com.example.SImpleMessenger.data.model;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;

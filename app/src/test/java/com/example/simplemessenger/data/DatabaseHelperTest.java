@@ -1,11 +1,10 @@
-package com.example.simplemessenger.data;
+package com.example.SImpleMessenger.data;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.example.simplemessenger.data.model.Message;
+import com.example.SImpleMessenger.data.model.Message;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,11 +22,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import org.mockito.quality.Strictness;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.junit.Rule;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class DatabaseHelperTest {

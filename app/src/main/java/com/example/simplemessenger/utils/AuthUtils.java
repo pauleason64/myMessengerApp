@@ -1,4 +1,4 @@
-package com.example.simplemessenger.utils;
+package com.example.SImpleMessenger.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.example.simplemessenger.SimpleMessengerApp;
+import com.example.SImpleMessenger.SimpleMessengerApp;
 
 public class AuthUtils {
     private static final String TAG = "AuthUtils";
@@ -24,7 +24,7 @@ public class AuthUtils {
             );
             
             boolean isLoggedIn = sharedPreferences.getBoolean(
-                    SimpleMessengerApp.PREF_USER_LOGGED_IN, 
+                    SimpleMessengerApp.PREF_USER_LOGGED_IN,
                     false
             );
             

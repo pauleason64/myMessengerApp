@@ -1,9 +1,6 @@
-package com.example.simplemessenger.data.model;
-
-import androidx.annotation.Nullable;
+package com.example.SImpleMessenger.data.model;
 
 import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
 
 import java.util.HashMap;

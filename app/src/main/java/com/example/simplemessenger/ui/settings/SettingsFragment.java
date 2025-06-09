@@ -1,4 +1,4 @@
-package com.example.simplemessenger.ui.settings;
+package com.example.SImpleMessenger.ui.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,9 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.databinding.FragmentSettingsBinding;
-import com.example.simplemessenger.ui.auth.AuthActivity;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.databinding.FragmentSettingsBinding;
+import com.example.SImpleMessenger.ui.auth.AuthActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 

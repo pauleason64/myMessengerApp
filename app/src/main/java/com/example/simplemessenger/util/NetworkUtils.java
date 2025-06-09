@@ -1,4 +1,4 @@
-package com.example.simplemessenger.util;
+package com.example.SImpleMessenger.util;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -7,7 +7,7 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 
-import com.example.simplemessenger.R;
+import com.example.SImpleMessenger.R;
 
 /**
  * Utility class for network-related operations.

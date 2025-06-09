@@ -1,13 +1,13 @@
-package com.example.simplemessenger.ui.messaging;
+package com.example.SImpleMessenger.ui.messaging;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-import com.example.simplemessenger.R;
-import com.example.simplemessenger.data.model.Message;
-import com.example.simplemessenger.databinding.ActivityMessageDetailBinding;
+import com.example.SImpleMessenger.R;
+import com.example.SImpleMessenger.data.model.Message;
+import com.example.SImpleMessenger.databinding.ActivityMessageDetailBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
